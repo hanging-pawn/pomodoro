@@ -54,13 +54,14 @@ const WRAP = `(() => {
   window.Notification = Probe;
 })()`;
 
+/** Closes only windows showing the test page; the user's other Safari windows stay open. */
 function closeTestWindows() {
   return osa(`tell application "Safari"
     set n to 0
     repeat with w in (every window)
       try
         set u to URL of current tab of w
-        if u starts with "${URL}" or u is missing value or u is "" or u is "about:blank" then
+        if u starts with "${URL}" then
           close w
           set n to n + 1
         end if

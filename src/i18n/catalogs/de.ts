@@ -6,6 +6,10 @@ export const de: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.wipe.sync':
+    'Der Sync mit {repo} wird auf diesem Gerät zuerst getrennt. Die Kopie in {repo} bleibt, bis du sie dort löschst.',
+  'data.wipedSync':
+    'Alle Daten auf diesem Gerät gelöscht. Der Sync ist getrennt; die Kopie in {repo} bleibt, bis du sie dort löschst.',
   'data.title': 'Deine Daten',
   'data.intro':
     'Alles bleibt in diesem Browser. Sichere eine Kopie, nimm sie auf ein anderes Gerät mit oder fang neu an.',

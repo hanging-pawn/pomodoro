@@ -6,6 +6,10 @@ export const it: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.wipe.sync':
+    'Prima la sincronizzazione con {repo} viene scollegata su questo dispositivo. La copia in {repo} resta finché non la elimini lì.',
+  'data.wipedSync':
+    'Tutti i dati eliminati su questo dispositivo. La sincronizzazione è scollegata; la copia in {repo} resta finché non la elimini lì.',
   'data.title': 'I tuoi dati',
   'data.intro':
     'Tutto resta in questo browser. Salva una copia, portala su un altro dispositivo o ricomincia da capo.',

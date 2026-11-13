@@ -131,17 +131,21 @@ if (rewardsRoot)
 const privacyRoot = document.getElementById('privacy');
 if (privacyRoot) mountPrivacyLink(privacyRoot, i18n);
 
-const dataRoot = document.getElementById('data');
-if (dataRoot) void store.then((s) => mountDataPanel(dataRoot, i18n, s));
-
 // Optional personal sync (NFR-10): no request until the user connects a repo.
+// One sync instance: the sync panel drives it, «delete all data» disconnects it (POMO-61).
+const syncReady = store.then((s) => createSync({ store: s }));
 const syncRoot = document.getElementById('sync');
 if (syncRoot)
-  void store.then((s) => {
-    const sync = createSync({ store: s });
+  void syncReady.then((sync) => {
     mountSyncPanel(syncRoot, i18n, sync);
     void sync.sync();
   });
+
+const dataRoot = document.getElementById('data');
+if (dataRoot)
+  void Promise.all([store, syncReady]).then(([s, sync]) =>
+    mountDataPanel(dataRoot, i18n, s, { sync }),
+  );
 
 const beta = document.getElementById('beta');
 if (beta) {

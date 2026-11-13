@@ -5,6 +5,10 @@ export const en = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.wipe.sync':
+    'Sync with {repo} is disconnected on this device first. The copy in {repo} stays until you delete it there.',
+  'data.wipedSync':
+    'All data deleted on this device. Sync is disconnected; the copy in {repo} stays until you delete it there.',
   'data.title': 'Your data',
   'data.intro':
     'Everything stays in this browser. Save a copy, move it to another device or start over.',

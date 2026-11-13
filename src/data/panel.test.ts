@@ -112,4 +112,36 @@ describe('mountDataPanel (NFR-03)', () => {
       'This file is not a pomo.pomo export. Nothing was changed.',
     );
   });
+  it('with sync connected: disconnects sync first, then deletes, and says the repo copy stays', async () => {
+    const { root, store } = await setup();
+    const calls: string[] = [];
+    const wipe = store.wipe.bind(store);
+    store.wipe = async () => {
+      calls.push('wipe');
+      await wipe();
+    };
+    const sync = {
+      state: 'on' as 'on' | 'off',
+      repo: 'me/focus-data',
+      disconnect() {
+        calls.push('disconnect');
+        this.state = 'off';
+      },
+    };
+    const synced = document.createElement('div');
+    document.body.append(synced);
+    mountDataPanel(synced, i18n(), store, { sync, download: () => {} });
+    q(synced, 'wipe')!.click();
+    await flush();
+    expect(document.querySelector('.ui-dialog')?.textContent).toContain(
+      'me/focus-data',
+    );
+    await answer('Delete all data');
+    expect(calls).toEqual(['disconnect', 'wipe']);
+    expect((await counts(store)).tasks).toBe(0);
+    expect(synced.querySelector('[role="status"]')?.textContent).toBe(
+      'All data deleted on this device. Sync is disconnected; the copy in me/focus-data stays until you delete it there.',
+    );
+    root.remove();
+  });
 });

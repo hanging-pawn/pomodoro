@@ -1,5 +1,6 @@
 import type { I18n, MessageKey } from '../i18n/i18n';
 import type { Store } from '../storage/store';
+import type { Sync } from '../sync/sync';
 import { DATA_CHANGED } from '../tasks/events';
 import { button } from '../ui/components/button';
 import { card } from '../ui/components/card';
@@ -15,6 +16,8 @@ export interface DataPanelDeps {
   /** Hands a file to the user; default: a Blob link click. */
   download?: (file: Download) => void;
   now?: () => number;
+  /** Personal sync; while connected, «delete all» disconnects it first so the next sync cannot bring the data back. */
+  sync?: Pick<Sync, 'state' | 'repo' | 'disconnect'>;
 }
 
 /** Saves a text file through a temporary object URL (the browser's download). */
@@ -26,6 +29,9 @@ function browserDownload({ name, type, text }: Download) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+const fill = (text: string, vars: Record<string, string>) =>
+  Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), text);
 
 const day = (t: number) => {
   const d = new Date(t);
@@ -47,11 +53,13 @@ export function mountDataPanel(
   const download = deps.download ?? browserDownload;
   const now = deps.now ?? Date.now;
   let message: MessageKey | undefined;
+  let vars: Record<string, string> = {};
   let busy = false;
 
   const run = async (work: () => Promise<MessageKey | undefined>) => {
     busy = true;
     render();
+    vars = {};
     try {
       message = await work();
     } catch {
@@ -62,8 +70,16 @@ export function mountDataPanel(
   };
 
   async function wipe() {
-    const body = document.createElement('p');
-    body.textContent = i18n.t('data.wipe.body');
+    const synced = deps.sync?.state === 'on' ? (deps.sync.repo ?? '') : null;
+    const body = document.createElement('div');
+    const text = document.createElement('p');
+    text.textContent = i18n.t('data.wipe.body');
+    body.append(text);
+    if (synced !== null) {
+      const note = document.createElement('p');
+      note.textContent = fill(i18n.t('data.wipe.sync'), { repo: synced });
+      body.append(note);
+    }
     const choice = await openDialog({
       title: i18n.t('data.wipe.title'),
       body,
@@ -74,9 +90,13 @@ export function mountDataPanel(
     });
     if (choice !== 'wipe') return;
     await run(async () => {
+      // Disconnect first: a sync running after the wipe would import every event again.
+      if (synced !== null) deps.sync!.disconnect();
       await store.wipe();
       document.dispatchEvent(new Event(DATA_CHANGED));
-      return 'data.wiped';
+      if (synced === null) return 'data.wiped';
+      vars = { repo: synced };
+      return 'data.wipedSync';
     });
   }
 
@@ -109,7 +129,7 @@ export function mountDataPanel(
 
     const status = document.createElement('p');
     status.setAttribute('role', 'status');
-    status.textContent = message ? i18n.t(message) : '';
+    status.textContent = message ? fill(i18n.t(message), vars) : '';
 
     const actions = document.createElement('div');
     actions.className = 'data__actions';
