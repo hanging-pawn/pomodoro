@@ -3,7 +3,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
-import { findTokens, openDataRepo, type TesterListEntry } from './testers';
+import { findTokens, openDataRepo, type ListedTester } from './testers';
 
 export const DEFAULT_REPO = 'hanging-pawn/pomodoro-beta-data';
 
@@ -79,18 +79,16 @@ export function run(argv: string[], ctx: Context): void {
   );
 }
 
-function printList(
-  testers: TesterListEntry[],
-  log: (line: string) => void,
-): void {
+function printList(testers: ListedTester[], log: (line: string) => void): void {
   const rows = [
-    ['ID', 'Name', 'E-Mail', 'Token-Ablauf', 'Status'],
+    ['ID', 'Name', 'E-Mail', 'Token-Ablauf', 'Status', 'Herkunft'],
     ...testers.map((t) => [
       t.testerId,
       t.name,
-      t.email,
-      t.tokenExpiry,
+      t.email || '—',
+      t.tokenExpiry || '—',
       t.status,
+      t.origin === 'app' || t.selfRegistered ? 'App' : 'Admin',
     ]),
   ];
   const widths = rows[0]!.map((_, i) =>

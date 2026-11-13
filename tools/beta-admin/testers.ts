@@ -34,7 +34,12 @@ export interface TesterListEntry {
   status: TesterStatus;
   createdAt: string;
   lockedAt?: string;
+  /** Account created by the tester in the app (POMO-85); no token expiry is known. */
+  selfRegistered?: boolean;
 }
+
+/** A tester as `list` shows it: from the admin list, or only from its account folder (POMO-87). */
+export type ListedTester = TesterListEntry & { origin: 'admin' | 'app' };
 
 export interface Account {
   testerId: string;
@@ -53,7 +58,8 @@ export interface DataRepo {
   /** Creates README, admin list and testers folder where missing; keeps existing files. */
   init(): void;
   add(tester: NewTester): Account;
-  list(): TesterListEntry[];
+  /** Admin list plus accounts created in the app (`testers/<id>/account.json` only). */
+  list(): ListedTester[];
   lock(id: string): TesterListEntry;
 }
 
@@ -89,10 +95,51 @@ export function openDataRepo(
       write(join(dir, 'testers/.gitkeep'), '');
   };
 
-  const list = (): TesterListEntry[] =>
+  const adminList = (): TesterListEntry[] =>
     existsSync(listPath)
       ? (JSON.parse(readFileSync(listPath, 'utf8')) as TesterListEntry[])
       : [];
+
+  const readAccount = (id: string): Account | null => {
+    try {
+      return JSON.parse(readFileSync(accountPath(id), 'utf8')) as Account;
+    } catch {
+      return null;
+    }
+  };
+
+  /** Testers that exist only as an account folder: created in the app (POMO-85). */
+  const appOnly = (known: Set<string>): TesterListEntry[] => {
+    const root = join(dir, 'testers');
+    if (!existsSync(root)) return [];
+    return readdirSync(root)
+      .filter((id) => ID.test(id) && !known.has(id))
+      .sort()
+      .flatMap((id) => {
+        const a = readAccount(id);
+        if (!a) return [];
+        return [
+          {
+            testerId: id,
+            name: a.name ?? '',
+            email: a.email ?? '',
+            tokenExpiry: '',
+            status: a.status ?? 'aktiv',
+            createdAt: a.createdAt ?? '',
+            ...(a.lockedAt ? { lockedAt: a.lockedAt } : {}),
+          },
+        ];
+      });
+  };
+
+  const list = (): ListedTester[] => {
+    const admin = adminList();
+    const known = new Set(admin.map((t) => t.testerId));
+    return [
+      ...admin.map((t) => ({ ...t, origin: 'admin' as const })),
+      ...appOnly(known).map((t) => ({ ...t, origin: 'app' as const })),
+    ];
+  };
 
   return {
     init,
@@ -100,7 +147,7 @@ export function openDataRepo(
     add(t) {
       validate(t);
       init();
-      const testers = list();
+      const testers = adminList();
       if (
         testers.some((x) => x.testerId === t.id) ||
         existsSync(accountPath(t.id))
@@ -132,9 +179,15 @@ export function openDataRepo(
       return account;
     },
     lock(id) {
-      const testers = list();
-      const entry = testers.find((x) => x.testerId === id);
-      if (!entry) throw new Error(`Tester ${id} unbekannt`);
+      const testers = adminList();
+      let entry = testers.find((x) => x.testerId === id);
+      if (!entry) {
+        // Self-registered: it joins the admin list so the lock is recorded there too.
+        const found = appOnly(new Set()).find((x) => x.testerId === id);
+        if (!found) throw new Error(`Tester ${id} unbekannt`);
+        entry = { ...found, selfRegistered: true };
+        testers.push(entry);
+      }
       const lockedAt = now().toISOString();
       Object.assign(entry, { status: 'gesperrt', lockedAt });
       writeJson(listPath, testers);

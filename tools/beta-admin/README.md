@@ -30,6 +30,10 @@ Without `--dir` the tool clones the data repo with `gh repo clone` into a tempor
 - `testers/<id>/account.json`: tester ID, name, e-mail, language, status, created at; `lastLogin`, `device`, `appVersion` stay `null` until the app fills them (FR-502).
 - `admin/testers.json`: one entry per tester with ID, name, e-mail, token expiry, status, created at.
 
+## Self-registered testers
+
+Testers can create their account in the app («New account», POMO-85). Such an account exists only as `testers/<id>/account.json` (with `selfRegistered: true`). `tester list` shows it with origin `App` and no token expiry; `tester lock` works for it too and adds it to `admin/testers.json`. The tester still needs a personal key from you (one per tester).
+
 `tester lock` sets the status `gesperrt` in both files and reminds you to revoke the tester's token on GitHub (Settings → Developer settings → Fine-grained tokens). Locking does not revoke the token by itself.
 
 ## Tokens

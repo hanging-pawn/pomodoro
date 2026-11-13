@@ -1,6 +1,12 @@
 // @vitest-environment node
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -102,6 +108,71 @@ describe('openDataRepo', () => {
     );
     expect(repo.list()[0]?.status).toBe('gesperrt');
     expect(() => repo.lock('nobody')).toThrow(/unbekannt/);
+  });
+});
+
+describe('self-registered testers (POMO-87)', () => {
+  const lea = {
+    testerId: 'lea',
+    name: 'Lea',
+    email: '',
+    lang: 'it',
+    status: 'aktiv',
+    createdAt: '2026-11-13T12:00:00.000Z',
+    lastLogin: '2026-11-13T12:00:00.000Z',
+    device: 'Safari / iPhone',
+    appVersion: '0.0.0',
+    selfRegistered: true,
+  };
+  const withLea = () => {
+    const dir = tmp();
+    const repo = openDataRepo(dir, () => NOW);
+    repo.add(anna);
+    const path = join(dir, 'testers/lea/account.json');
+    mkdirSync(join(dir, 'testers/lea'), { recursive: true });
+    writeFileSync(path, JSON.stringify(lea));
+    return { dir, repo, path };
+  };
+
+  it('list also shows accounts created in the app, marked as such', () => {
+    const { repo } = withLea();
+    expect(repo.list()).toEqual([
+      expect.objectContaining({ testerId: 'anna', origin: 'admin' }),
+      {
+        testerId: 'lea',
+        name: 'Lea',
+        email: '',
+        tokenExpiry: '',
+        status: 'aktiv',
+        createdAt: '2026-11-13T12:00:00.000Z',
+        origin: 'app',
+      },
+    ]);
+  });
+
+  it('lock works for a self-registered tester and adds it to the admin list', () => {
+    const { dir, repo, path } = withLea();
+    expect(repo.lock('lea').status).toBe('gesperrt');
+    expect(readJson(path).status).toBe('gesperrt');
+    expect(
+      readJson(join(dir, 'admin/testers.json')).map(
+        (t: { testerId: string }) => t.testerId,
+      ),
+    ).toEqual(['anna', 'lea']);
+    expect(repo.list().find((t) => t.testerId === 'lea')?.status).toBe(
+      'gesperrt',
+    );
+  });
+
+  it('cli list prints the origin column', () => {
+    const { dir } = withLea();
+    execFileSync('git', ['-C', dir, 'init', '-q']);
+    const lines: string[] = [];
+    run(['tester', 'list', '--dir', dir, '--no-push'], {
+      log: (l: string) => void lines.push(l),
+      now: () => NOW,
+    });
+    expect(lines.join('\n')).toMatch(/lea\s+Lea.*App/);
   });
 });
 
