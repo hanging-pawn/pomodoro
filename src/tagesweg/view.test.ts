@@ -92,9 +92,9 @@ describe('mountTagesweg', () => {
     await timer.refresh();
     await flush();
     const ring = root.querySelector('[data-role="ring"]');
-    expect(ring?.textContent).toContain('+10 coins');
-    expect(ring?.textContent).toContain('10 coins to the next reward');
-    expect(ring?.textContent).toContain('Balance: 10 coins');
+    expect(ring?.textContent).toContain('+10');
+    expect(ring?.textContent).toContain('10 to the next reward');
+    expect(ring?.textContent).toContain('Balance: 10');
   });
 
   it('ring moment shows +coins, balance and the day bar done of planned (FR-407)', async () => {
@@ -105,9 +105,9 @@ describe('mountTagesweg', () => {
     await timer.refresh();
     await flush();
     const ring = root.querySelector('[data-role="ring"]')!;
-    expect(ring.textContent).toContain('+10 coins');
+    expect(ring.textContent).toContain('+10');
     expect(ring.querySelector('[data-role="ring-balance"]')?.textContent).toBe(
-      'Balance: 10 coins',
+      'Balance: 10',
     );
     const bar = ring.querySelector('[role="progressbar"]')!;
     expect(bar.getAttribute('aria-valuenow')).toBe('1');
@@ -156,7 +156,7 @@ describe('mountTagesweg', () => {
     await timer.refresh();
     await flush();
     const ring = root.querySelector('[data-role="ring"]')!;
-    expect(ring.textContent).not.toContain('coins');
+    expect(ring.querySelector('.ui-coin')).toBeNull();
     expect(ring.querySelector('[data-role="ring-streak"]')).toBeNull();
     expect(ring.querySelector('[role="progressbar"]')).not.toBeNull();
   });

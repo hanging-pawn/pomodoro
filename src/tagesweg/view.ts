@@ -3,6 +3,7 @@ import type { InterruptionType } from '../domain/events';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import type { Shop } from '../rewards/shop';
 import { localizeReward } from '../rewards/templates';
+import { coinAmount, withCoins } from '../ui/components/coin';
 import { DATA_CHANGED, PICK_TASK } from '../tasks/events';
 import { formatClock } from '../timer/alerts';
 import type { Timer, PhaseEnd } from '../timer/controller';
@@ -51,6 +52,8 @@ export function mountTagesweg(
       (s, [k, v]) => s.replaceAll(`{${k}}`, String(v)),
       i18n.t(key as MessageKey),
     );
+  const coinText = (key: string, n: number) =>
+    withCoins(t(key), n, t('header.coins', { n }));
   let state: AppState | undefined;
   let ring = false;
   let digitsUntil = 0;
@@ -174,7 +177,7 @@ export function mountTagesweg(
     metas.className = 'tw-row__metas';
     const price = document.createElement('span');
     price.className = 'tw-row__meta';
-    price.textContent = t('tagesweg.coins', { n: row.price });
+    price.append(coinAmount(row.price, t('header.coins', { n: row.price })));
     metas.append(price);
     text.append(title, metas);
     li.append(text);
@@ -194,7 +197,7 @@ export function mountTagesweg(
     else {
       const go = document.createElement('span');
       go.className = 'tw-row__meta';
-      go.textContent = t('tagesweg.toGo', { n: row.toGo });
+      go.append(coinText('tagesweg.toGo', row.toGo));
       metas.append(go);
       if (row.etaAt !== undefined) {
         const eta = document.createElement('span');
@@ -339,12 +342,12 @@ export function mountTagesweg(
     el.className = 'ui-card ui-card--highlight tw-ring';
     el.dataset.role = 'ring';
     const gain = state?.settings.coinsPerPomodoro ?? 0;
-    const lines: [string, string][] = [];
+    const lines: [string, string | Node][] = [];
     if (state?.settings.gamification !== 'off') {
-      lines.push(['ring-gain', t('tagesweg.ring', { n: gain })]);
+      lines.push(['ring-gain', coinText('tagesweg.ring', gain)]);
       lines.push([
         'ring-balance',
-        t('tagesweg.ringBalance', { n: state?.coins ?? 0 }),
+        coinText('tagesweg.ringBalance', state?.coins ?? 0),
       ]);
       const next = w.rows.find((r) => r.kind === 'reward');
       if (next?.kind === 'reward')
@@ -352,7 +355,7 @@ export function mountTagesweg(
           'ring-next',
           next.reached
             ? t('tagesweg.ringReached')
-            : t('tagesweg.ringNext', { n: next.toGo }),
+            : coinText('tagesweg.ringNext', next.toGo),
         ]);
     } else lines.push(['ring-gain', t('tagesweg.ringDone')]);
     const day = state
@@ -373,7 +376,7 @@ export function mountTagesweg(
     for (const [role, text] of lines) {
       const p = document.createElement('p');
       p.dataset.role = role;
-      p.textContent = text;
+      p.append(text);
       el.append(p);
       if (role === 'ring-day')
         el.append(

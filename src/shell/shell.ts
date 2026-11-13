@@ -3,6 +3,7 @@ import type { I18n, MessageKey } from '../i18n/i18n';
 import { icon, type IconName } from '../ui/components/icons';
 import { button } from '../ui/components/button';
 import { iconButton } from '../ui/components/icon-button';
+import { coinAmount } from '../ui/components/coin';
 
 /** Screens of the app shell (docs/ui/screens.md, FR-610). */
 export const SCREENS = [
@@ -245,9 +246,13 @@ export function mountShell(
       parts.btn.title = t('info.open');
     }
     for (const s of NAV) navLabels.get(s)!.textContent = t(`screen.${s}`);
-    coinEl.textContent =
-      coins === undefined ? '' : t('header.coins', { n: coins });
-    coinEl.setAttribute('aria-label', t('tagesweg.coinsLabel'));
+    // Number and tomato (POMO-82); the accessible name says «30 coins».
+    coinEl.replaceChildren(
+      ...(coins === undefined
+        ? []
+        : [coinAmount(coins, t('header.coins', { n: coins }))]),
+    );
+    coinEl.title = t('tagesweg.coinsLabel');
   }
 
   function paint() {

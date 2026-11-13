@@ -96,7 +96,12 @@ describe('mountShell (FR-610)', () => {
       '[data-role="header-coins"]',
     )!;
     expect(coins.hidden).toBe(false);
-    expect(coins.textContent).toBe('30 coins');
+    // Number + tomato on screen, «30 coins» for screen readers (POMO-82).
+    expect(coins.textContent).toBe('30');
+    expect(
+      coins.querySelector('[role="img"]')?.getAttribute('aria-label'),
+    ).toBe('30 coins');
+    expect(coins.querySelector('svg.ui-coin__icon')).not.toBeNull();
     shell.setCoins(undefined);
     shell.setShop(false);
     expect(coins.hidden).toBe(true);

@@ -54,7 +54,10 @@ describe('UI concept (POMO-42)', () => {
     const texts = [
       // Wireframes are UI drafts; screens.md is documentation and may cite vault paths.
       ...files(WIRE).filter((f) => f.endsWith('.svg')),
-      ...files(join(ROOT, 'src/ui')).filter((f) => !f.endsWith('.test.ts')),
+      // coin.ts is the one allowed tomato: the in-app currency symbol (Gianluca, POMO-82).
+      ...files(join(ROOT, 'src/ui')).filter(
+        (f) => !f.endsWith('.test.ts') && !f.endsWith('components/coin.ts'),
+      ),
     ].map((f) => readFileSync(f, 'utf8'));
     texts.push(...Object.values(catalogs).flatMap((m) => Object.values(m)));
     for (const t of texts) {

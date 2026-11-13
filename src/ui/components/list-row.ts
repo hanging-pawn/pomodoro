@@ -1,8 +1,8 @@
 export interface ListRowOptions {
   /** Main text, already translated or user data. */
   title: string;
-  /** Secondary line, e.g. «2 of 3 rounds» or «about 10:50». */
-  meta?: string;
+  /** Secondary line, e.g. «2 of 3 rounds» or «about 10:50»; a node for rich content (coin amounts). */
+  meta?: string | Node;
   /** Right-hand content: a number, an icon button. */
   trailing?: Node;
   /** Makes the row selectable; the row then holds a full-width button. */
@@ -25,7 +25,8 @@ export function listRow(options: ListRowOptions): HTMLLIElement {
   if (options.meta) {
     const meta = document.createElement('span');
     meta.className = 'ui-row__meta';
-    meta.textContent = options.meta;
+    if (typeof options.meta === 'string') meta.textContent = options.meta;
+    else meta.append(options.meta);
     text.append(meta);
   }
 

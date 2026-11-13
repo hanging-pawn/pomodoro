@@ -240,3 +240,35 @@ textarea {
     min-height: 48px;
   }
 }
+
+/* Coin amount: number + red currency symbol from coin.ts (POMO-82). */
+.ui-coin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  vertical-align: -0.12em;
+}
+.ui-coin__icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+.ui-coin__body {
+  fill: #e5402f;
+}
+.ui-coin__shine {
+  fill: none;
+  stroke: #fff;
+  stroke-opacity: 0.6;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.ui-coin__leaf {
+  fill: #3f9a4c;
+  stroke: #3f9a4c;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}

@@ -6,6 +6,7 @@ import { card } from '../ui/components/card';
 import { openDialog } from '../ui/components/dialog';
 import { iconButton } from '../ui/components/icon-button';
 import { listRow } from '../ui/components/list-row';
+import { coinAmount, withCoins } from '../ui/components/coin';
 import { ShopError, type Shop } from './shop';
 import { localizeReward } from './templates';
 
@@ -28,6 +29,9 @@ export function mountRewards(
       (s, [k, v]) => s.replaceAll(`{${k}}`, String(v)),
       i18n.t(key as MessageKey),
     );
+  const coins = (n: number) => coinAmount(n, t('header.coins', { n }));
+  const coinText = (key: string, n: number) =>
+    withCoins(t(key), n, t('header.coins', { n }));
   let error = '';
   let addOpen = false;
   let draft = { title: '', price: '' };
@@ -113,6 +117,15 @@ export function mountRewards(
         }),
     });
 
+  /** «40 🍅 · 20 🍅 to go» (POMO-82). */
+  function priceMeta(price: number, toGo: number): Node {
+    const frag = document.createDocumentFragment();
+    frag.append(coins(price));
+    const sep = ' · ';
+    if (toGo > 0) frag.append(sep, coinText('tagesweg.toGo', toGo));
+    return frag;
+  }
+
   async function render() {
     const state = await deps.state();
     const level = state.settings.gamification;
@@ -124,7 +137,7 @@ export function mountRewards(
       const balance = document.createElement('p');
       balance.dataset.role = 'coins';
       balance.className = 'shop-balance';
-      balance.textContent = t('rewards.balance', { n: state.coins });
+      balance.append(coinText('rewards.balance', state.coins));
       children.push(balance);
 
       const list = document.createElement('ul');
@@ -146,12 +159,7 @@ export function mountRewards(
         list.append(
           listRow({
             title: localizeReward(reward.title, i18n.locale),
-            meta: [
-              t('rewards.coins', { n: reward.price }),
-              toGo > 0 ? t('tagesweg.toGo', { n: toGo }) : undefined,
-            ]
-              .filter(Boolean)
-              .join(' · '),
+            meta: priceMeta(reward.price, toGo),
             trailing: actions,
           }),
         );
@@ -218,7 +226,7 @@ export function mountRewards(
           log.append(
             listRow({
               title: localizeReward(r.title, i18n.locale),
-              meta: t('rewards.coins', { n: r.price }),
+              meta: coins(r.price),
             }),
           );
         const hist = document.createElement('details');
