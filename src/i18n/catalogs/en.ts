@@ -217,4 +217,14 @@ export const en = {
   'dayclose.second.label': '2nd estimate',
   'dayclose.second.save': 'Save 2nd estimate',
   'dayclose.second.value': '2nd estimate: {n}',
+  'week.title': 'Week',
+  'week.total': '{n} focus rounds this week',
+  'week.empty': 'No focus rounds this week yet.',
+  'week.col.day': 'Day',
+  'week.col.count': 'Rounds',
+  'week.col.project': 'Project',
+  'week.noProject': 'No project',
+  'week.fulfilment':
+    'Plan fulfilment: {percent} % ({done} of {planned} planned)',
+  'week.fulfilment.label': 'Plan fulfilment',
 };

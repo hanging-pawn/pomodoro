@@ -23,6 +23,7 @@ import { startTicker } from './timer/ticker';
 import { mountTimer } from './timer/view';
 import { mountTagesweg } from './tagesweg/view';
 import { mountDayClose } from './dayclose/view';
+import { mountWeek } from './week/view';
 import { createTheme } from './ui/theme';
 
 // Stored light/dark choice applies before the first render (FR-601).
@@ -70,6 +71,10 @@ if (dayCloseRoot)
       state: () => s.state(),
     }),
   );
+
+const weekRoot = document.getElementById('week');
+if (weekRoot)
+  void store.then((s) => mountWeek(weekRoot, i18n, { state: () => s.state() }));
 
 const rewardsRoot = document.getElementById('rewards');
 if (rewardsRoot)

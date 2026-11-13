@@ -222,4 +222,14 @@ export const it: Messages = {
   'dayclose.second.label': '2a stima',
   'dayclose.second.save': 'Salva 2a stima',
   'dayclose.second.value': '2a stima: {n}',
+  'week.title': 'Settimana',
+  'week.total': '{n} round di focus questa settimana',
+  'week.empty': 'Questa settimana ancora nessun round di focus.',
+  'week.col.day': 'Giorno',
+  'week.col.count': 'Round',
+  'week.col.project': 'Progetto',
+  'week.noProject': 'Senza progetto',
+  'week.fulfilment':
+    'Adempimento del piano: {percent} % ({done} di {planned} pianificati)',
+  'week.fulfilment.label': 'Adempimento del piano',
 };

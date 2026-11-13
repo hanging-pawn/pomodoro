@@ -220,4 +220,14 @@ export const de: Messages = {
   'dayclose.second.label': '2. Schätzung',
   'dayclose.second.save': '2. Schätzung speichern',
   'dayclose.second.value': '2. Schätzung: {n}',
+  'week.title': 'Woche',
+  'week.total': '{n} Fokusrunden diese Woche',
+  'week.empty': 'Diese Woche noch keine Fokusrunden.',
+  'week.col.day': 'Tag',
+  'week.col.count': 'Runden',
+  'week.col.project': 'Projekt',
+  'week.noProject': 'Ohne Projekt',
+  'week.fulfilment':
+    'Plan-Erfüllung: {percent} % ({done} von {planned} geplant)',
+  'week.fulfilment.label': 'Plan-Erfüllung',
 };
