@@ -120,6 +120,8 @@ export function mountTimer(
    */
   const onKey = (e: KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // A modal dialog (intro, park, abort) makes the rest of the page inert: no shortcut behind it.
+    if (root.closest('[inert]') || !root.isConnected) return;
     const el = e.target as HTMLElement | null;
     if (
       el &&

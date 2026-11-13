@@ -3,6 +3,7 @@ import { newEvent, type DomainEvent } from '../domain/events';
 import { createI18n } from '../i18n/i18n';
 import { createAlerts } from './alerts';
 import { createTimer } from './controller';
+import { openDialog } from '../ui/components/dialog';
 import { mountTimer } from './view';
 
 const MIN = 60_000;
@@ -155,6 +156,24 @@ describe('keyboard (NFR-06)', () => {
     await flush();
     expect(timer.view.phase).toBe('idle');
     input.remove();
+  });
+
+  it('Space does nothing while a dialog such as the intro is open (focus on the page body)', async () => {
+    const { timer } = await setup('strict');
+    const closed = openDialog({
+      title: 'Intro',
+      actions: [{ label: 'Skip', value: 'skip' }],
+    });
+    (document.activeElement as HTMLElement | null)?.blur();
+    const e = press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('idle');
+    expect(e.defaultPrevented).toBe(false);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await closed;
+    press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('focus');
   });
 
   it('N preselects the next open task, wrapping around, and ignores text fields', async () => {
