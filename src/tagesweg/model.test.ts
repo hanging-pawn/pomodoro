@@ -128,6 +128,34 @@ describe('deriveTagesweg', () => {
       expect(eta(w)).toBe(NOW + 2 * 30 * MIN);
     });
 
+    it('Abnahme case with one-round tasks: the row follows the 2nd open round', () => {
+      const w = deriveTagesweg(
+        deriveState([
+          newEvent('task.created', { taskId: 'a', title: 'A', estimate: 1 }, 1),
+          newEvent('task.created', { taskId: 'b', title: 'B', estimate: 1 }, 2),
+          newEvent('task.created', { taskId: 'c', title: 'C', estimate: 1 }, 3),
+          newEvent(
+            'plan.changed',
+            { day: dayKey(NOW), taskIds: ['a', 'b', 'c'] },
+            NOW,
+          ),
+          newEvent('coins.earned', { amount: 20, reason: 'set-bonus' }, 4),
+          newEvent(
+            'reward.saved',
+            { rewardId: 'k', title: 'Coffee', price: 40 },
+            5,
+          ),
+        ]),
+        idle,
+        NOW,
+      );
+      // Stand 20, Preis 40, je Runde +10 → after round 2 (task b), before task c
+      expect(
+        w.rows.map((r) => (r.kind === 'task' ? r.taskId : 'reward')),
+      ).toEqual(['a', 'b', 'reward', 'c']);
+      expect(eta(w)).toBe(NOW + 2 * 30 * MIN);
+    });
+
     it('keeps the time while the clock runs', () => {
       const later = deriveTagesweg(base(), idle, NOW + 17 * MIN);
       expect(eta(later)).toBe(NOW + 60 * MIN);
