@@ -1,5 +1,21 @@
 import { mountApp } from './app';
+import { mountBetaPanel } from './beta/panel';
+import { createBetaSession } from './beta/session';
+import { APP_VERSION } from './config';
 import { createI18n } from './i18n/i18n';
+import { openStore } from './storage/store';
 
+const i18n = createI18n();
 const root = document.getElementById('app');
-if (root) mountApp(root, createI18n());
+if (root) mountApp(root, i18n);
+
+const beta = document.getElementById('beta');
+if (beta) {
+  const store = openStore();
+  const session = createBetaSession({
+    events: async () => (await store).events(),
+    lang: () => i18n.locale,
+    appVersion: APP_VERSION,
+  });
+  mountBetaPanel(beta, i18n, session);
+}
