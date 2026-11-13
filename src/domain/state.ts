@@ -5,6 +5,7 @@ import {
   type EventPayloads,
   type InterruptionType,
   type Mode,
+  type Recurrence,
   type Settings,
 } from './events';
 
@@ -13,6 +14,10 @@ export interface Task {
   title: string;
   project?: string;
   estimate: number;
+  /** Local day `YYYY-MM-DD` (FR-208); empty or missing = none. */
+  due?: string;
+  /** Next instance on done (FR-207); empty or missing = does not repeat. */
+  recurrence?: Recurrence | '';
   /** Set on a subtask: id of its parent (one level only, FR-209). */
   parentId?: string;
   /** Parents only: subtasks done of total; `estimate` and `actual` are then the sums over the subtasks. */

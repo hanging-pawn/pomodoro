@@ -202,4 +202,13 @@ export const it: Messages = {
   'tagesweg.ringContinue': 'Continua',
   'tagesweg.parkSave': 'Parcheggia',
   'tagesweg.parkCancel': 'Annulla',
+  'tasks.add.due': 'Scadenza (facoltativa)',
+  'tasks.add.recurrence': 'Ripetizione',
+  'tasks.recurrence.none': 'Non si ripete',
+  'tasks.recurrence.daily': 'Ogni giorno',
+  'tasks.recurrence.weekdays': 'Giorni feriali',
+  'tasks.recurrence.weekly': 'Ogni settimana',
+  'tasks.overdue': 'scaduto',
+  'tasks.due': 'scadenza',
+  'tasks.error.invalid-due': 'Inserisci la scadenza come giorno valido.',
 };

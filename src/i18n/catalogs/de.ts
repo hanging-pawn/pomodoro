@@ -200,4 +200,13 @@ export const de: Messages = {
   'tagesweg.ringContinue': 'Weiter',
   'tagesweg.parkSave': 'Parken',
   'tagesweg.parkCancel': 'Abbrechen',
+  'tasks.add.due': 'Fälligkeit (optional)',
+  'tasks.add.recurrence': 'Wiederholung',
+  'tasks.recurrence.none': 'Keine Wiederholung',
+  'tasks.recurrence.daily': 'Täglich',
+  'tasks.recurrence.weekdays': 'Werktags',
+  'tasks.recurrence.weekly': 'Wöchentlich',
+  'tasks.overdue': 'überfällig',
+  'tasks.due': 'fällig',
+  'tasks.error.invalid-due': 'Gib die Fälligkeit als gültigen Tag ein.',
 };

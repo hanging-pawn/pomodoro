@@ -1,5 +1,6 @@
 import { newEvent, type DomainEvent } from '../domain/events';
 import { deriveState, type AppState, type Task } from '../domain/state';
+import { nextDue, type Recurrence } from './recurrence';
 
 /** From this estimate on the UI suggests splitting the task and asks for confirmation (FR-202). */
 export const SPLIT_HINT_FROM = 8;
@@ -10,7 +11,8 @@ export type InventoryErrorCode =
   | 'needs-confirmation'
   | 'invalid-budget'
   | 'unknown-task'
-  | 'nested-subtask';
+  | 'nested-subtask'
+  | 'invalid-due';
 
 export class InventoryError extends Error {
   constructor(readonly code: InventoryErrorCode) {
@@ -27,6 +29,9 @@ export interface TaskInput {
   title: string;
   project?: string;
   estimate: number;
+  /** `YYYY-MM-DD`; empty string clears (FR-208). */
+  due?: string;
+  recurrence?: Recurrence | '';
 }
 
 export interface Inventory {
@@ -134,6 +139,10 @@ export function createInventory(options: InventoryOptions): Inventory {
     if (estimate >= SPLIT_HINT_FROM && !confirmed)
       throw new InventoryError('needs-confirmation');
   };
+  const checkDue = (due?: string) => {
+    if (due && !/^\d{4}-\d{2}-\d{2}$/.test(due))
+      throw new InventoryError('invalid-due');
+  };
   const cleanTitle = (title: string) => {
     const t = title.trim();
     if (!t) throw new InventoryError('empty-title');
@@ -152,6 +161,7 @@ export function createInventory(options: InventoryOptions): Inventory {
     async create(input, opts) {
       const title = cleanTitle(input.title);
       checkEstimate(input.estimate, opts?.confirmed);
+      checkDue(input.due);
       const taskId = crypto.randomUUID();
       const project = input.project?.trim() || undefined;
       await log.append(
@@ -162,6 +172,8 @@ export function createInventory(options: InventoryOptions): Inventory {
             title,
             estimate: input.estimate,
             ...(project ? { project } : {}),
+            ...(input.due ? { due: input.due } : {}),
+            ...(input.recurrence ? { recurrence: input.recurrence } : {}),
           },
           now(),
         ),
@@ -265,6 +277,7 @@ export function createInventory(options: InventoryOptions): Inventory {
       if (changes.title !== undefined) next.title = cleanTitle(changes.title);
       if (changes.estimate !== undefined)
         checkEstimate(changes.estimate, opts?.confirmed);
+      checkDue(changes.due);
       if (changes.project !== undefined)
         next.project = changes.project.trim() || undefined;
       await log.append(
@@ -277,12 +290,28 @@ export function createInventory(options: InventoryOptions): Inventory {
     },
     async checkOff(id) {
       await known(id);
+      const task = (await state()).tasks[id]!;
+      const at = now();
+      const next =
+        !task.done && task.recurrence
+          ? newEvent(
+              'task.created',
+              {
+                taskId: `${id}:next`,
+                title: task.title,
+                estimate: task.estimate,
+                recurrence: task.recurrence,
+                due: nextDue(task.recurrence, task.due, dayKey(at)),
+                ...(task.project ? { project: task.project } : {}),
+              },
+              at + 1,
+            )
+          : undefined;
+      // Fixed event id: checking off twice (or on two devices) merges to one next instance.
+      if (next) next.id = `recur:${id}`;
       await log.append(
-        newEvent(
-          'task.changed',
-          { taskId: id, changes: { done: true } },
-          now(),
-        ),
+        newEvent('task.changed', { taskId: id, changes: { done: true } }, at),
+        ...(next ? [next] : []),
       );
     },
     async addToToday(id) {

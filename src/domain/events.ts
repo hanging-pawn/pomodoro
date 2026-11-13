@@ -33,10 +33,16 @@ export const DEFAULT_SETTINGS: Settings = {
   gamification: 'full',
 };
 
+export type Recurrence = 'daily' | 'weekdays' | 'weekly';
+
 export interface TaskFields {
   title: string;
   project?: string;
   estimate: number;
+  /** Local day `YYYY-MM-DD`; an empty string in `task.changed` clears it (FR-208). */
+  due?: string;
+  /** Next instance appears when the task is done (FR-207); an empty string in `task.changed` clears it. */
+  recurrence?: Recurrence | '';
 }
 
 export interface EventPayloads {

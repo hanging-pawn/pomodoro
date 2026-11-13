@@ -206,3 +206,42 @@ describe('subtasks and split offer (FR-209, FR-202)', () => {
     expect(root.querySelectorAll('[data-role="subtask"]')).toHaveLength(3);
   });
 });
+
+describe('due dates in the views (FR-208)', () => {
+  it('adds a task with due date and recurrence from the form', async () => {
+    const { root, type, submit, state } = await setup();
+    await type('title', 'Weekly review');
+    await type('due', '2026-11-16');
+    const rec = root.querySelector<HTMLSelectElement>(
+      'select[name="recurrence"]',
+    )!;
+    rec.value = 'weekly';
+    rec.dispatchEvent(new Event('change'));
+    await submit();
+    expect(Object.values(state().tasks)[0]).toMatchObject({
+      due: '2026-11-16',
+      recurrence: 'weekly',
+    });
+  });
+
+  it('marks a task due yesterday as overdue in the inventory and in Today', async () => {
+    const { root, type, submit, click } = await setup();
+    await type('title', 'Tax');
+    await type('due', '2026-11-12');
+    await submit();
+    const inventory = root.querySelector('[data-role="inventory-list"]')!;
+    expect(inventory.querySelector('[data-role="overdue"]')).not.toBeNull();
+    expect(inventory.textContent).toContain('overdue');
+    await click('add-today');
+    const today = root.querySelector('[data-role="today-list"]')!;
+    expect(today.querySelector('[data-role="overdue"]')).not.toBeNull();
+  });
+
+  it('a task due today is not overdue', async () => {
+    const { root, type, submit } = await setup();
+    await type('title', 'Call');
+    await type('due', '2026-11-13');
+    await submit();
+    expect(root.querySelector('[data-role="overdue"]')).toBeNull();
+  });
+});

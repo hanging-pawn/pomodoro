@@ -197,4 +197,13 @@ export const en = {
   'tagesweg.ringContinue': 'Continue',
   'tagesweg.parkSave': 'Park',
   'tagesweg.parkCancel': 'Cancel',
+  'tasks.add.due': 'Due date (optional)',
+  'tasks.add.recurrence': 'Repeats',
+  'tasks.recurrence.none': 'Does not repeat',
+  'tasks.recurrence.daily': 'Daily',
+  'tasks.recurrence.weekdays': 'Weekdays',
+  'tasks.recurrence.weekly': 'Weekly',
+  'tasks.overdue': 'overdue',
+  'tasks.due': 'due',
+  'tasks.error.invalid-due': 'Enter the due date as a valid day.',
 };

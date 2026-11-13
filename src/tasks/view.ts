@@ -7,6 +7,7 @@ import { listRow } from '../ui/components/list-row';
 import { progressBar } from '../ui/components/progress-bar';
 import {
   budgetStatus,
+  dayKey,
   InventoryError,
   parseLines,
   SPLIT_HINT_FROM,
@@ -16,6 +17,7 @@ import {
 } from './inventory';
 
 import { DATA_CHANGED } from './events';
+import { isOverdue, RECURRENCES, type Recurrence } from './recurrence';
 
 export interface TasksViewDeps {
   state(): Promise<AppState>;
@@ -36,10 +38,18 @@ export function mountTasks(
       i18n.t(key as MessageKey),
     );
   let error = '';
-  let draft: { title: string; project: string; estimate: string } = {
+  let draft: {
+    title: string;
+    project: string;
+    estimate: string;
+    due: string;
+    recurrence: string;
+  } = {
     title: '',
     project: '',
     estimate: '1',
+    due: '',
+    recurrence: '',
   };
   let focusTitle = false;
   let unplannedDraft = '';
@@ -175,6 +185,12 @@ export function mountTasks(
       String(task.estimate),
       'number',
     );
+    const due = field(t('tasks.add.due'), task.due ?? '', 'date');
+    const recLabel = document.createElement('label');
+    recLabel.textContent = t('tasks.add.recurrence');
+    const rec = recurrenceSelect(task.recurrence ?? '');
+    recLabel.append(rec);
+    form.append(recLabel);
     const choice = await openDialog({
       title: t('tasks.edit.title'),
       body: form,
@@ -189,7 +205,13 @@ export function mountTasks(
       withSplitConfirm(n, (opts) =>
         inventory.update(
           task.id,
-          { title: title.value, project: project.value, estimate: n },
+          {
+            title: title.value,
+            project: project.value,
+            estimate: n,
+            due: due.value,
+            recurrence: rec.value as Recurrence | '',
+          },
           opts,
         ),
       ),
@@ -198,6 +220,33 @@ export function mountTasks(
 
   const small = (label: string, action: string, onClick: () => void) =>
     button({ label, action, variant: 'quiet', onClick });
+
+  /** Due day and «overdue» marker under the row title (FR-208). */
+  const markDue = (li: HTMLElement, task: Task) => {
+    if (!task.due) return;
+    const meta = document.createElement('span');
+    meta.className = 'ui-row__meta';
+    const overdue = isOverdue(task.due, dayKey(now()));
+    meta.dataset.role = overdue ? 'overdue' : 'due';
+    meta.textContent = [
+      overdue ? t('tasks.overdue') : t('tasks.due'),
+      task.due,
+      task.recurrence ? t(`tasks.recurrence.${task.recurrence}`) : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    li.querySelector('.ui-row__text')?.append(meta);
+  };
+
+  const recurrenceSelect = (value: string) => {
+    const select = document.createElement('select');
+    select.name = 'recurrence';
+    select.append(new Option(t('tasks.recurrence.none'), ''));
+    for (const r of RECURRENCES)
+      select.append(new Option(t(`tasks.recurrence.${r}`), r));
+    select.value = value;
+    return select;
+  };
 
   async function render() {
     const state = await deps.state();
@@ -270,13 +319,13 @@ export function mountTasks(
           () => void run(() => inventory.removeFromToday(task.id)),
         ),
       );
-      todayList.append(
-        listRow({
-          title: task.title,
-          meta: t('tasks.rounds', { n: task.estimate }),
-          trailing: actions,
-        }),
-      );
+      const li = listRow({
+        title: task.title,
+        meta: t('tasks.rounds', { n: task.estimate }),
+        trailing: actions,
+      });
+      markDue(li, task);
+      todayList.append(li);
     });
     const todayChildren: Node[] = [summary, bar.element, budgetLabel];
     if (today.tasks.length) todayChildren.push(todayList);
@@ -380,6 +429,12 @@ export function mountTasks(
     });
     const projectIn = input(t('tasks.add.project'), 'project');
     const estIn = input(t('tasks.add.estimate'), 'estimate', 'number');
+    const dueIn = input(t('tasks.add.due'), 'due', 'date');
+    const recLabel = document.createElement('label');
+    recLabel.textContent = t('tasks.add.recurrence');
+    const recIn = recurrenceSelect(draft.recurrence);
+    recIn.addEventListener('change', () => (draft.recurrence = recIn.value));
+    recLabel.append(recIn);
     const hint = document.createElement('p');
     hint.setAttribute('role', 'status');
     hint.dataset.role = 'split-hint';
@@ -394,6 +449,8 @@ export function mountTasks(
       titleIn.l,
       projectIn.l,
       estIn.l,
+      dueIn.l,
+      recLabel,
       hint,
       err,
       button({
@@ -409,6 +466,8 @@ export function mountTasks(
         title: draft.title,
         project: draft.project,
         estimate: Number(draft.estimate),
+        due: draft.due,
+        recurrence: draft.recurrence as Recurrence | '',
       };
       void run(async () => {
         await withSplitConfirm(
@@ -416,7 +475,13 @@ export function mountTasks(
           (opts) => inventory.create(input, opts),
           (titles) => inventory.createSplit(input, titles),
         );
-        draft = { title: '', project: draft.project, estimate: '1' };
+        draft = {
+          title: '',
+          project: draft.project,
+          estimate: '1',
+          due: '',
+          recurrence: '',
+        };
         focusTitle = true;
       });
     });
@@ -490,6 +555,7 @@ export function mountTasks(
           .join(' · '),
         trailing: actions,
       });
+      markDue(li, task);
       if (sub) li.dataset.role = 'subtask';
       return li;
     };

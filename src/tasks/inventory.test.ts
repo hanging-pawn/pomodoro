@@ -239,3 +239,80 @@ describe('subtasks (FR-209)', () => {
     expect(subs.map((t) => t.estimate)).toEqual([3, 3, 2]);
   });
 });
+
+describe('due dates and recurrence (FR-207, FR-208)', () => {
+  const MON = Date.UTC(2026, 10, 9, 10, 0, 0); // Monday 2026-11-09, local-time safe at noon-ish
+
+  function at(clockStart: number) {
+    const events: DomainEvent[] = [];
+    let clock = clockStart;
+    const inv = createInventory({
+      log: {
+        events: async () => [...events],
+        append: async (...e) => void events.push(...e),
+      },
+      now: () => clock++,
+    });
+    return { inv, events, state: () => deriveState(events) };
+  }
+
+  it('stores an optional due date and clears it with an empty one', async () => {
+    const { inv, state } = at(MON);
+    const id = await inv.create({
+      title: 'Tax',
+      estimate: 1,
+      due: '2026-11-12',
+    });
+    expect(state().tasks[id]?.due).toBe('2026-11-12');
+    await inv.update(id, { due: '' });
+    expect(state().tasks[id]?.due).toBeFalsy();
+  });
+
+  it('rejects a malformed due date', async () => {
+    const { inv } = at(MON);
+    expect(
+      await errorOf(inv.create({ title: 'x', estimate: 1, due: '12.11.2026' })),
+    ).toBe('invalid-due');
+  });
+
+  it('weekly Monday task done → new instance due next Monday', async () => {
+    const { inv, state } = at(MON);
+    const id = await inv.create({
+      title: 'Weekly review',
+      estimate: 2,
+      due: '2026-11-09',
+      recurrence: 'weekly',
+    });
+    await inv.checkOff(id);
+    const tasks = Object.values(state().tasks);
+    const next = tasks.find((x) => x.id !== id);
+    expect(state().tasks[id]?.done).toBe(true);
+    expect(next).toMatchObject({
+      title: 'Weekly review',
+      estimate: 2,
+      due: '2026-11-16',
+      recurrence: 'weekly',
+      done: false,
+    });
+  });
+
+  it('a second check-off of the same task does not spawn a second instance', async () => {
+    const { inv, state } = at(MON);
+    const id = await inv.create({
+      title: 'Daily',
+      estimate: 1,
+      due: '2026-11-09',
+      recurrence: 'daily',
+    });
+    await inv.checkOff(id);
+    await inv.checkOff(id);
+    expect(Object.keys(state().tasks)).toHaveLength(2);
+  });
+
+  it('a task without recurrence spawns nothing', async () => {
+    const { inv, state } = at(MON);
+    const id = await inv.create({ title: 'Once', estimate: 1 });
+    await inv.checkOff(id);
+    expect(Object.keys(state().tasks)).toHaveLength(1);
+  });
+});
