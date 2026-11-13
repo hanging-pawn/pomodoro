@@ -74,6 +74,10 @@ flowchart TD
   «subtle» shows coins and shop; «full» adds streak and random bonus.
 - **Dialogs** (park, plan today, abort confirmation, edit task) use `openDialog`: focus moves in, Tab
   stays inside, Escape closes, focus returns to the opener.
+- **Screen explanations** (POMO-81): every screen title has an info button; a 2–3 sentence explanation
+  opens on the first visit, «Got it» closes it for good, the button reopens it. Hidden during a round.
+- **Break** (POMO-81, pause-360): the next-round card shows a break bar and «n min left», ticking in place.
+- **Template rewards** (POMO-81): shown in the current UI language until the user renames them.
 - **Short confirmations** («Thought parked», «Task deleted · Undo») use the toaster (polite live region).
 
 ## Wireframes
