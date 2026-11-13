@@ -1,0 +1,20 @@
+.tasks__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}
+.today__summary {
+  margin: 0 0 var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+.card form label,
+.ui-card > label {
+  display: block;
+  margin-bottom: var(--space-3);
+}
+.ui-card input {
+  display: block;
+  min-height: var(--touch-target);
+  margin-top: var(--space-1);
+}

@@ -6,6 +6,7 @@ import { card } from '../ui/components/card';
 import { openDialog } from '../ui/components/dialog';
 import { progressBar } from '../ui/components/progress-bar';
 import { createAlerts, formatClock, tabTitle, type Alerts } from './alerts';
+import { DATA_CHANGED } from '../tasks/events';
 import type { Timer } from './controller';
 import type { TimerView } from './cycle';
 
@@ -172,6 +173,16 @@ export function mountTimer(
       );
     paint(view);
   });
+  const onData = () =>
+    void deps
+      .tasks()
+      .then((list) => {
+        tasks = list;
+        structureKey = '';
+        paint(timer.view);
+      })
+      .catch(() => {});
+  document.addEventListener(DATA_CHANGED, onData);
   const offLocale = i18n.onChange(() => {
     structureKey = '';
     paint(timer.view);
@@ -185,5 +196,6 @@ export function mountTimer(
   return () => {
     offChange();
     offLocale();
+    document.removeEventListener(DATA_CHANGED, onData);
   };
 }

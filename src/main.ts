@@ -1,6 +1,7 @@
 import './ui/tokens.css';
 import './ui/components/components.css';
 import './timer/timer.css';
+import './tasks/tasks.css';
 import { mountApp } from './app';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
@@ -11,6 +12,8 @@ import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
+import { createInventory } from './tasks/inventory';
+import { mountTasks } from './tasks/view';
 import { createTimer } from './timer/controller';
 import { startTicker } from './timer/ticker';
 import { mountTimer } from './timer/view';
@@ -39,6 +42,14 @@ if (timerRoot)
     startTicker(() => void timer.refresh());
     document.addEventListener('visibilitychange', () => void timer.refresh());
   });
+
+const tasksRoot = document.getElementById('tasks');
+if (tasksRoot)
+  void store.then((s) =>
+    mountTasks(tasksRoot, i18n, createInventory({ log: s }), {
+      state: () => s.state(),
+    }),
+  );
 
 // Optional personal sync (NFR-10): no request until the user connects a repo.
 const syncRoot = document.getElementById('sync');

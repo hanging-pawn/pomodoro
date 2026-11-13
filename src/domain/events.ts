@@ -14,6 +14,8 @@ export interface Settings {
   mode: Mode;
   coinsPerPomodoro: number;
   setBonus: number;
+  /** Pomodoro budget per day for the Today plan (FR-203). */
+  dailyBudget: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,6 +26,7 @@ export const DEFAULT_SETTINGS: Settings = {
   mode: 'strict',
   coinsPerPomodoro: 10,
   setBonus: 10,
+  dailyBudget: 8,
 };
 
 export interface TaskFields {
@@ -39,6 +42,8 @@ export interface EventPayloads {
     changes: Partial<TaskFields> & { done?: boolean };
   };
   'task.deleted': { taskId: string };
+  /** The ordered Today plan of one local day (`YYYY-MM-DD`); the latest event for a day wins. */
+  'plan.changed': { day: string; taskIds: string[] };
   'pomodoro.started': {
     pomodoroId: string;
     taskId: string;
@@ -87,6 +92,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'task.created',
   'task.changed',
   'task.deleted',
+  'plan.changed',
   'pomodoro.started',
   'pomodoro.completed',
   'pomodoro.paused',

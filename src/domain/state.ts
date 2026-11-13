@@ -20,6 +20,8 @@ export interface Task {
 export interface AppState {
   tasks: Record<string, Task>;
   pomodoros: { completed: number; aborted: number };
+  /** Ordered task ids per local day, as last planned (may hold done or deleted tasks). */
+  plans: Record<string, string[]>;
   coins: number;
   redemptions: (EventPayloads['reward.redeemed'] & { at: number })[];
   settings: Settings;
@@ -35,6 +37,7 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
   const state: AppState = {
     tasks: {},
     pomodoros: { completed: 0, aborted: 0 },
+    plans: {},
     coins: 0,
     redemptions: [],
     settings: { ...DEFAULT_SETTINGS },
@@ -61,6 +64,9 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
       }
       case 'task.deleted':
         delete state.tasks[e.payload.taskId];
+        break;
+      case 'plan.changed':
+        state.plans[e.payload.day] = [...e.payload.taskIds];
         break;
       case 'pomodoro.started':
         pomodoroTask.set(e.payload.pomodoroId, e.payload.taskId);
