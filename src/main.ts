@@ -28,12 +28,13 @@ import { createTheme } from './ui/theme';
 import { DATA_CHANGED } from './tasks/events';
 
 // Stored light/dark choice applies before the first render (FR-601).
-createTheme();
+const theme = createTheme();
 const i18n = createI18n();
 const store = openStore();
 const root = document.getElementById('app');
 if (root)
   mountApp(root, i18n, {
+    theme,
     digitsAlways: {
       get: async () => !!(await (await store).state()).settings.digitsAlways,
       set: async (digitsAlways) => {

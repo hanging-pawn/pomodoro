@@ -1,7 +1,10 @@
 import { APP_NAME } from './config';
 import { LOCALES, type I18n, type Locale } from './i18n/i18n';
+import type { Theme, ThemeChoice } from './ui/theme';
 
 export interface AppOptions {
+  /** Light/dark switch (FR-601); omitted = no control. */
+  theme?: Theme;
   /** Setting «digits always» (FR-606); omitted = no control. */
   digitsAlways?: {
     get(): Promise<boolean>;
@@ -9,8 +12,10 @@ export interface AppOptions {
   };
 }
 
+const THEMES: readonly ThemeChoice[] = ['system', 'light', 'dark'];
+
 /**
- * Mounts the start page with the device settings (language, digits); re-renders
+ * Mounts the start page with the device settings (language, appearance, digits); re-renders
  * in place when the language changes. Returns an unmount function.
  */
 export function mountApp(
@@ -48,7 +53,21 @@ export function mountApp(
 
     main.append(h1, tagline, label, select);
 
-    const { digitsAlways } = options;
+    const { theme, digitsAlways } = options;
+    if (theme) {
+      const themeLabel = document.createElement('label');
+      themeLabel.htmlFor = 'theme';
+      themeLabel.textContent = t('theme.label');
+      const themeSelect = document.createElement('select');
+      themeSelect.id = 'theme';
+      for (const c of THEMES)
+        themeSelect.append(new Option(t(`theme.${c}`), c));
+      themeSelect.value = theme.choice;
+      themeSelect.addEventListener('change', () =>
+        theme.set(themeSelect.value as ThemeChoice),
+      );
+      main.append(themeLabel, themeSelect);
+    }
     if (digitsAlways) {
       const box = document.createElement('input');
       box.type = 'checkbox';

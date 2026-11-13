@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mountApp } from './app';
 import { APP_NAME } from './config';
 import { createI18n } from './i18n/i18n';
+import { createTheme } from './ui/theme';
 
 const noStorage = undefined as unknown as Storage;
 const i18nFor = (lang: string) =>
@@ -43,6 +44,34 @@ describe('mountApp', () => {
     expect(root.querySelector('select')?.value).toBe('en');
     expect(document.documentElement.lang).toBe('en');
   });
+  it('switches light and dark without reload from a visible control (FR-601)', () => {
+    localStorage.clear(); // an earlier test stored «en» as the language choice
+    const html = document.createElement('div');
+    const store = new Map<string, string>();
+    const theme = createTheme(html, {
+      getItem: (k) => store.get(k) ?? null,
+      setItem: (k, v) => void store.set(k, v),
+    });
+    const root = document.createElement('div');
+    mountApp(root, i18nFor('de'), { theme });
+    const select = root.querySelector<HTMLSelectElement>('select#theme')!;
+    expect(root.querySelector('label[for="theme"]')?.textContent).toBe(
+      'Darstellung',
+    );
+    expect([...select.options].map((o) => o.value)).toEqual([
+      'system',
+      'light',
+      'dark',
+    ]);
+    select.value = 'dark';
+    select.dispatchEvent(new Event('change'));
+    expect(html.dataset.theme).toBe('dark');
+    expect(store.get('pomo-pomo.theme')).toBe('dark');
+    select.value = 'system';
+    select.dispatchEvent(new Event('change'));
+    expect(html.dataset.theme).toBeUndefined();
+  });
+
   it('offers the setting digits always (FR-606)', async () => {
     let value = false;
     const root = document.createElement('div');
