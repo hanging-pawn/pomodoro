@@ -207,3 +207,20 @@
   font-weight: var(--font-weight-bold);
   text-decoration: underline;
 }
+
+/* NFR-05: form controls never push the page wider than the viewport (long option texts). */
+select,
+input,
+textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* NFR-05: every control is at least 44 x 44 px, also in the older panels. */
+button,
+select,
+input:not([type='checkbox']):not([type='radio']),
+textarea {
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+}
