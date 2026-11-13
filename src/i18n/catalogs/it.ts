@@ -6,6 +6,7 @@ export const it: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'settings.digitsAlways': 'Mostra sempre le cifre',
   'tagesweg.eta': 'verso le {time}',
   'beta.title': 'Beta',
   'beta.intro':

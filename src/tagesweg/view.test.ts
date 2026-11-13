@@ -181,4 +181,13 @@ describe('mountTagesweg', () => {
       `about ${time}`,
     );
   });
+
+  it('shows digits all the time with the setting digits always (FR-606)', async () => {
+    const { root } = await setup([
+      newEvent('settings.changed', { changes: { digitsAlways: true } }, 4),
+    ]);
+    q(root, 'start')!.click();
+    await flush();
+    expect(q(root, 'digits')?.textContent).toMatch(/^\d\d:\d\d$/);
+  });
 });

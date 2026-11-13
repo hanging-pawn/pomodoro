@@ -25,14 +25,25 @@ import { mountTagesweg } from './tagesweg/view';
 import { mountDayClose } from './dayclose/view';
 import { mountWeek } from './week/view';
 import { createTheme } from './ui/theme';
+import { DATA_CHANGED } from './tasks/events';
 
 // Stored light/dark choice applies before the first render (FR-601).
 createTheme();
 const i18n = createI18n();
-const root = document.getElementById('app');
-if (root) mountApp(root, i18n);
-
 const store = openStore();
+const root = document.getElementById('app');
+if (root)
+  mountApp(root, i18n, {
+    digitsAlways: {
+      get: async () => !!(await (await store).state()).settings.digitsAlways,
+      set: async (digitsAlways) => {
+        await (
+          await store
+        ).append(newEvent('settings.changed', { changes: { digitsAlways } }));
+        document.dispatchEvent(new Event(DATA_CHANGED));
+      },
+    },
+  });
 
 const timerRoot = document.getElementById('timer');
 const tageswegRoot = document.getElementById('tagesweg');
@@ -48,6 +59,7 @@ if (timerRoot || tageswegRoot)
         tasks: async () =>
           Object.values((await s.state()).tasks).filter((x) => !x.done),
         getMode: async () => (await s.state()).settings.mode,
+        digitsAlways: async () => !!(await s.state()).settings.digitsAlways,
         setMode: (mode) =>
           s.append(newEvent('settings.changed', { changes: { mode } })),
       });

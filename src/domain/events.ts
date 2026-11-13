@@ -25,6 +25,8 @@ export interface Settings {
   streakGraceDays: number;
   /** The streak can be turned off on its own (FR-404). */
   streakEnabled: boolean;
+  /** Remaining time as digits all the time instead of on tap only (FR-606). */
+  digitsAlways: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyGoal: 4,
   streakGraceDays: 1,
   streakEnabled: true,
+  digitsAlways: false,
 };
 
 export type Recurrence = 'daily' | 'weekdays' | 'weekly';

@@ -43,4 +43,24 @@ describe('mountApp', () => {
     expect(root.querySelector('select')?.value).toBe('en');
     expect(document.documentElement.lang).toBe('en');
   });
+  it('offers the setting digits always (FR-606)', async () => {
+    let value = false;
+    const root = document.createElement('div');
+    mountApp(root, i18nFor('en'), {
+      digitsAlways: {
+        get: async () => value,
+        set: async (v) => void (value = v),
+      },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    const box = root.querySelector<HTMLInputElement>('input#digits-always')!;
+    expect(root.querySelector('label[for="digits-always"]')?.textContent).toBe(
+      'Always show digits',
+    );
+    expect(box.checked).toBe(false);
+    box.checked = true;
+    box.dispatchEvent(new Event('change'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(value).toBe(true);
+  });
 });

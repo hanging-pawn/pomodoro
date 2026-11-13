@@ -5,6 +5,7 @@ export const en = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'settings.digitsAlways': 'Always show digits',
   'tagesweg.eta': 'about {time}',
   'beta.title': 'Beta',
   'beta.intro':

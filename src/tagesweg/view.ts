@@ -285,7 +285,7 @@ export function mountTagesweg(
       piece.element.classList.add('tw-piece');
       const controls = document.createElement('div');
       controls.className = 'tw-controls';
-      const showing = Date.now() < digitsUntil;
+      const showing = !!state.settings.digitsAlways || Date.now() < digitsUntil;
       controls.append(
         button({
           label: showing

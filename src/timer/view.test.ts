@@ -9,7 +9,7 @@ const MIN = 60_000;
 const T0 = Date.UTC(2026, 10, 13, 9, 0, 0);
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
-async function setup(mode: 'strict' | 'flexible') {
+async function setup(mode: 'strict' | 'flexible', digitsAlways = false) {
   const events: DomainEvent[] = [];
   if (mode === 'flexible')
     events.push(newEvent('settings.changed', { changes: { mode } }, T0 - 1));
@@ -36,6 +36,7 @@ async function setup(mode: 'strict' | 'flexible') {
         newEvent('settings.changed', { changes: { mode: m } }, now),
       ),
     alerts: createAlerts({ playSound: () => sounds.push(1) }),
+    digitsAlways: async () => digitsAlways,
   });
   await flush();
   return { root, timer, events, sounds, at: (t: number) => (now = t) };
@@ -104,5 +105,19 @@ describe('park key (FR-205)', () => {
       text: 'Call dentist',
       kind: 'internal',
     });
+  });
+  it('shows no digits on the screen by default, only with digits always (FR-606)', async () => {
+    const plain = await setup('strict');
+    action(plain.root, 'start')!.click();
+    await flush();
+    expect(plain.root.textContent).not.toMatch(/\d\d:\d\d/);
+    expect(document.title).toMatch(/^25:00/);
+
+    const always = await setup('strict', true);
+    action(always.root, 'start')!.click();
+    await flush();
+    expect(always.root.querySelector('[role="timer"]')?.textContent).toBe(
+      '25:00',
+    );
   });
 });

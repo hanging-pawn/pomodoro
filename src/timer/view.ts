@@ -16,6 +16,8 @@ export interface TimerViewDeps {
   getMode(): Promise<Mode>;
   setMode(mode: Mode): Promise<void>;
   alerts?: Alerts;
+  /** Setting «digits always» (FR-606): without it the panel shows no digits, only the bar and tab title. */
+  digitsAlways?: () => Promise<boolean>;
 }
 
 /**
@@ -35,6 +37,7 @@ export function mountTimer(
   let taskId = '';
   let structureKey = '';
   let clock: HTMLElement | undefined;
+  let digits = false;
   let bar: ReturnType<typeof progressBar> | undefined;
 
   const taskTitle = (id?: string) =>
@@ -116,6 +119,7 @@ export function mountTimer(
     clock = document.createElement('p');
     clock.className = 'timer__clock';
     clock.setAttribute('role', 'timer');
+    clock.hidden = !digits;
     bar = progressBar({
       label: t('timer.progress'),
       value: 0,
@@ -209,7 +213,7 @@ export function mountTimer(
       structureKey = key;
       build(view);
     }
-    if (clock) clock.textContent = formatClock(view.remainingMs);
+    if (clock) clock.textContent = digits ? formatClock(view.remainingMs) : '';
     bar?.set(view.totalMs - view.remainingMs, Math.max(1, view.totalMs));
     document.title = tabTitle(view, taskTitle(view.taskId), APP_NAME);
     document.documentElement.dataset.timerPhase = view.phase;
@@ -223,11 +227,12 @@ export function mountTimer(
       );
     paint(view);
   });
+  const readDigits = async () => (await deps.digitsAlways?.()) ?? false;
   const onData = () =>
-    void deps
-      .tasks()
-      .then((list) => {
+    void Promise.all([deps.tasks(), readDigits()])
+      .then(([list, d]) => {
         tasks = list;
+        digits = d;
         structureKey = '';
         paint(timer.view);
       })
@@ -239,7 +244,11 @@ export function mountTimer(
   });
 
   void (async () => {
-    [tasks, mode] = await Promise.all([deps.tasks(), deps.getMode()]);
+    [tasks, mode, digits] = await Promise.all([
+      deps.tasks(),
+      deps.getMode(),
+      readDigits(),
+    ]);
     await timer.refresh();
   })().catch(() => {});
 
