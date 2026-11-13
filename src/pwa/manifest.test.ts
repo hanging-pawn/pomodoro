@@ -27,6 +27,23 @@ describe('web app manifest (NFR-04)', () => {
       expect(existsSync(`public/${icon.src}`)).toBe(true);
   });
 
+  it('index.html links the iOS home-screen icon and the favicon that exist (POMO-83)', () => {
+    const html = readFileSync('index.html', 'utf8');
+    for (const href of [
+      'icons/apple-touch-icon.png',
+      'icons/favicon.svg',
+      'icons/favicon-32.png',
+    ]) {
+      expect(html).toContain(`./${href}`);
+      expect(existsSync(`public/${href}`)).toBe(true);
+    }
+  });
+
+  it('icon sources carry no tomato (POMO-33)', () => {
+    const svg = readFileSync('docs/brand/icon.svg', 'utf8');
+    expect(svg).not.toMatch(/#e5402f|ui-coin/i); // the coin colour stays out of the app icon
+  });
+
   it('never says Pomodoro (trademark rule)', () => {
     expect(JSON.stringify(manifest)).not.toMatch(/pomodoro/i);
   });

@@ -23,6 +23,9 @@ function pwa(): Plugin {
         'icons/icon-192.png',
         'icons/icon-512.png',
         'icons/maskable-512.png',
+        'icons/apple-touch-icon.png',
+        'icons/favicon.svg',
+        'icons/favicon-32.png',
       ];
       const version = createHash('sha256')
         .update(files.join('|'))
