@@ -108,6 +108,8 @@ export interface EventPayloads {
   /** Marks that the localized template rewards were written once, so deleting them sticks. */
   'rewards.seeded': { locale: string };
   'reward.redeemed': { rewardId: string; title: string; price: number };
+  /** A random bonus was drawn from the user's own list after a full set (FR-406); the projection ignores it. */
+  'bonus.drawn': { title: string };
   'settings.changed': { changes: Partial<Settings> };
   /** Usage events, recorded only in beta mode (FR-505); the projection ignores them. */
   'usage.view-opened': { view: string };
@@ -147,6 +149,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'reward.deleted',
   'rewards.seeded',
   'reward.redeemed',
+  'bonus.drawn',
   'settings.changed',
   'usage.view-opened',
   'usage.feature-used',
