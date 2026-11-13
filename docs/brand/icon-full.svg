@@ -1,23 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <!-- pomo.pomo app icon (POMO-83): the day path, rounds as stations on the way to the goal.
        No tomato, no timer ring (POMO-33). Source for icon-*.png; maskable keeps the motif in the 80 % safe zone. -->
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#312e81"/>
-      <stop offset="1" stop-color="#0b1120"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#fde68a" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect id="plate" width="512" height="512" rx="0" fill="url(#bg)"/>
+  <rect id="plate" width="512" height="512" rx="0" fill="#1e1b4b"/>
   <g id="motif">
     <path d="M132 380 C 200 380 214 300 256 256 S 312 132 380 132" fill="none" stroke="#6366f1" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 34" opacity="0.9"/>
     <circle cx="132" cy="380" r="30" fill="#a5b4fc"/>
     <circle cx="256" cy="256" r="30" fill="#a5b4fc"/>
-    <circle cx="318" cy="176" r="24" fill="#24215c" stroke="#a5b4fc" stroke-width="10"/>
-    <circle cx="380" cy="132" r="78" fill="url(#glow)"/>
+    <circle cx="318" cy="176" r="24" fill="#1e1b4b" stroke="#a5b4fc" stroke-width="10"/>
+    <circle cx="380" cy="132" r="62" fill="#3b2f4a"/>
     <circle cx="380" cy="132" r="38" fill="#fbbf24"/>
   </g>
 </svg>
