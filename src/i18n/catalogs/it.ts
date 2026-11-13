@@ -323,6 +323,7 @@ export const it: Messages = {
   'streak.goal': 'Obiettivo: round al giorno',
   'streak.grace': 'Giorni di tolleranza',
   'tasks.daysLeft': 'ancora {n} giorni',
+  'horizon.progress': '{done} di {total} attività fatte',
   'horizon.title': 'Orizzonte',
   'horizon.project': 'Progetto',
   'horizon.date': 'Data obiettivo',

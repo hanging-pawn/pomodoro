@@ -319,6 +319,7 @@ export const en = {
   'streak.goal': 'Goal: rounds per day',
   'streak.grace': 'Grace days',
   'tasks.daysLeft': '{n} days left',
+  'horizon.progress': '{done} of {total} tasks done',
   'horizon.title': 'Horizon',
   'horizon.project': 'Project',
   'horizon.date': 'Target date',

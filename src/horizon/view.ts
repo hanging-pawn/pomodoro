@@ -37,7 +37,9 @@ export function mountHorizon(
     const lines = deriveHorizon(await deps.state(), now());
     const section = document.createElement('section');
     section.className = 'horizon';
+    // The screen title (shell) names the Horizon; this heading stays for screen readers only.
     const h = document.createElement('h2');
+    h.className = 'visually-hidden';
     h.textContent = t('horizon.title');
     section.append(h);
 
@@ -64,27 +66,43 @@ export function mountHorizon(
           n: Math.max(0, line.daysLeft),
         }),
       );
+      const head = document.createElement('span');
+      head.className = 'horizon__head';
       const name = document.createElement('span');
+      name.className = 'horizon__name';
       name.textContent = line.project;
+      const left = document.createElement('span');
+      left.className = 'horizon__left';
+      left.textContent = t('tasks.daysLeft', { n: Math.max(0, line.daysLeft) });
+      head.append(name, left);
       const track = document.createElement('span');
       track.className = 'horizon__track';
       track.dataset.role = 'line';
+      const walked = document.createElement('span');
+      walked.className = 'horizon__walked';
+      walked.style.width = `${Math.round(line.today * 100)}%`;
       const today = document.createElement('span');
       today.className = 'horizon__today';
       today.dataset.role = 'today';
       today.title = t('horizon.today');
       today.style.left = `${Math.round(line.today * 100)}%`;
-      track.append(today);
+      track.append(walked, today);
       const end = document.createElement('span');
-      const endText = `${line.targetDate} · ${t('tasks.daysLeft', {
-        n: Math.max(0, line.daysLeft),
-      })}`;
-      end.textContent = endText;
-      const next = document.createElement('span');
-      next.className = 'horizon__next';
-      const nextText = `${line.done}/${line.total}${line.nextTaskId ? '' : ` · ${t('horizon.nothingOpen')}`}`;
-      next.textContent = nextText;
-      b.append(name, track, end, next);
+      end.className = 'horizon__meta';
+      const when = document.createElement('time');
+      when.dateTime = line.targetDate;
+      const [y, m, d] = line.targetDate.split('-').map(Number);
+      when.textContent = new Date(y!, m! - 1, d!).toLocaleDateString(
+        i18n.locale,
+        { day: 'numeric', month: 'short', year: 'numeric' },
+      );
+      const progress = document.createElement('span');
+      progress.className = 'horizon__next';
+      progress.textContent = line.nextTaskId
+        ? t('horizon.progress', { done: line.done, total: line.total })
+        : t('horizon.nothingOpen');
+      end.append(when, progress);
+      b.append(head, track, end);
       b.addEventListener('click', () => {
         if (line.nextTaskId) pick(line.nextTaskId, line.project);
       });
@@ -93,20 +111,35 @@ export function mountHorizon(
     }
     section.append(list);
 
+    // Setting a target date is a small form in its own card (FR-608).
     const form = document.createElement('form');
     form.noValidate = true;
+    form.className = 'ui-card horizon__form';
+    const formTitle = document.createElement('h3');
+    formTitle.className = 'ui-card__title';
+    formTitle.textContent = t('horizon.date');
     const project = document.createElement('input');
     project.name = 'project';
-    project.setAttribute('aria-label', t('horizon.project'));
-    project.placeholder = t('horizon.project');
+    project.id = 'horizon-project';
+    project.setAttribute('list', 'horizon-projects');
+    const known = document.createElement('datalist');
+    known.id = 'horizon-projects';
+    for (const p of lines) known.append(new Option(p.project));
+    const pLabel = document.createElement('label');
+    pLabel.htmlFor = project.id;
+    pLabel.textContent = t('horizon.project');
     const date = document.createElement('input');
     date.type = 'date';
     date.name = 'date';
-    date.setAttribute('aria-label', t('horizon.date'));
+    date.id = 'horizon-date';
+    const dLabel = document.createElement('label');
+    dLabel.htmlFor = date.id;
+    dLabel.textContent = t('horizon.date');
     const save = document.createElement('button');
     save.type = 'submit';
+    save.className = 'ui-button ui-button--secondary horizon__save';
     save.textContent = t('horizon.save');
-    form.append(project, date, save);
+    form.append(formTitle, pLabel, project, known, dLabel, date, save);
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       void deps

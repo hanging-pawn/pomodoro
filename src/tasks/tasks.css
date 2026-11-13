@@ -144,7 +144,7 @@
   background: transparent;
   color: var(--text-secondary);
 }
-.ui-card h3 {
+.ui-card h3:not(.ui-card__title) {
   margin: var(--space-5) 0 var(--space-2);
   font-size: var(--font-size-label);
 }
@@ -228,4 +228,8 @@
   color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: var(--font-weight-bold);
+}
+/* The Shop screen title already names the card */
+.app-screen--shop .ui-card > .ui-card__title {
+  display: none;
 }

@@ -322,6 +322,7 @@ export const de: Messages = {
   'streak.goal': 'Ziel: Runden pro Tag',
   'streak.grace': 'Schonfrist (Tage)',
   'tasks.daysLeft': 'noch {n} Tage',
+  'horizon.progress': '{done} von {total} Aufgaben erledigt',
   'horizon.title': 'Horizont',
   'horizon.project': 'Projekt',
   'horizon.date': 'Zieldatum',

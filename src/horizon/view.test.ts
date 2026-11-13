@@ -52,7 +52,7 @@ describe('mountHorizon (FR-607, FR-608)', () => {
     expect(root.querySelectorAll('[data-role="line"]')).toHaveLength(3);
     expect(root.querySelectorAll('[data-role="today"]')).toHaveLength(3);
     expect(root.querySelector('li')?.dataset.project).toBe('B');
-    expect(root.textContent).toContain('2026-12-12');
+    expect(root.querySelector('time[datetime="2026-12-12"]')).not.toBeNull();
     expect(root.textContent).toContain('29 days left');
   });
 

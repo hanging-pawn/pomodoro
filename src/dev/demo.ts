@@ -6,7 +6,13 @@ import { dayKey } from '../tasks/inventory';
  * Demo day for design checks (POMO-79): German tasks, a plan, two finished rounds, rewards.
  * Dev server only (`?demo` in the URL); never part of the production build.
  */
-export function demoEvents(now = Date.now()): DomainEvent[] {
+/** `plain` = idle day; `focus` = a round running for 6 min; `break` = short break after a round. */
+export type DemoVariant = 'plain' | 'focus' | 'break';
+
+export function demoEvents(
+  now = Date.now(),
+  variant: DemoVariant = 'plain',
+): DomainEvent[] {
   const at = (minAgo: number) => now - minAgo * 60_000;
   const day = dayKey(now);
   const task = (
@@ -44,6 +50,16 @@ export function demoEvents(now = Date.now()): DomainEvent[] {
     task('e', 'Steuererklärung', 3, 286, { due: day }),
     newEvent('plan.changed', { day, taskIds: ['a', 'b', 'c', 'd'] }, at(280)),
     newEvent(
+      'project.targeted',
+      { project: 'Lima', date: dayKey(now + 18 * 86_400_000) },
+      at(279),
+    ),
+    newEvent(
+      'project.targeted',
+      { project: 'Studium', date: dayKey(now + 33 * 86_400_000) },
+      at(278),
+    ),
+    newEvent(
       'pomodoro.started',
       { pomodoroId: 'p1', taskId: 'a', mode: 'strict', focusMinutes: 25 },
       at(120),
@@ -55,6 +71,29 @@ export function demoEvents(now = Date.now()): DomainEvent[] {
       at(90),
     ),
     newEvent('pomodoro.completed', { pomodoroId: 'p2' }, at(65)),
+    ...(variant === 'focus'
+      ? [
+          newEvent(
+            'pomodoro.started',
+            { pomodoroId: 'p3', taskId: 'b', mode: 'strict', focusMinutes: 25 },
+            at(6),
+          ),
+        ]
+      : variant === 'break'
+        ? [
+            newEvent(
+              'pomodoro.started',
+              {
+                pomodoroId: 'p3',
+                taskId: 'b',
+                mode: 'strict',
+                focusMinutes: 25,
+              },
+              at(26),
+            ),
+            newEvent('pomodoro.completed', { pomodoroId: 'p3' }, at(1)),
+          ]
+        : []),
   ];
 }
 
@@ -62,9 +101,17 @@ export function demoEvents(now = Date.now()): DomainEvent[] {
 export async function maybeLoadDemo(store: Promise<Store>): Promise<void> {
   const url = new URL(location.href);
   if (!url.searchParams.has('demo')) return;
+  const variant = (url.searchParams.get('demo') || 'plain') as DemoVariant;
   const s = await store;
   await s.wipe();
-  await s.append(...demoEvents());
+  await s.append(...demoEvents(Date.now(), variant));
+  // Design checks start past the one-time intro and iOS hint.
+  try {
+    localStorage.setItem('pomo-pomo.intro', '1');
+    localStorage.setItem('pomo.iosHint.dismissed', '1');
+  } catch {
+    /* private mode */
+  }
   url.searchParams.delete('demo');
   history.replaceState(null, '', url);
   location.reload();
