@@ -6,6 +6,7 @@ export const it: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'tagesweg.eta': 'verso le {time}',
   'beta.title': 'Beta',
   'beta.intro':
     'Accedi con il tuo ID tester e la tua chiave personale per condividere i tuoi dati con la beta.',

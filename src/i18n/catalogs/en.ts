@@ -5,6 +5,7 @@ export const en = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'tagesweg.eta': 'about {time}',
   'beta.title': 'Beta',
   'beta.intro':
     'Sign in with your tester ID and personal key to share your data with the beta.',

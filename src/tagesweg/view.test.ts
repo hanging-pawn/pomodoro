@@ -168,4 +168,17 @@ describe('mountTagesweg', () => {
     expect(root.querySelector('[data-role="coins"]')).toBeNull();
     expect(root.querySelector('[data-role="reward-row"]')).toBeNull();
   });
+  it('reward row shows its approximate time (FR-603)', async () => {
+    const { root } = await setup([
+      newEvent('plan.changed', { day: dayKey(NOW), taskIds: ['a'] }, NOW),
+    ]);
+    const time = new Intl.DateTimeFormat('en', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(NOW + 60 * 60_000);
+    const row = root.querySelector('[data-role="reward-row"]')!;
+    expect(row.querySelector('[data-role="eta"]')?.textContent).toBe(
+      `about ${time}`,
+    );
+  });
 });

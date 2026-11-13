@@ -6,6 +6,7 @@ export const de: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'tagesweg.eta': 'etwa {time}',
   'beta.title': 'Beta',
   'beta.intro':
     'Melde dich mit deiner Tester-ID und deinem persönlichen Schlüssel an, um deine Daten mit der Beta zu teilen.',

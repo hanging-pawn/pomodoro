@@ -98,4 +98,96 @@ describe('deriveTagesweg', () => {
     );
     expect(w.zoom).toBeUndefined();
   });
+  describe('approximate time of a reward row (FR-603)', () => {
+    const MIN = 60_000;
+    // Stand 20, Preis 40, je Runde +10: reached after the 2nd open round.
+    const base = (extra: DomainEvent[] = []) =>
+      deriveState([
+        newEvent(
+          'task.created',
+          { taskId: 'a', title: 'Report', estimate: 3 },
+          1,
+        ),
+        newEvent('plan.changed', { day: dayKey(NOW), taskIds: ['a'] }, NOW),
+        newEvent('coins.earned', { amount: 20, reason: 'set-bonus' }, 2),
+        newEvent(
+          'reward.saved',
+          { rewardId: 'k', title: 'Coffee', price: 40 },
+          3,
+        ),
+        ...extra,
+      ]);
+    const eta = (w: ReturnType<typeof deriveTagesweg>) =>
+      reward(w.rows.find((r) => r.kind === 'reward')).etaAt;
+
+    it('places the row after the task and estimates its time two rounds from the last plan change', () => {
+      const w = deriveTagesweg(base(), idle, NOW);
+      expect(w.rows.map((r) => r.kind)).toEqual(['task', 'reward']);
+      expect(reward(w.rows[1]).toGo).toBe(20);
+      // 2 rounds of 25 min focus + 5 min break after the plan change at NOW
+      expect(eta(w)).toBe(NOW + 2 * 30 * MIN);
+    });
+
+    it('keeps the time while the clock runs', () => {
+      const later = deriveTagesweg(base(), idle, NOW + 17 * MIN);
+      expect(eta(later)).toBe(NOW + 60 * MIN);
+    });
+
+    it('moves the time at a round end', () => {
+      const end = NOW + 40 * MIN;
+      const w = deriveTagesweg(
+        base([
+          newEvent(
+            'pomodoro.started',
+            { pomodoroId: 'p', taskId: 'a', mode: 'strict', focusMinutes: 25 },
+            NOW + 15 * MIN,
+          ),
+          newEvent('pomodoro.completed', { pomodoroId: 'p' }, end),
+        ]),
+        idle,
+        end + 3 * MIN,
+      );
+      // balance 30 now: one more round
+      expect(eta(w)).toBe(end + 30 * MIN);
+    });
+
+    it('moves the time at a plan change', () => {
+      const change = NOW + 20 * MIN;
+      const w = deriveTagesweg(
+        base([
+          newEvent(
+            'plan.changed',
+            { day: dayKey(NOW), taskIds: ['a'] },
+            change,
+          ),
+        ]),
+        idle,
+        change + MIN,
+      );
+      expect(eta(w)).toBe(change + 60 * MIN);
+    });
+
+    it('has no time for a reached reward or one out of reach of the plan', () => {
+      const rich = deriveTagesweg(
+        base([
+          newEvent('coins.earned', { amount: 30, reason: 'set-bonus' }, 4),
+        ]),
+        idle,
+        NOW,
+      );
+      expect(eta(rich)).toBeUndefined();
+      const far = deriveTagesweg(
+        base([
+          newEvent(
+            'reward.saved',
+            { rewardId: 'k', title: 'Trip', price: 900 },
+            5,
+          ),
+        ]),
+        idle,
+        NOW,
+      );
+      expect(eta(far)).toBeUndefined();
+    });
+  });
 });

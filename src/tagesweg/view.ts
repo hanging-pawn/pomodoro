@@ -156,6 +156,18 @@ export function mountTagesweg(
       go.className = 'tw-row__meta';
       go.textContent = t('tagesweg.toGo', { n: row.toGo });
       li.append(go);
+      if (row.etaAt !== undefined) {
+        const eta = document.createElement('span');
+        eta.className = 'tw-row__meta';
+        eta.dataset.role = 'eta';
+        eta.textContent = t('tagesweg.eta', {
+          time: new Intl.DateTimeFormat(i18n.locale, {
+            hour: '2-digit',
+            minute: '2-digit',
+          }).format(row.etaAt),
+        });
+        li.append(eta);
+      }
     }
     return li;
   }

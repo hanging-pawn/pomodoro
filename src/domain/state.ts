@@ -71,7 +71,20 @@ export interface AppState {
   coins: number;
   redemptions: (EventPayloads['reward.redeemed'] & { at: number })[];
   settings: Settings;
+  /** Time of the latest round end or plan change (task or Today plan edited); 0 = none (FR-603). */
+  pathChangedAt: number;
 }
+
+/** A round end or a plan change: only these move the approximate reward time (FR-603). */
+const PATH_EVENTS = new Set<DomainEvent['type']>([
+  'task.created',
+  'task.changed',
+  'task.deleted',
+  'task.reestimated',
+  'plan.changed',
+  'pomodoro.completed',
+  'pomodoro.aborted',
+]);
 
 /** Pure projection of the event log; same set of events → same state, whatever order or duplicates. */
 export function deriveState(log: readonly DomainEvent[]): AppState {
@@ -91,12 +104,15 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
     coins: 0,
     redemptions: [],
     settings: { ...DEFAULT_SETTINGS },
+    pathChangedAt: 0,
   };
   const pomodoroTask = new Map<string, string>();
   const rounds = new Map<string, { mode: Mode; focusMinutes: number }>();
 
   const settings = state.settings;
   for (const e of events) {
+    if (PATH_EVENTS.has(e.type))
+      state.pathChangedAt = Math.max(state.pathChangedAt, e.at);
     switch (e.type) {
       case 'task.created': {
         const { taskId, ...fields } = e.payload;

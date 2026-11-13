@@ -19,6 +19,8 @@ export type TagesRow =
       price: number;
       reached: boolean;
       toGo: number;
+      /** Approximate time the reward is reached by the plan (FR-603); unset when reached or out of reach. */
+      etaAt?: number;
     };
 
 export interface Tagesweg {
@@ -43,7 +45,8 @@ export function deriveTagesweg(
   now: number,
 ): Tagesweg {
   const { tasks, unplanned } = todayView(state, now);
-  const { coinsPerPomodoro, gamification } = state.settings;
+  const { coinsPerPomodoro, gamification, focusMinutes, shortBreakMinutes } =
+    state.settings;
   const gamified = gamification !== 'off';
   const planned = [...tasks, ...unplanned];
 
@@ -72,14 +75,26 @@ export function deriveTagesweg(
   const rows: TagesRow[] = [];
   let projected = state.coins;
   const pending = [...rewards];
-  const reward = (r: (typeof rewards)[number]): TagesRow => ({
-    kind: 'reward',
-    rewardId: r.id,
-    title: r.title,
-    price: r.price,
-    reached: state.coins >= r.price,
-    toGo: Math.max(0, r.price - state.coins),
-  });
+  // The time moves only at a round end or a plan change, never with the clock (FR-603).
+  const anchor = state.pathChangedAt || now;
+  const roundMs = (focusMinutes + shortBreakMinutes) * 60_000;
+  const openRounds = taskRows.reduce((n, r) => n + r.open, 0);
+  const reward = (r: (typeof rewards)[number]): TagesRow => {
+    const toGo = Math.max(0, r.price - state.coins);
+    const rounds =
+      coinsPerPomodoro > 0 ? Math.ceil(toGo / coinsPerPomodoro) : Infinity;
+    return {
+      kind: 'reward',
+      rewardId: r.id,
+      title: r.title,
+      price: r.price,
+      reached: toGo === 0,
+      toGo,
+      ...(toGo > 0 && rounds <= openRounds
+        ? { etaAt: anchor + rounds * roundMs }
+        : {}),
+    };
+  };
   // Rewards already affordable come first, before the first task.
   while (pending[0] && state.coins >= pending[0].price)
     rows.push(reward(pending.shift()!));
