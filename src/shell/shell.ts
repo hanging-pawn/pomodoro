@@ -214,6 +214,8 @@ export function mountShell(root: HTMLElement, i18n: I18n): Shell {
     setFocus(on) {
       if (on === focus) return;
       focus = on;
+      // A round always happens on Today; afterwards the user is still there (route and screen agree).
+      if (on && current !== 'today') go('today');
       paint();
       if (on) globalThis.scrollTo?.(0, 0);
     },

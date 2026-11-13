@@ -1,0 +1,111 @@
+/* Settings (FR-610, NFR-18): grouped lists like the iPhone settings. Tokens only. */
+
+.set-group + .set-group {
+  margin-top: var(--space-5);
+}
+.set-group__title {
+  margin: 0 0 var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.set-group__title--setup {
+  margin-top: var(--space-6);
+}
+.set-group__hint,
+.set-about {
+  margin: var(--space-2) var(--space-4) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+}
+.set-about {
+  margin-top: var(--space-5);
+  text-align: center;
+}
+.set-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 0 var(--space-4);
+}
+.set-row + .set-row {
+  border-top: 1px solid var(--border);
+}
+.set-row label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: var(--font-weight-regular);
+}
+
+/* Compact select: value on the right, no field box */
+select.set-select {
+  flex: 0 1 auto;
+  width: auto;
+  max-width: 58%;
+  min-height: var(--touch-target);
+  padding: 0 28px 0 var(--space-2);
+  border: 0;
+  background-color: transparent;
+  background-position: right 4px center;
+  color: var(--text-secondary);
+  text-align: right;
+  text-align-last: right;
+}
+select.set-select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+/* Number in a row */
+.set-row input.set-number:not([type='checkbox']):not([type='radio']) {
+  flex: none;
+  width: 76px;
+  min-height: 40px;
+  text-align: right;
+}
+
+/* Switch: iOS-like toggle on the checkbox (44 px hit height) */
+input[type='checkbox'].set-switch {
+  width: 51px;
+  height: var(--touch-target);
+  margin: 0;
+}
+input[type='checkbox'].set-switch::before {
+  width: 51px;
+  height: 31px;
+  border: 0;
+  border-radius: var(--radius-chip);
+  background: color-mix(in srgb, var(--text-muted) 38%, transparent);
+}
+input[type='checkbox'].set-switch::after {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #ffffff;
+  clip-path: none;
+  transform: translateX(-10px);
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+input[type='checkbox'].set-switch:checked::before {
+  background: var(--accent-mid);
+}
+input[type='checkbox'].set-switch:checked::after {
+  transform: translateX(10px);
+}
+
+/* Setup panels below the heading keep their cards, with room between them */
+.app-screen--settings .app-slot > * + * {
+  margin-top: var(--space-3);
+}

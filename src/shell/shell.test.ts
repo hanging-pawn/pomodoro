@@ -106,14 +106,16 @@ describe('mountShell (FR-610)', () => {
     ).toBe(true);
   });
 
-  it('shows only Today and hides header and nav during a round (FR-604)', () => {
+  it('shows only Today and hides header and nav during a round, then stays on Today (FR-604)', () => {
     location.hash = '#/tasks';
     const root = document.createElement('div');
     shell = mountShell(root, i18nFor('en'));
     shell.setFocus(true);
     expect(visible(root)).toEqual(['today']);
     expect(root.querySelector<HTMLElement>('.app')!.dataset.focus).toBe('on');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
     shell.setFocus(false);
-    expect(visible(root)).toEqual(['tasks']);
+    expect(visible(root)).toEqual(['today']);
+    expect(location.hash).toBe('#/today');
   });
 });

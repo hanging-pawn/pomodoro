@@ -6,7 +6,8 @@ import './tagesweg/tagesweg.css';
 import './horizon/horizon.css';
 import './onboarding/onboarding.css';
 import './shell/shell.css';
-import { mountApp } from './app';
+import './settings/settings.css';
+import { mountSettings } from './settings/view';
 import { mountShell, type Screen } from './shell/shell';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
@@ -59,6 +60,7 @@ const place: [Screen, string][] = [
   ['week', 'dayclose'],
   ['week', 'week'],
   ['settings', 'app'],
+  ['settings', 'ios-hint-settings'],
   ['settings', 'data'],
   ['settings', 'sync'],
   ['settings', 'beta'],
@@ -83,24 +85,25 @@ const paintShell = () =>
 document.addEventListener(DATA_CHANGED, paintShell);
 paintShell();
 
-const root = document.getElementById('app');
-if (root)
-  mountApp(root, i18n, {
-    theme,
-    digitsAlways: {
-      get: async () => !!(await (await store).state()).settings.digitsAlways,
-      set: async (digitsAlways) => {
-        await (
-          await store
-        ).append(newEvent('settings.changed', { changes: { digitsAlways } }));
-        document.dispatchEvent(new Event(DATA_CHANGED));
-      },
-    },
-  });
+const settingsRoot = document.getElementById('app');
+if (settingsRoot)
+  void store.then((s) =>
+    mountSettings(settingsRoot, i18n, {
+      theme,
+      state: () => s.state(),
+      setMode: (mode) =>
+        s.append(newEvent('settings.changed', { changes: { mode } })),
+      setDigitsAlways: (digitsAlways) =>
+        s.append(newEvent('settings.changed', { changes: { digitsAlways } })),
+      shop: createShop({ log: s }),
+    }),
+  );
 
 const iosHintRoot = document.getElementById('ios-hint');
 if (iosHintRoot)
   mountIosHint(iosHintRoot, i18n, undefined, { dismissible: true });
+const iosHintSettings = document.getElementById('ios-hint-settings');
+if (iosHintSettings) mountIosHint(iosHintSettings, i18n);
 
 const tageswegRoot = document.getElementById('tagesweg');
 if (tageswegRoot)

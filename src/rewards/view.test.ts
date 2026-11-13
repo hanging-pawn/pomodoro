@@ -3,6 +3,7 @@ import { newEvent, type DomainEvent } from '../domain/events';
 import { deriveState } from '../domain/state';
 import { createI18n } from '../i18n/i18n';
 import { createShop } from './shop';
+import { DATA_CHANGED } from '../tasks/events';
 import { mountRewards } from './view';
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -31,24 +32,6 @@ async function setup(coinsFrom = 0) {
 }
 
 describe('mountRewards', () => {
-  it('streak settings at level full: grace days and off switch (FR-404)', async () => {
-    const { root, events } = await setup();
-    const grace = root.querySelector<HTMLInputElement>(
-      'input[name="streak-grace"]',
-    )!;
-    grace.value = '2';
-    grace.dispatchEvent(new Event('change'));
-    await flush();
-    expect(deriveState(events).settings.streakGraceDays).toBe(2);
-    const on = root.querySelector<HTMLInputElement>(
-      'input[name="streak-enabled"]',
-    )!;
-    on.checked = false;
-    on.dispatchEvent(new Event('change'));
-    await flush();
-    expect(deriveState(events).settings.streakEnabled).toBe(false);
-  });
-
   it('fresh install lists at least 5 template rewards with the balance', async () => {
     const { root } = await setup();
     expect(
@@ -67,16 +50,14 @@ describe('mountRewards', () => {
     expect(buttons.every((b) => b.disabled)).toBe(true);
   });
 
-  it('level «off» hides coins and shop but keeps the selector', async () => {
-    const { root } = await setup();
-    const select = root.querySelector<HTMLSelectElement>(
-      'select[name="gamification"]',
-    )!;
-    select.value = 'off';
-    select.dispatchEvent(new Event('change'));
+  it('level «off» hides coins and shop (FR-405)', async () => {
+    const { root, events } = await setup();
+    events.push(
+      newEvent('settings.changed', { changes: { gamification: 'off' } }, 99),
+    );
+    document.dispatchEvent(new Event(DATA_CHANGED));
     await flush();
     expect(root.querySelector('[data-role="coins"]')).toBeNull();
     expect(root.querySelector('[data-role="shop-list"]')).toBeNull();
-    expect(root.querySelector('select[name="gamification"]')).not.toBeNull();
   });
 });

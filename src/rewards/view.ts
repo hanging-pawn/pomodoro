@@ -1,4 +1,3 @@
-import type { GamificationLevel } from '../domain/events';
 import type { AppState } from '../domain/state';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import { DATA_CHANGED } from '../tasks/events';
@@ -12,11 +11,9 @@ export interface RewardsViewDeps {
   state(): Promise<AppState>;
 }
 
-const LEVELS: readonly GamificationLevel[] = ['off', 'subtle', 'full'];
-
 /**
- * Coins, reward shop and the gamification level (FR-401–408). Level «off» renders only the
- * level selector: no balance, no shop, no streak (FR-405). Returns an unmount function.
+ * Coins and reward shop (FR-401–408). Level «off» renders nothing but errors: no balance, no
+ * shop (FR-405); the level itself is set in Settings. Returns an unmount function.
  */
 export function mountRewards(
   root: HTMLElement,
@@ -88,79 +85,8 @@ export function mountRewards(
     const state = await deps.state();
     const level = state.settings.gamification;
 
-    const levelLabel = document.createElement('label');
-    levelLabel.textContent = t('rewards.level');
-    const levelSelect = document.createElement('select');
-    levelSelect.name = 'gamification';
-    levelLabel.htmlFor = levelSelect.id = 'rewards-level';
-    for (const l of LEVELS)
-      levelSelect.append(new Option(t(`rewards.level.${l}`), l));
-    levelSelect.value = level;
-    levelSelect.addEventListener(
-      'change',
-      () =>
-        void run(() => shop.setLevel(levelSelect.value as GamificationLevel)),
-    );
-    const children: Node[] = [levelLabel, levelSelect];
-
-    if (level === 'full') {
-      const streakBox = document.createElement('fieldset');
-      streakBox.dataset.role = 'streak-settings';
-      const legend = document.createElement('legend');
-      legend.textContent = t('streak.title');
-      const on = document.createElement('input');
-      on.type = 'checkbox';
-      on.name = 'streak-enabled';
-      on.checked = state.settings.streakEnabled;
-      on.addEventListener(
-        'change',
-        () => void run(() => shop.setStreak({ streakEnabled: on.checked })),
-      );
-      const onLabel = document.createElement('label');
-      onLabel.append(on, document.createTextNode(t('streak.enabled')));
-      const num = (
-        label: string,
-        name: string,
-        value: number,
-        min: number,
-        key: 'dailyGoal' | 'streakGraceDays',
-      ) => {
-        const l = document.createElement('label');
-        l.textContent = label;
-        const i = document.createElement('input');
-        i.type = 'number';
-        i.name = name;
-        i.min = String(min);
-        i.step = '1';
-        i.value = String(value);
-        i.addEventListener('change', () => {
-          const n = Math.floor(Number(i.value));
-          if (Number.isFinite(n) && n >= min)
-            void run(() => shop.setStreak({ [key]: n }));
-        });
-        l.append(i);
-        return l;
-      };
-      streakBox.append(
-        legend,
-        onLabel,
-        num(
-          t('streak.goal'),
-          'streak-goal',
-          state.settings.dailyGoal,
-          1,
-          'dailyGoal',
-        ),
-        num(
-          t('streak.grace'),
-          'streak-grace',
-          state.settings.streakGraceDays,
-          0,
-          'streakGraceDays',
-        ),
-      );
-      children.push(streakBox);
-    }
+    // Level and streak live in Settings (FR-610); the Shop shows balance, rewards and history.
+    const children: Node[] = [];
 
     if (level !== 'off') {
       const balance = document.createElement('p');
