@@ -36,9 +36,35 @@ jobs:
         with:
           path: dist
 
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Lighthouse mobile (accessibility >= 90, FCP < 1.5 s)
+        run: |
+          npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+          sleep 3
+          npx --yes lighthouse@12.8.2 http://127.0.0.1:4173/ \
+            --only-categories=accessibility,performance --output=json \
+            --output-path=lighthouse.json --quiet \
+            --chrome-flags="--headless=new --no-sandbox"
+          node scripts/lighthouse-check.mjs lighthouse.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: lighthouse.json
+          if-no-files-found: ignore
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, lighthouse]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
