@@ -66,6 +66,10 @@ _Avoid_: entry, record, action
 The full ordered set of events; everything the app knows is derived from it.
 _Avoid_: history, journal, database
 
+**Usage event**:
+An event about how the app is used (view opened, feature used, error kind), recorded only while a beta account is signed in; it does not change tasks, coins or settings.
+_Avoid_: telemetry, tracking, analytics event
+
 **Protocol**:
 The user-facing listing of the log, available as CSV export.
 _Avoid_: report (reports are summaries such as the daily review)

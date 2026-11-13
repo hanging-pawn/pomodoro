@@ -58,6 +58,11 @@ export interface EventPayloads {
   };
   'reward.redeemed': { rewardId: string; title: string; price: number };
   'settings.changed': { changes: Partial<Settings> };
+  /** Usage events, recorded only in beta mode (FR-505); the projection ignores them. */
+  'usage.view-opened': { view: string };
+  'usage.feature-used': { feature: string };
+  /** Only the error kind (e.g. `TypeError`), never the message: it may hold user content. */
+  'usage.error': { kind: string };
 }
 
 export type EventType = keyof EventPayloads;
@@ -83,6 +88,9 @@ export const EVENT_TYPES: readonly EventType[] = [
   'coins.earned',
   'reward.redeemed',
   'settings.changed',
+  'usage.view-opened',
+  'usage.feature-used',
+  'usage.error',
 ];
 
 export function newEvent<T extends EventType>(
