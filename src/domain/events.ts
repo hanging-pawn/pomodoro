@@ -46,6 +46,11 @@ export interface EventPayloads {
     focusMinutes: number;
   };
   'pomodoro.completed': { pomodoroId: string };
+  /** Flexible mode only: the round clock stops until `pomodoro.resumed`. */
+  'pomodoro.paused': { pomodoroId: string };
+  'pomodoro.resumed': { pomodoroId: string };
+  /** The user ends a break early and stays idle until the next round. */
+  'break.skipped': Record<string, never>;
   'pomodoro.aborted': {
     pomodoroId: string;
     interruption: InterruptionType;
@@ -84,6 +89,9 @@ export const EVENT_TYPES: readonly EventType[] = [
   'task.deleted',
   'pomodoro.started',
   'pomodoro.completed',
+  'pomodoro.paused',
+  'pomodoro.resumed',
+  'break.skipped',
   'pomodoro.aborted',
   'coins.earned',
   'reward.redeemed',

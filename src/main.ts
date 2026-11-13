@@ -1,14 +1,19 @@
 import './ui/tokens.css';
 import './ui/components/components.css';
+import './timer/timer.css';
 import { mountApp } from './app';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
 import { createUsageLog } from './beta/usage';
 import { APP_VERSION } from './config';
+import { newEvent } from './domain/events';
 import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
+import { createTimer } from './timer/controller';
+import { startTicker } from './timer/ticker';
+import { mountTimer } from './timer/view';
 import { createTheme } from './ui/theme';
 
 // Stored light/dark choice applies before the first render (FR-601).
@@ -18,6 +23,22 @@ const root = document.getElementById('app');
 if (root) mountApp(root, i18n);
 
 const store = openStore();
+
+const timerRoot = document.getElementById('timer');
+if (timerRoot)
+  void store.then((s) => {
+    const timer = createTimer({ log: s });
+    mountTimer(timerRoot, i18n, timer, {
+      tasks: async () =>
+        Object.values((await s.state()).tasks).filter((x) => !x.done),
+      getMode: async () => (await s.state()).settings.mode,
+      setMode: (mode) =>
+        s.append(newEvent('settings.changed', { changes: { mode } })),
+    });
+    // Worker-driven tick keeps the end of a phase on time in background tabs (FR-104).
+    startTicker(() => void timer.refresh());
+    document.addEventListener('visibilitychange', () => void timer.refresh());
+  });
 
 // Optional personal sync (NFR-10): no request until the user connects a repo.
 const syncRoot = document.getElementById('sync');
