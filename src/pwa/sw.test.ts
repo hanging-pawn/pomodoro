@@ -8,7 +8,11 @@ type Handler = (event: {
 }) => void;
 
 /** Runs src/pwa/sw.js against an in-memory Cache Storage shared with another app on the origin. */
-function loadWorker(cacheNames: string[]) {
+function loadWorker(
+  cacheNames: string[],
+  network: (req: Request) => Promise<Response> = async () =>
+    new Response('network'),
+) {
   const stores = new Map<string, Map<string, Response>>(
     cacheNames.map((n) => [n, new Map()]),
   );
@@ -41,16 +45,15 @@ function loadWorker(cacheNames: string[]) {
   const source = readFileSync('src/pwa/sw.js', 'utf8')
     .replace('__VERSION__', 'v2')
     .replace('__PRECACHE__', '[]');
-  new Function('self', 'caches', 'fetch', source)(
-    self,
-    caches,
-    async () => new Response('network'),
-  );
-  const dispatch = async (type: string, request?: Request) => {
+  new Function('self', 'caches', 'fetch', source)(self, caches, network);
+  const dispatch = async (
+    type: string,
+    request?: Request | { url: string; method: string; mode: string },
+  ) => {
     let done: Promise<unknown> = Promise.resolve();
     let response: Promise<Response> | undefined;
     handlers[type]!({
-      request,
+      request: request as Request,
       waitUntil: (p) => (done = p),
       respondWith: (p) => (response = p),
     });
@@ -85,5 +88,42 @@ describe('service worker (NFR-04)', () => {
     stores.get('other-app-shell')!.set(url, new Response('foreign'));
     const res = await dispatch('fetch', new Request(url));
     expect(await res!.text()).toBe('network');
+  });
+  const page = (url: string) => ({ url, method: 'GET', mode: 'navigate' });
+  const INDEX = 'https://hanging-pawn.github.io/pomodoro/';
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+
+  it('opens the newest page when online and refreshes the cached copy', async () => {
+    const { stores, dispatch } = loadWorker(['pomo-pomo-v2']);
+    stores.get('pomo-pomo-v2')!.set(INDEX, new Response('old page'));
+    const res = await dispatch('fetch', page(INDEX));
+    expect(await res!.text()).toBe('network');
+    await flush();
+    expect(await stores.get('pomo-pomo-v2')!.get(INDEX)!.text()).toBe(
+      'network',
+    );
+  });
+
+  it('opens the cached page when offline', async () => {
+    const { stores, dispatch } = loadWorker(['pomo-pomo-v2'], () =>
+      Promise.reject(new TypeError('offline')),
+    );
+    stores.get('pomo-pomo-v2')!.set(INDEX, new Response('cached page'));
+    const res = await dispatch('fetch', page(INDEX));
+    expect(await res!.text()).toBe('cached page');
+  });
+
+  it('keeps hashed assets cache-first without a network request', async () => {
+    let requests = 0;
+    const { stores, dispatch } = loadWorker(['pomo-pomo-v2'], async () => {
+      requests++;
+      return new Response('network');
+    });
+    const asset =
+      'https://hanging-pawn.github.io/pomodoro/assets/index-Czfhtuzv.js';
+    stores.get('pomo-pomo-v2')!.set(asset, new Response('cached asset'));
+    const res = await dispatch('fetch', new Request(asset));
+    expect(await res!.text()).toBe('cached asset');
+    expect(requests).toBe(0);
   });
 });

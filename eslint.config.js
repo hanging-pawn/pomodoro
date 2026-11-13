@@ -44,6 +44,7 @@ export default tseslint.config(
         self: 'readonly',
         caches: 'readonly',
         fetch: 'readonly',
+        Response: 'readonly',
         __PRECACHE__: 'readonly',
       },
     },
