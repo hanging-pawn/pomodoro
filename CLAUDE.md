@@ -26,5 +26,6 @@ Profil: Software · Sprints 2 Wo · Releases
   - `domain-modeling` for `GLOSSARY.md` and ADRs in `docs/adr/`.
   - `diagnosing-bugs` for anything broken, flaky or slow.
   - `implement` when working a ticket with a written spec.
+- **Pocock trial:** POMO is a test project for these skills (Gianluca, 2026-11-13). Invoke them via the Skill tool (`mattpocock-skills:<name>`). Every ERGEBNIS carries one line `POCOCK: <skills used> — <benefit or friction in one sentence>`; not used → say why. POMO-38 evaluates these lines.
 - Every commit references the Jira key and the requirement IDs it serves (e.g. `POMO-12: timer cycle [FR-101]`).
 - Tests: `npm test` (Vitest) must be green before a ticket goes to Review; `npm run build` must succeed.
