@@ -1,0 +1,88 @@
+/* Tagesweg (FR-602–605): path as a left line, stations as dots; accent only on walked path and reward rows. */
+.tagesweg {
+  padding: var(--space-4);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.tw-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.tw-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-tight);
+  min-width: 0;
+}
+.tw-coins {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+.tw-path {
+  list-style: none;
+  margin: var(--space-4) 0;
+  padding: 0 0 0 var(--space-4);
+  border-left: var(--path-width) solid var(--text-muted);
+}
+.tw-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-height: var(--touch-target);
+  padding: var(--space-2) 0;
+  overflow-wrap: anywhere;
+}
+.tw-row--reward {
+  background: var(--bg-highlight);
+  border-radius: var(--radius-row);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
+}
+.tw-row__title {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+.tw-row__meta,
+.tw-row__tag {
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+}
+.tw-stations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.tw-station {
+  width: var(--station-size);
+  height: var(--station-size);
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  box-sizing: border-box;
+}
+.tw-station--done {
+  background: var(--accent-mid);
+  border-color: var(--accent-mid);
+}
+.tw-station--current {
+  border-color: var(--accent);
+  background: var(--bg-card);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.tw-piece {
+  margin: var(--space-4) 0;
+}
+.tw-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.tw-ring {
+  margin-top: var(--space-4);
+}
+.tw-ring p {
+  margin: 0 0 var(--space-2);
+}

@@ -1,0 +1,101 @@
+import { describe, expect, it } from 'vitest';
+import { newEvent, type DomainEvent } from '../domain/events';
+import { deriveState } from '../domain/state';
+import { dayKey } from '../tasks/inventory';
+import { deriveTagesweg, type TagesRow } from './model';
+
+const task = (r?: TagesRow) => r as Extract<TagesRow, { kind: 'task' }>;
+const reward = (r?: TagesRow) => r as Extract<TagesRow, { kind: 'reward' }>;
+
+const NOW = Date.UTC(2026, 10, 13, 9, 0, 0);
+const idle = {
+  phase: 'idle',
+  remainingMs: 0,
+  totalMs: 0,
+  completedInSet: 0,
+} as const;
+
+function log(extra: DomainEvent[] = []) {
+  return deriveState([
+    newEvent('task.created', { taskId: 'a', title: 'Report', estimate: 2 }, 1),
+    newEvent('task.created', { taskId: 'b', title: 'Mail', estimate: 1 }, 2),
+    newEvent('plan.changed', { day: dayKey(NOW), taskIds: ['a', 'b'] }, 3),
+    newEvent('reward.saved', { rewardId: 'r1', title: 'Walk', price: 20 }, 4),
+    ...extra,
+  ]);
+}
+
+describe('deriveTagesweg', () => {
+  it('one row per planned task with one station per round', () => {
+    const w = deriveTagesweg(log(), idle, NOW);
+    const tasks = w.rows.filter((r) => r.kind === 'task');
+    expect(tasks.map((r) => r.kind === 'task' && r.stations.length)).toEqual([
+      2, 1,
+    ]);
+  });
+
+  it('marks stations done by actual rounds and the first open one as current', () => {
+    const state = log([
+      newEvent(
+        'pomodoro.started',
+        { pomodoroId: 'p', taskId: 'a', mode: 'strict', focusMinutes: 25 },
+        5,
+      ),
+      newEvent('pomodoro.completed', { pomodoroId: 'p' }, 6),
+    ]);
+    const w = deriveTagesweg(state, idle, NOW);
+    const a = w.rows[0];
+    expect(task(a).stations).toEqual(['done', 'current']);
+    expect(w.currentTaskId).toBe('a');
+  });
+
+  it('places a reward row where projected coins reach its price and marks reached ones', () => {
+    const w = deriveTagesweg(log(), idle, NOW);
+    // 0 coins, 10 per round: price 20 is reached after round 2, i.e. after task a
+    expect(w.rows.map((r) => r.kind)).toEqual(['task', 'reward', 'task']);
+    expect(reward(w.rows[1]).toGo).toBe(20);
+    const rich = deriveTagesweg(
+      log([newEvent('coins.earned', { amount: 25, reason: 'set-bonus' }, 7)]),
+      idle,
+      NOW,
+    );
+    const r = rich.rows.find((x) => x.kind === 'reward');
+    expect(reward(r).reached).toBe(true);
+  });
+
+  it('hides coins and reward rows when gamification is off (FR-405)', () => {
+    const w = deriveTagesweg(
+      log([
+        newEvent('settings.changed', { changes: { gamification: 'off' } }, 8),
+      ]),
+      idle,
+      NOW,
+    );
+    expect(w.rows.every((r) => r.kind === 'task')).toBe(true);
+    expect(w.showCoins).toBe(false);
+  });
+
+  it('zooms to the current task during a round (FR-604)', () => {
+    const w = deriveTagesweg(
+      log(),
+      {
+        ...idle,
+        phase: 'focus',
+        remainingMs: 5 * 60_000,
+        totalMs: 25 * 60_000,
+        taskId: 'b',
+      },
+      NOW,
+    );
+    expect(w.zoom).toEqual({ taskId: 'b', progress: 0.8 });
+  });
+
+  it('does not zoom in a break', () => {
+    const w = deriveTagesweg(
+      log(),
+      { ...idle, phase: 'short-break', remainingMs: 1, totalMs: 2 },
+      NOW,
+    );
+    expect(w.zoom).toBeUndefined();
+  });
+});
