@@ -12,6 +12,7 @@ import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
+import { mountPrivacyLink } from './privacy/notice';
 import { createInventory } from './tasks/inventory';
 import { mountTasks } from './tasks/view';
 import { createTimer } from './timer/controller';
@@ -50,6 +51,9 @@ if (tasksRoot)
       state: () => s.state(),
     }),
   );
+
+const privacyRoot = document.getElementById('privacy');
+if (privacyRoot) mountPrivacyLink(privacyRoot, i18n);
 
 // Optional personal sync (NFR-10): no request until the user connects a repo.
 const syncRoot = document.getElementById('sync');

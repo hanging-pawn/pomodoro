@@ -28,6 +28,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Secret scan (repo and dist, fails on a hit)
+        run: npm run secret-scan
       - name: Report gzip bundle size
         run: npm run size
       - uses: actions/upload-pages-artifact@v3

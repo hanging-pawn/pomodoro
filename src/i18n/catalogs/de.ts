@@ -130,4 +130,16 @@ export const de: Messages = {
   'today.moveDown': 'Nach unten',
   'today.remove': 'Aus heute entfernen',
   'today.checkOff': 'Als erledigt markieren',
+  'privacy.link': 'Datenschutz',
+  'privacy.title': 'Datenschutzhinweis',
+  'privacy.close': 'Schliessen',
+  'privacy.local.title': 'Auf diesem Gerät',
+  'privacy.local.body':
+    'Deine Aufgaben, Fokusrunden, Coins und Einstellungen liegen nur in diesem Browser (IndexedDB), als Protokoll von Ereignissen. Ohne Sync oder Beta verlässt nichts dieses Gerät. Du kannst deine Daten jederzeit exportieren oder löschen.',
+  'privacy.sync.title': 'Mit Sync',
+  'privacy.sync.body':
+    'Wenn du Sync verbindest, wird dein Ereignisprotokoll über api.github.com in ein privates GitHub-Repo kopiert, das dir gehört. Der Token, den du erstellst, bleibt auf diesem Gerät, wird nie exportiert und beim Trennen gelöscht.',
+  'privacy.beta.title': 'In der Beta',
+  'privacy.beta.body':
+    'Wenn du dich in der Beta anmeldest, werden dein Konto (Tester-ID, Name, E-Mail, Sprache, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Coins, Belohnungen, genutzte Funktionen) im privaten Beta-Daten-Repo des Beta-Teams gespeichert und ausgewertet, um {app} zu verbessern. Nur das Beta-Team kann sie lesen. Mit dem Abmelden enden alle Uploads; deine Daten auf diesem Gerät bleiben.',
 };

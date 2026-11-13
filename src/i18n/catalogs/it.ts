@@ -131,4 +131,16 @@ export const it: Messages = {
   'today.moveDown': 'Sposta giù',
   'today.remove': 'Rimuovi da oggi',
   'today.checkOff': 'Segna come fatto',
+  'privacy.link': 'Privacy',
+  'privacy.title': 'Informativa sulla privacy',
+  'privacy.close': 'Chiudi',
+  'privacy.local.title': 'Su questo dispositivo',
+  'privacy.local.body':
+    'Attività, sessioni di concentrazione, monete e impostazioni sono salvate solo in questo browser (IndexedDB), come registro di eventi. Senza sincronizzazione o beta nulla lascia questo dispositivo. Puoi esportare o eliminare i tuoi dati in qualsiasi momento.',
+  'privacy.sync.title': 'Con la sincronizzazione',
+  'privacy.sync.body':
+    'Se colleghi la sincronizzazione, il tuo registro di eventi viene copiato tramite api.github.com in un repository GitHub privato di tua proprietà. Il token che crei resta su questo dispositivo, non viene mai esportato e viene eliminato quando ti scolleghi.',
+  'privacy.beta.title': 'Nella beta',
+  'privacy.beta.body':
+    'Se accedi alla beta, il tuo account (ID tester, nome, e-mail, lingua, browser/dispositivo, versione dell’app) e i tuoi dati (attività, sessioni, pause, interruzioni, monete, premi, funzioni usate) vengono salvati nel repository dati privato del team beta e valutati per migliorare {app}. Solo il team beta può leggerli. Uscendo si interrompono tutti i caricamenti; i dati su questo dispositivo restano.',
 };

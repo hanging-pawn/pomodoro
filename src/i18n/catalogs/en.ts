@@ -127,4 +127,16 @@ export const en = {
   'today.moveDown': 'Move down',
   'today.remove': 'Remove from today',
   'today.checkOff': 'Mark done',
+  'privacy.link': 'Privacy',
+  'privacy.title': 'Privacy notice',
+  'privacy.close': 'Close',
+  'privacy.local.title': 'On this device',
+  'privacy.local.body':
+    'Your tasks, focus rounds, coins and settings are stored only in this browser (IndexedDB), as a log of events. Without sync or beta nothing leaves this device. You can export or delete your data at any time.',
+  'privacy.sync.title': 'With sync',
+  'privacy.sync.body':
+    'If you connect sync, your event log is copied to a private GitHub repo that you own, using api.github.com. The token you create stays on this device, is never exported and is deleted when you disconnect.',
+  'privacy.beta.title': 'In the beta',
+  'privacy.beta.body':
+    'If you sign in to the beta, your account (tester ID, name, e-mail, language, browser/device, app version) and your focus data (tasks, focus rounds, breaks, interruptions, coins, rewards, which features you use) are stored in the private beta data repo of the beta team and are evaluated to improve {app}. Only the beta team can read it. Signing out stops all uploads; your data on this device stays.',
 };

@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "size": "node scripts/size.mjs",
     "beta-admin": "tsx tools/beta-admin/main.ts",
-    "beta-report": "tsx tools/beta-report/main.ts"
+    "beta-report": "tsx tools/beta-report/main.ts",
+    "secret-scan": "node scripts/secret-scan.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
