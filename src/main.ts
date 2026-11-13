@@ -3,6 +3,7 @@ import './ui/components/components.css';
 import './timer/timer.css';
 import './tasks/tasks.css';
 import './tagesweg/tagesweg.css';
+import './horizon/horizon.css';
 import { mountApp } from './app';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
@@ -24,6 +25,7 @@ import { mountTimer } from './timer/view';
 import { mountTagesweg } from './tagesweg/view';
 import { mountDayClose } from './dayclose/view';
 import { mountWeek } from './week/view';
+import { mountHorizon } from './horizon/view';
 import { createTheme } from './ui/theme';
 import { DATA_CHANGED } from './tasks/events';
 
@@ -74,6 +76,16 @@ if (tasksRoot)
   void store.then((s) =>
     mountTasks(tasksRoot, i18n, createInventory({ log: s }), {
       state: () => s.state(),
+    }),
+  );
+
+const horizonRoot = document.getElementById('horizon');
+if (horizonRoot)
+  void store.then((s) =>
+    mountHorizon(horizonRoot, i18n, {
+      state: () => s.state(),
+      setTarget: (project, date) =>
+        createInventory({ log: s }).setProjectTarget(project, date),
     }),
   );
 

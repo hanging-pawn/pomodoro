@@ -67,6 +67,8 @@ export interface AppState {
   rounds: RoundRecord[];
   rewards: Record<string, Reward>;
   rewardsSeeded: boolean;
+  /** Target date `YYYY-MM-DD` per project name (FR-608). */
+  projects: Record<string, { targetDate: string }>;
   /** Balance: finished rounds, set bonus, flexible partial credit, minus redemptions (FR-401–403). */
   coins: number;
   redemptions: (EventPayloads['reward.redeemed'] & { at: number })[];
@@ -101,6 +103,7 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
     rounds: [],
     rewards: {},
     rewardsSeeded: false,
+    projects: {},
     coins: 0,
     redemptions: [],
     settings: { ...DEFAULT_SETTINGS },
@@ -204,6 +207,11 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
       case 'reward.redeemed':
         state.coins -= e.payload.price;
         state.redemptions.push({ ...e.payload, at: e.at });
+        break;
+      case 'project.targeted':
+        if (e.payload.date)
+          state.projects[e.payload.project] = { targetDate: e.payload.date };
+        else delete state.projects[e.payload.project];
         break;
       case 'settings.changed':
         Object.assign(state.settings, e.payload.changes);

@@ -248,4 +248,13 @@ export const it: Messages = {
   'streak.enabled': 'Mostra la serie',
   'streak.goal': 'Obiettivo: round al giorno',
   'streak.grace': 'Giorni di tolleranza',
+  'tasks.daysLeft': 'ancora {n} giorni',
+  'horizon.title': 'Orizzonte',
+  'horizon.project': 'Progetto',
+  'horizon.date': 'Data obiettivo',
+  'horizon.save': 'Salva data obiettivo',
+  'horizon.today': 'oggi',
+  'horizon.empty': 'Nessun progetto ha ancora una data obiettivo.',
+  'horizon.nothingOpen': 'niente di aperto',
+  'horizon.line': '{project}: fino al {date}, ancora {n} giorni',
 };

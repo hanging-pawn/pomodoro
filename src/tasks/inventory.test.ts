@@ -332,3 +332,19 @@ describe('second estimate (FR-304)', () => {
     expect(await errorOf(inv.reestimate(id, 0))).toBe('invalid-estimate');
   });
 });
+
+describe('project target date (FR-608)', () => {
+  it('stores, validates and clears a target date', async () => {
+    const { inv, state } = setup();
+    await inv.setProjectTarget(' Exam ', '2026-12-12');
+    expect(state().projects).toEqual({ Exam: { targetDate: '2026-12-12' } });
+    expect(await errorOf(inv.setProjectTarget('Exam', '12.12.'))).toBe(
+      'invalid-due',
+    );
+    expect(await errorOf(inv.setProjectTarget(' ', '2026-12-12'))).toBe(
+      'empty-title',
+    );
+    await inv.setProjectTarget('Exam', '');
+    expect(state().projects).toEqual({});
+  });
+});

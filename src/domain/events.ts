@@ -110,6 +110,8 @@ export interface EventPayloads {
   'reward.redeemed': { rewardId: string; title: string; price: number };
   /** A random bonus was drawn from the user's own list after a full set (FR-406); the projection ignores it. */
   'bonus.drawn': { title: string };
+  /** Optional target date of a project (exam, deadline); an empty `date` clears it (FR-608). */
+  'project.targeted': { project: string; date: string };
   'settings.changed': { changes: Partial<Settings> };
   /** Usage events, recorded only in beta mode (FR-505); the projection ignores them. */
   'usage.view-opened': { view: string };
@@ -150,6 +152,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'rewards.seeded',
   'reward.redeemed',
   'bonus.drawn',
+  'project.targeted',
   'settings.changed',
   'usage.view-opened',
   'usage.feature-used',

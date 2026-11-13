@@ -2,7 +2,7 @@ import type { AppState } from '../domain/state';
 import type { InterruptionType } from '../domain/events';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import type { Shop } from '../rewards/shop';
-import { DATA_CHANGED } from '../tasks/events';
+import { DATA_CHANGED, PICK_TASK } from '../tasks/events';
 import { formatClock } from '../timer/alerts';
 import type { Timer, PhaseEnd } from '../timer/controller';
 import type { TimerView } from '../timer/cycle';
@@ -48,6 +48,8 @@ export function mountTagesweg(
   let digitsUntil = 0;
   let digitsTimer: ReturnType<typeof setTimeout> | undefined;
   let lastView: TimerView = timer.view;
+  /** Task picked in the Horizon for the next round (FR-607); used once. */
+  let picked: string | undefined;
 
   const run = (p: Promise<unknown>) => p.catch(() => {});
 
@@ -328,13 +330,15 @@ export function mountTagesweg(
             label: t('tagesweg.start'),
             variant: 'primary',
             action: 'start',
-            disabled: !w.currentTaskId,
+            disabled: !(picked ?? w.currentTaskId),
             onClick: () => {
               if (!canStart && phase === 'idle') return;
               ring = false;
               const go = async () => {
                 if (phase !== 'idle') await timer.skipBreak();
-                if (w.currentTaskId) await timer.start(w.currentTaskId);
+                const next = picked ?? w.currentTaskId;
+                picked = undefined;
+                if (next) await timer.start(next);
               };
               void run(go());
             },
@@ -359,6 +363,11 @@ export function mountTagesweg(
   });
   const onData = () => void reload().catch(() => {});
   document.addEventListener(DATA_CHANGED, onData);
+  const onPick = (e: Event) => {
+    picked = (e as CustomEvent<string>).detail;
+    render();
+  };
+  document.addEventListener(PICK_TASK, onPick);
   const offLocale = i18n.onChange(render);
   void reload().catch(() => {});
 
@@ -367,5 +376,6 @@ export function mountTagesweg(
     offLocale();
     clearTimeout(digitsTimer);
     document.removeEventListener(DATA_CHANGED, onData);
+    document.removeEventListener(PICK_TASK, onPick);
   };
 }

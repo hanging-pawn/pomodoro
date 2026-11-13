@@ -72,6 +72,8 @@ export interface Inventory {
   /** Moves one place up (-1) or down (+1) in the Today plan. */
   moveInToday(id: string, direction: -1 | 1): Promise<void>;
   setBudget(pomodoros: number): Promise<void>;
+  /** Target date `YYYY-MM-DD` of a project; an empty string clears it (FR-608). */
+  setProjectTarget(project: string, date: string): Promise<void>;
 }
 
 export interface InventoryOptions {
@@ -339,6 +341,14 @@ export function createInventory(options: InventoryOptions): Inventory {
       if (from < 0 || to < 0 || to >= ids.length) return;
       [ids[from], ids[to]] = [ids[to]!, ids[from]!];
       await savePlan(ids);
+    },
+    async setProjectTarget(project, date) {
+      const name = project.trim();
+      if (!name) throw new InventoryError('empty-title');
+      checkDue(date);
+      await log.append(
+        newEvent('project.targeted', { project: name, date }, now()),
+      );
     },
     async setBudget(pomodoros) {
       if (!isWhole(pomodoros)) throw new InventoryError('invalid-budget');

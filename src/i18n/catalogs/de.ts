@@ -246,4 +246,13 @@ export const de: Messages = {
   'streak.enabled': 'Serie anzeigen',
   'streak.goal': 'Ziel: Runden pro Tag',
   'streak.grace': 'Schonfrist (Tage)',
+  'tasks.daysLeft': 'noch {n} Tage',
+  'horizon.title': 'Horizont',
+  'horizon.project': 'Projekt',
+  'horizon.date': 'Zieldatum',
+  'horizon.save': 'Zieldatum speichern',
+  'horizon.today': 'heute',
+  'horizon.empty': 'Noch kein Projekt hat ein Zieldatum.',
+  'horizon.nothingOpen': 'nichts offen',
+  'horizon.line': '{project}: bis {date}, noch {n} Tage',
 };

@@ -1,4 +1,5 @@
 import type { AppState, Task } from '../domain/state';
+import { daysBetween, localDay } from '../horizon/model';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import { button } from '../ui/components/button';
 import { card } from '../ui/components/card';
@@ -543,6 +544,17 @@ export function mountTasks(
         tone: task.done ? 'done' : 'default',
         meta: [
           task.project,
+          task.project && state.projects[task.project]
+            ? t('tasks.daysLeft', {
+                n: Math.max(
+                  0,
+                  daysBetween(
+                    localDay(now()),
+                    state.projects[task.project]!.targetDate,
+                  ),
+                ),
+              })
+            : undefined,
           task.subtasks
             ? t('tasks.subtasks.progress', {
                 done: task.subtasks.done,

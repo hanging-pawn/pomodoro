@@ -243,4 +243,13 @@ export const en = {
   'streak.enabled': 'Show streak',
   'streak.goal': 'Goal: rounds per day',
   'streak.grace': 'Grace days',
+  'tasks.daysLeft': '{n} days left',
+  'horizon.title': 'Horizon',
+  'horizon.project': 'Project',
+  'horizon.date': 'Target date',
+  'horizon.save': 'Save target date',
+  'horizon.today': 'today',
+  'horizon.empty': 'No project has a target date yet.',
+  'horizon.nothingOpen': 'nothing open',
+  'horizon.line': '{project}: until {date}, {n} days left',
 };

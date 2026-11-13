@@ -6,7 +6,7 @@ import { card } from '../ui/components/card';
 import { openDialog } from '../ui/components/dialog';
 import { progressBar } from '../ui/components/progress-bar';
 import { createAlerts, formatClock, tabTitle, type Alerts } from './alerts';
-import { DATA_CHANGED } from '../tasks/events';
+import { DATA_CHANGED, PICK_TASK } from '../tasks/events';
 import type { Timer } from './controller';
 import type { TimerView } from './cycle';
 
@@ -238,6 +238,14 @@ export function mountTimer(
       })
       .catch(() => {});
   document.addEventListener(DATA_CHANGED, onData);
+  const onPick = (e: Event) => {
+    const id = (e as CustomEvent<string>).detail;
+    if (!tasks.some((x) => x.id === id)) return;
+    taskId = id;
+    const select = root.querySelector<HTMLSelectElement>('#timer-task');
+    if (select) select.value = id;
+  };
+  document.addEventListener(PICK_TASK, onPick);
   const offLocale = i18n.onChange(() => {
     structureKey = '';
     paint(timer.view);
@@ -256,6 +264,7 @@ export function mountTimer(
     offChange();
     offLocale();
     document.removeEventListener(DATA_CHANGED, onData);
+    document.removeEventListener(PICK_TASK, onPick);
     document.removeEventListener('keydown', onKey);
   };
 }
