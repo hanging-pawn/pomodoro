@@ -234,9 +234,15 @@ export const it: Messages = {
   'privacy.beta.title': 'Nella beta',
   'privacy.beta.body':
     'Se accedi alla beta, il tuo account (ID tester, nome, e-mail, lingua, browser/dispositivo, versione dell’app) e i tuoi dati (attività, sessioni, pause, interruzioni, monete, premi, funzioni usate) vengono salvati nel repository dati privato del team beta e valutati per migliorare {app}. Solo il team beta può leggerli. Uscendo si interrompono tutti i caricamenti; i dati su questo dispositivo restano.',
+  'tagesweg.summary': '{done} di {planned} round fatti · budget {budget}',
+  'tagesweg.next': 'Prossimo round',
+  'tagesweg.emptyTitle': 'Ancora niente in programma',
+  'tagesweg.plan': 'Pianifica la giornata',
+  'tagesweg.focusHead': '{phase} · round {n} di {m}',
+  'tagesweg.pick': 'Scegli {title} per il prossimo round',
   'tagesweg.title': 'Percorso di oggi',
   'tagesweg.empty':
-    "Ancora niente in programma. Pianifica i compiti nell'elenco qui sotto.",
+    'Scegli in Attività su cosa lavori oggi. Ogni attività diventa un tratto del tuo percorso.',
   'tagesweg.coins': '{n} monete',
   'tagesweg.coinsLabel': 'Saldo monete',
   'tagesweg.start': 'Avvia round',

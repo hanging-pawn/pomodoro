@@ -230,8 +230,15 @@ export const en = {
   'privacy.beta.title': 'In the beta',
   'privacy.beta.body':
     'If you sign in to the beta, your account (tester ID, name, e-mail, language, browser/device, app version) and your focus data (tasks, focus rounds, breaks, interruptions, coins, rewards, which features you use) are stored in the private beta data repo of the beta team and are evaluated to improve {app}. Only the beta team can read it. Signing out stops all uploads; your data on this device stays.',
+  'tagesweg.summary': '{done} of {planned} rounds done · budget {budget}',
+  'tagesweg.next': 'Next round',
+  'tagesweg.emptyTitle': 'Nothing planned yet',
+  'tagesweg.plan': 'Plan the day',
+  'tagesweg.focusHead': '{phase} · round {n} of {m}',
+  'tagesweg.pick': 'Choose {title} for the next round',
   'tagesweg.title': 'Today path',
-  'tagesweg.empty': 'Nothing planned yet. Plan tasks in the list below.',
+  'tagesweg.empty':
+    'Pick today’s tasks in Tasks. Each one becomes a stretch of your path.',
   'tagesweg.coins': '{n} coins',
   'tagesweg.coinsLabel': 'Coin balance',
   'tagesweg.start': 'Start round',

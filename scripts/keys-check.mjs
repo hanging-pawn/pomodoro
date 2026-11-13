@@ -1,6 +1,6 @@
 /* global console, process */
 // NFR-06 check in the real Chrome: with real key events (no mouse), N selects the next task,
-// Space starts the round and P focuses the park field. Needs `npm run build` first.
+// Space starts the round and P opens the park dialog with its field focused. Needs `npm run build` first.
 // Usage: node scripts/keys-check.mjs
 import { defaultSeed, launch, seedScript, sleep } from './cdp.mjs';
 
@@ -24,9 +24,10 @@ try {
   await evaluate(seedScript(defaultSeed()));
   await send('Page.navigate', { url });
   await sleep(2000);
-  const first = await evaluate(`document.querySelector('#timer-task').value`);
+  const next = `document.querySelector('[data-role="next"] .tw-next__title')?.textContent`;
+  const first = await evaluate(next);
   await key('n', 'KeyN', 'n');
-  const second = await evaluate(`document.querySelector('#timer-task').value`);
+  const second = await evaluate(next);
   await key(' ', 'Space', ' ');
   const running = await evaluate(
     `!!document.querySelector('[data-action="abort"]') && !document.querySelector('[data-action="start"]')`,

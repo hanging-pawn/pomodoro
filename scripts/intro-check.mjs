@@ -18,7 +18,9 @@ try {
   await evaluate(`document.querySelector('[data-action="skip"]').click()`);
   await sleep(300);
   const closed = await evaluate(`!document.querySelector('[role="dialog"]')`);
-  const timer = await evaluate(q('#timer [data-action="start"]'));
+  const timer = await evaluate(
+    q('#tagesweg [data-action="start"], #tagesweg [data-action="plan"]'),
+  );
   await send('Page.navigate', { url });
   await sleep(2000);
   const again = await evaluate(q('[role="dialog"]'));

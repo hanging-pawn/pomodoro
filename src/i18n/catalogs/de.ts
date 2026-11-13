@@ -233,8 +233,15 @@ export const de: Messages = {
   'privacy.beta.title': 'In der Beta',
   'privacy.beta.body':
     'Wenn du dich in der Beta anmeldest, werden dein Konto (Tester-ID, Name, E-Mail, Sprache, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Münzen, Belohnungen, genutzte Funktionen) im privaten Beta-Daten-Repo des Beta-Teams gespeichert und ausgewertet, um {app} zu verbessern. Nur das Beta-Team kann sie lesen. Mit dem Abmelden enden alle Uploads; deine Daten auf diesem Gerät bleiben.',
+  'tagesweg.summary': '{done} von {planned} Runden erledigt · Budget {budget}',
+  'tagesweg.next': 'Nächste Runde',
+  'tagesweg.emptyTitle': 'Noch nichts geplant',
+  'tagesweg.plan': 'Tag planen',
+  'tagesweg.focusHead': '{phase} · Runde {n} von {m}',
+  'tagesweg.pick': '{title} für die nächste Runde wählen',
   'tagesweg.title': 'Tagesweg',
-  'tagesweg.empty': 'Noch nichts geplant. Plane Aufgaben in der Liste unten.',
+  'tagesweg.empty':
+    'Wähle unter Aufgaben, woran du heute arbeitest. Jede Aufgabe wird ein Stück deines Wegs.',
   'tagesweg.coins': '{n} Münzen',
   'tagesweg.coinsLabel': 'Münzstand',
   'tagesweg.start': 'Runde starten',

@@ -55,6 +55,9 @@ export function mountTagesweg(
   let digitsUntil = 0;
   let digitsTimer: ReturnType<typeof setTimeout> | undefined;
   let lastView: TimerView = timer.view;
+  /** Live parts of the round view, updated in place every tick (no re-render: taps stay on their button). */
+  let livePiece: ReturnType<typeof progressBar> | undefined;
+  let liveDigits: HTMLButtonElement | undefined;
   /** Task picked in the Horizon for the next round (FR-607); used once. */
   let picked: string | undefined;
 
@@ -118,21 +121,41 @@ export function mountTagesweg(
     return ul;
   };
 
-  function taskRow(row: Extract<TagesRow, { kind: 'task' }>) {
+  function taskRow(
+    row: Extract<TagesRow, { kind: 'task' }>,
+    next: string | undefined,
+    pickable: boolean,
+  ) {
     const li = document.createElement('li');
     li.className = 'tw-row tw-row--task';
     li.dataset.role = 'task-row';
+    if (row.taskId === next) li.classList.add('tw-row--next');
     const title = document.createElement('span');
     title.className = 'tw-row__title';
     title.textContent = row.title;
-    li.append(title);
+    const body: Node[] = [title];
     if (row.unplanned) {
       const u = document.createElement('span');
       u.className = 'tw-row__tag';
       u.textContent = t('tagesweg.unplanned');
-      li.append(u);
+      body.push(u);
     }
-    li.append(stations(row));
+    body.push(stations(row));
+    const open = row.stations.some((st) => st !== 'done');
+    if (pickable && open) {
+      // Tap a row to make it the next round's task (replaces the old task select).
+      const pick = document.createElement('button');
+      pick.type = 'button';
+      pick.className = 'tw-row__pick';
+      pick.dataset.action = 'pick';
+      pick.setAttribute('aria-pressed', String(row.taskId === next));
+      pick.setAttribute('aria-label', t('tagesweg.pick', { title: row.title }));
+      pick.addEventListener('click', () => {
+        picked = row.taskId;
+        render();
+      });
+      li.append(pick, ...body);
+    } else li.append(...body);
     return li;
   }
 
@@ -143,10 +166,16 @@ export function mountTagesweg(
     const title = document.createElement('span');
     title.className = 'tw-row__title';
     title.textContent = row.title;
+    const text = document.createElement('span');
+    text.className = 'tw-row__text';
+    const metas = document.createElement('span');
+    metas.className = 'tw-row__metas';
     const price = document.createElement('span');
     price.className = 'tw-row__meta';
     price.textContent = t('tagesweg.coins', { n: row.price });
-    li.append(title, price);
+    metas.append(price);
+    text.append(title, metas);
+    li.append(text);
     if (row.reached)
       li.append(
         button({
@@ -164,7 +193,7 @@ export function mountTagesweg(
       const go = document.createElement('span');
       go.className = 'tw-row__meta';
       go.textContent = t('tagesweg.toGo', { n: row.toGo });
-      li.append(go);
+      metas.append(go);
       if (row.etaAt !== undefined) {
         const eta = document.createElement('span');
         eta.className = 'tw-row__meta';
@@ -175,36 +204,110 @@ export function mountTagesweg(
             minute: '2-digit',
           }).format(row.etaAt),
         });
-        li.append(eta);
+        metas.append(eta);
       }
     }
     return li;
   }
 
-  function header(w: Tagesweg) {
-    const head = document.createElement('header');
-    head.className = 'tw-head';
+  /** Budget line of the day: rounds done of planned, budget (FR-203, main-360). */
+  function summary() {
+    const day = state
+      ? deriveDayProgress(state, now())
+      : { done: 0, planned: 0 };
+    const budget = state?.settings.dailyBudget ?? 0;
+    const wrap = document.createElement('div');
+    wrap.className = 'tw-summary';
+    const p = document.createElement('p');
+    p.dataset.role = 'summary';
+    p.textContent = t('tagesweg.summary', {
+      done: day.done,
+      planned: day.planned,
+      budget,
+    });
+    wrap.append(
+      p,
+      progressBar({
+        label: t('tagesweg.ringDayLabel'),
+        value: day.done,
+        max: Math.max(1, day.planned, day.done),
+        valueText: p.textContent,
+      }).element,
+    );
+    return wrap;
+  }
+
+  const parkButton = () =>
+    iconButton({
+      icon: 'park',
+      label: t('tagesweg.park'),
+      action: 'park',
+      shortcut: 'P',
+      onClick: () => void run(park()),
+    });
+
+  /** The one main action of Today (FR-610): next task, Start, Park. */
+  function nextCard(w: Tagesweg, phase: TimerView['phase']) {
+    const next = picked ?? w.currentTaskId;
+    const card = document.createElement('section');
+    card.className = 'ui-card tw-next';
+    card.dataset.role = 'next';
+    const label = document.createElement('p');
+    label.className = 'tw-next__label';
+    label.textContent =
+      phase === 'short-break' || phase === 'long-break'
+        ? t(`timer.phase.${phase}`)
+        : t('tagesweg.next');
+    const title = document.createElement('p');
+    title.className = 'tw-next__title';
+    title.textContent = (next && state?.tasks[next]?.title) || '';
+    const actions = document.createElement('div');
+    actions.className = 'tw-next__actions';
+    actions.append(
+      button({
+        label: t('tagesweg.start'),
+        variant: 'primary',
+        action: 'start',
+        disabled: !next,
+        onClick: () => {
+          if (!next) return;
+          deps.prepareAlerts?.();
+          ring = false;
+          const go = async () => {
+            if (phase !== 'idle') await timer.skipBreak();
+            picked = undefined;
+            await timer.start(next);
+          };
+          void run(go());
+        },
+      }),
+      parkButton(),
+    );
+    card.append(label, title, actions);
+    return card;
+  }
+
+  function emptyState() {
+    const box = document.createElement('section');
+    box.className = 'tw-empty';
+    box.dataset.role = 'empty';
     const h = document.createElement('h2');
-    h.textContent = t('tagesweg.title');
-    head.append(h);
-    if (w.showCoins) {
-      const coins = document.createElement('p');
-      coins.className = 'tw-coins';
-      coins.dataset.role = 'coins';
-      coins.setAttribute('aria-label', t('tagesweg.coinsLabel'));
-      coins.textContent = t('tagesweg.coins', { n: w.coins });
-      head.append(coins);
-    }
-    head.append(
-      iconButton({
-        icon: 'park',
-        label: t('tagesweg.park'),
-        action: 'park',
-        shortcut: 'P',
-        onClick: () => void run(park()),
+    h.textContent = t('tagesweg.emptyTitle');
+    const p = document.createElement('p');
+    p.textContent = t('tagesweg.empty');
+    box.append(
+      h,
+      p,
+      button({
+        label: t('tagesweg.plan'),
+        variant: 'primary',
+        action: 'plan',
+        onClick: () => {
+          location.hash = '#/tasks';
+        },
       }),
     );
-    return head;
+    return box;
   }
 
   function ringCard(w: Tagesweg) {
@@ -274,17 +377,38 @@ export function mountTagesweg(
 
   function render() {
     if (!state) return;
+    livePiece = undefined;
+    liveDigits = undefined;
     const w = deriveTagesweg(state, lastView, now());
     const phase = lastView.phase;
-    const children: Node[] = [header(w)];
+    const children: Node[] = [];
+    const section = document.createElement('section');
+    section.className = 'tagesweg';
+    section.setAttribute('aria-label', t('tagesweg.title'));
 
     if (w.zoom) {
+      // Round running (FR-604): only the task, its path piece, notes and the round controls.
+      section.classList.add('tagesweg--focus');
       const row = w.rows.find(
         (r) => r.kind === 'task' && r.taskId === w.zoom!.taskId,
       );
+      const task = state.tasks[w.zoom.taskId];
+      const head = document.createElement('p');
+      head.className = 'tw-focus__phase';
+      if (row?.kind === 'task') {
+        const n = row.stations.filter((st) => st === 'done').length + 1;
+        head.textContent = t('tagesweg.focusHead', {
+          phase: t(`timer.phase.${phase}`),
+          n,
+          m: row.stations.length,
+        });
+      } else head.textContent = t(`timer.phase.${phase}`);
+      const title = document.createElement('h2');
+      title.className = 'tw-focus__task';
+      title.textContent = task?.title ?? '';
       const list = document.createElement('ol');
-      list.className = 'tw-path';
-      if (row?.kind === 'task') list.append(taskRow(row));
+      list.className = 'tw-path tw-path--focus';
+      if (row?.kind === 'task') list.append(taskRow(row, undefined, false));
       const piece = progressBar({
         label: t('tagesweg.piece'),
         value: w.zoom.progress,
@@ -292,31 +416,25 @@ export function mountTagesweg(
       });
       piece.element.dataset.role = 'piece';
       piece.element.classList.add('tw-piece');
-      const controls = document.createElement('div');
-      controls.className = 'tw-controls';
+      livePiece = piece;
       const showing = !!state.settings.digitsAlways || Date.now() < digitsUntil;
-      controls.append(
-        button({
-          label: showing
-            ? formatClock(lastView.remainingMs)
-            : t('tagesweg.digits'),
-          variant: 'quiet',
-          action: 'digits',
-          onClick: () => {
-            digitsUntil = Date.now() + DIGITS_MS;
-            clearTimeout(digitsTimer);
-            digitsTimer = setTimeout(render, DIGITS_MS);
-            render();
-          },
-        }),
-        button({
-          label: t('tagesweg.abort'),
-          variant: 'quiet',
-          action: 'abort',
-          onClick: () => void run(abort()),
-        }),
-      );
-      const task = state.tasks[w.zoom.taskId];
+      const digits = button({
+        label: showing
+          ? formatClock(lastView.remainingMs)
+          : t('tagesweg.digits'),
+        variant: 'quiet',
+        action: 'digits',
+        onClick: () => {
+          digitsUntil = Date.now() + DIGITS_MS;
+          clearTimeout(digitsTimer);
+          digitsTimer = setTimeout(render, DIGITS_MS);
+          render();
+        },
+      });
+      digits.classList.add('tw-digits');
+      if (showing) digits.classList.add('tw-digits--on');
+      liveDigits = showing ? digits : undefined;
+      children.push(head, title, piece.element, digits);
       if (task?.bullets?.length) {
         const ul = document.createElement('ul');
         ul.className = 'tw-bullets';
@@ -339,58 +457,129 @@ export function mountTagesweg(
           li.append(label);
           ul.append(li);
         }
-        children.push(list, ul, piece.element, controls);
-      } else children.push(list, piece.element, controls);
+        children.push(ul);
+      }
+      const controls = document.createElement('div');
+      controls.className = 'tw-controls';
+      const parkBtn = button({
+        label: t('tagesweg.park'),
+        variant: 'secondary',
+        action: 'park',
+        onClick: () => void run(park()),
+      });
+      parkBtn.setAttribute('aria-keyshortcuts', 'P');
+      controls.append(parkBtn);
+      // Flexible mode may pause (FR-107); strict shows Abort only.
+      if (lastView.mode === 'flexible')
+        controls.append(
+          button({
+            label: t(phase === 'paused' ? 'timer.resume' : 'timer.pause'),
+            variant: 'secondary',
+            action: phase === 'paused' ? 'resume' : 'pause',
+            onClick: () =>
+              void run(phase === 'paused' ? timer.resume() : timer.pause()),
+          }),
+        );
+      controls.append(
+        button({
+          label: t('tagesweg.abort'),
+          variant: 'quiet',
+          action: 'abort',
+          onClick: () => void run(abort()),
+        }),
+      );
+      children.push(controls, list);
     } else {
+      const tasksToday = w.rows.some((r) => r.kind === 'task');
       if (ring) children.push(ringCard(w));
-      if (w.rows.length === 0) {
-        const empty = document.createElement('p');
-        empty.textContent = t('tagesweg.empty');
-        children.push(empty);
-      } else {
+      if (!tasksToday && !picked) children.push(emptyState());
+      else {
+        children.push(summary());
+        const next = picked ?? w.currentTaskId;
+        const pickable =
+          phase === 'idle' || phase === 'short-break' || phase === 'long-break';
         const list = document.createElement('ol');
         list.className = 'tw-path';
         for (const r of w.rows)
-          list.append(r.kind === 'task' ? taskRow(r) : rewardRow(r));
+          list.append(
+            r.kind === 'task' ? taskRow(r, next, pickable) : rewardRow(r),
+          );
         children.push(list);
+        if (pickable) children.push(nextCard(w, phase));
       }
-      const canStart = !!w.currentTaskId && phase === 'idle';
-      if (phase === 'idle' || phase === 'short-break' || phase === 'long-break')
-        children.push(
-          button({
-            label: t('tagesweg.start'),
-            variant: 'primary',
-            action: 'start',
-            disabled: !(picked ?? w.currentTaskId),
-            onClick: () => {
-              if (!canStart && phase === 'idle') return;
-              deps.prepareAlerts?.();
-              ring = false;
-              const go = async () => {
-                if (phase !== 'idle') await timer.skipBreak();
-                const next = picked ?? w.currentTaskId;
-                picked = undefined;
-                if (next) await timer.start(next);
-              };
-              void run(go());
-            },
-          }),
-        );
     }
-    const section = document.createElement('section');
-    section.className = 'tagesweg';
-    section.setAttribute('aria-label', t('tagesweg.title'));
     section.append(...children);
     root.replaceChildren(section);
   }
+
+  /** Next open task of today after the current pick, wrapping (NFR-06, N). */
+  function pickNext() {
+    if (!state) return false;
+    const w = deriveTagesweg(state, lastView, now());
+    const open = w.rows.filter(
+      (r) => r.kind === 'task' && r.stations.some((st) => st !== 'done'),
+    ) as Extract<TagesRow, { kind: 'task' }>[];
+    if (open.length === 0) return false;
+    const cur = picked ?? w.currentTaskId;
+    const i = open.findIndex((r) => r.taskId === cur);
+    picked = open[(i + 1) % open.length]!.taskId;
+    render();
+    return true;
+  }
+
+  /** Keys (NFR-06): Space starts, P parks, N picks the next task; never while typing or in a dialog. */
+  const onKey = (e: KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!root.isConnected || root.closest('[hidden], [inert]')) return;
+    if (document.querySelector('.ui-dialog-backdrop')) return;
+    const el = e.target as HTMLElement | null;
+    if (
+      el &&
+      (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(el.tagName) ||
+        el.isContentEditable)
+    )
+      return;
+    const key = e.key.toLowerCase();
+    if (key === ' ') {
+      const start = root.querySelector<HTMLButtonElement>(
+        '[data-action="start"]',
+      );
+      if (!start || start.disabled) return;
+      e.preventDefault();
+      start.click();
+    } else if (key === 'p') {
+      if (!root.querySelector('[data-action="park"]')) return;
+      e.preventDefault();
+      void run(park());
+    } else if (key === 'n') {
+      if (lastView.phase === 'focus' || lastView.phase === 'paused') return;
+      if (pickNext()) e.preventDefault();
+    }
+  };
+  document.addEventListener('keydown', onKey);
 
   const reload = async () => {
     state = await deps.state();
     render();
   };
   const offTimer = timer.onChange((view: TimerView, end?: PhaseEnd) => {
+    const prev = lastView;
     lastView = view;
     if (end === 'focus') ring = true;
+    // A plain tick (same phase, same round): move the piece and the digits only. Re-rendering every
+    // second would swap the buttons under a finger and swallow taps on the iPhone (NFR-18).
+    if (
+      !end &&
+      state &&
+      view.phase === prev.phase &&
+      view.pomodoroId === prev.pomodoroId &&
+      view.mode === prev.mode
+    ) {
+      if (livePiece && view.totalMs > 0)
+        livePiece.set(1 - view.remainingMs / view.totalMs, 1);
+      if (liveDigits) liveDigits.textContent = formatClock(view.remainingMs);
+      return;
+    }
     void reload().catch(() => {});
   });
   const onData = () => void reload().catch(() => {});
@@ -409,5 +598,6 @@ export function mountTagesweg(
     clearTimeout(digitsTimer);
     document.removeEventListener(DATA_CHANGED, onData);
     document.removeEventListener(PICK_TASK, onPick);
+    document.removeEventListener('keydown', onKey);
   };
 }

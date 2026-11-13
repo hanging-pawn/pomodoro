@@ -86,3 +86,201 @@
 .tw-ring p {
   margin: 0 0 var(--space-2);
 }
+
+/* Today screen (POMO-76, main-360): summary, path, one next-round card */
+.tw-summary p {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+.tw-row--task {
+  position: relative;
+  padding: var(--space-3) var(--space-3);
+  margin: 0 0 var(--space-1);
+  border-radius: var(--radius-row);
+  font-size: 1rem;
+}
+.tw-row--next {
+  background: var(--bg-card);
+  box-shadow: inset 0 0 0 1.5px var(--accent-mid);
+}
+.tw-row__pick {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.tw-row__pick:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.tw-row--reward {
+  font-size: 0.9375rem;
+}
+.tw-row--reward .ui-button {
+  position: relative;
+  z-index: 2;
+  min-height: 36px;
+}
+.tw-path {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-3);
+  border-left-color: var(--border);
+}
+.tw-next {
+  display: grid;
+  gap: var(--space-1);
+}
+.tw-next__label {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tw-next__title {
+  margin: 0 0 var(--space-3);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
+}
+.tw-next__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.tw-next__actions .ui-button--primary {
+  flex: 1;
+}
+.tw-next__actions .ui-icon-button {
+  width: var(--button-height);
+  height: var(--button-height);
+}
+
+/* Empty day */
+.tw-empty {
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+.tw-empty h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.25rem;
+}
+.tw-empty p {
+  margin: 0 auto var(--space-5);
+  max-width: 28ch;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Round running (FR-604, focus-360): calm, one thing */
+.tagesweg--focus {
+  display: flex;
+  flex-direction: column;
+}
+.tw-focus__phase {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-medium);
+}
+.tw-focus__task {
+  margin: 0 0 var(--space-6);
+  font-size: 2rem;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.tagesweg--focus .tw-piece {
+  height: 10px;
+  margin: 0;
+}
+.tw-digits.ui-button {
+  align-self: flex-start;
+  margin: var(--space-3) 0 0 calc(-1 * var(--space-4));
+  color: var(--text-secondary);
+}
+.tw-digits--on.ui-button {
+  margin-top: var(--space-4);
+  color: var(--text-primary);
+  font-size: var(--font-size-hero);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.tw-bullets {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tw-bullets label {
+  margin: 0;
+}
+.tagesweg--focus .tw-controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+.tagesweg--focus .tw-controls .ui-button {
+  min-height: var(--button-height);
+}
+.tagesweg--focus .tw-controls .ui-button--quiet {
+  grid-column: 1 / -1;
+}
+.tw-path--focus {
+  display: none;
+}
+.tw-ring {
+  margin-bottom: var(--space-4);
+}
+
+.tw-row--reward {
+  flex-wrap: nowrap;
+  color: var(--text-primary);
+}
+.tw-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.tw-row__metas {
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+}
+.tw-row__metas .tw-row__meta + .tw-row__meta::before {
+  content: '·';
+  margin: 0 6px;
+}
+.tw-row__text .tw-row__title {
+  flex: none;
+}
+.tw-row--task {
+  padding-block: var(--space-2);
+}
+/* The next-round card stays in reach above the bottom nav on long days */
+.tw-next {
+  position: sticky;
+  bottom: calc(env(safe-area-inset-bottom) + 76px);
+  z-index: 5;
+}
+@media (min-width: 1024px) {
+  .tw-next {
+    bottom: var(--space-4);
+  }
+}
+
+.tagesweg--focus .tw-controls:has([data-action='pause']),
+.tagesweg--focus .tw-controls:has([data-action='resume']) {
+  grid-template-columns: 1fr 1fr;
+}

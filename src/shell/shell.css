@@ -143,7 +143,8 @@ html {
 /* Round running (FR-604): only the round */
 .app[data-focus='on'] .app-header,
 .app[data-focus='on'] .app-nav,
-.app[data-focus='on'] .app-title {
+.app[data-focus='on'] .app-title,
+.app[data-focus='on'] #ios-hint {
   display: none;
 }
 .app[data-focus='on'] .app-main {

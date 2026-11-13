@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { openDialog } from '../ui/components/dialog';
+import { PICK_TASK } from '../tasks/events';
 import { newEvent, type DomainEvent } from '../domain/events';
 import { deriveState } from '../domain/state';
 import { createI18n } from '../i18n/i18n';
@@ -9,6 +11,11 @@ import { mountTagesweg } from './view';
 
 const NOW = Date.UTC(2026, 10, 13, 9, 0, 0);
 const flush = () => new Promise((r) => setTimeout(r, 0));
+const mounted: (() => void)[] = [];
+afterEach(() => {
+  mounted.splice(0).forEach((off) => off());
+  document.body.replaceChildren();
+});
 
 async function setup(extra: DomainEvent[] = []) {
   const events: DomainEvent[] = [
@@ -30,11 +37,12 @@ async function setup(extra: DomainEvent[] = []) {
     storage: undefined as unknown as Storage,
   });
   const prepared: number[] = [];
-  mountTagesweg(root, i18n, timer, createShop({ log }), {
+  const off = mountTagesweg(root, i18n, timer, createShop({ log }), {
     state: async () => deriveState(await log.events()),
     now: () => now,
     prepareAlerts: () => prepared.push(now),
   });
+  mounted.push(off);
   await flush();
   await timer.refresh();
   await flush();
@@ -49,10 +57,11 @@ describe('mountTagesweg', () => {
     expect(root.querySelectorAll('[data-role="task-row"]')).toHaveLength(1);
     expect(root.querySelectorAll('.tw-station')).toHaveLength(2);
     expect(root.querySelectorAll('[data-role="reward-row"]')).toHaveLength(1);
-    expect(root.querySelector('[data-role="coins"]')?.textContent).toBe(
-      '0 coins',
+    // One main action: the next-round card names the task (FR-610); coins live in the header.
+    expect(root.querySelector('[data-role="next"]')?.textContent).toContain(
+      'Report',
     );
-    expect(q(root, 'start')).not.toBeNull();
+    expect(root.querySelectorAll('[data-action="start"]')).toHaveLength(1);
   });
 
   it('starts a round and zooms to the current path piece with park and abort (FR-604)', async () => {
@@ -85,9 +94,7 @@ describe('mountTagesweg', () => {
     const ring = root.querySelector('[data-role="ring"]');
     expect(ring?.textContent).toContain('+10 coins');
     expect(ring?.textContent).toContain('10 coins to the next reward');
-    expect(root.querySelector('[data-role="coins"]')?.textContent).toBe(
-      '10 coins',
-    );
+    expect(ring?.textContent).toContain('Balance: 10 coins');
   });
 
   it('ring moment shows +coins, balance and the day bar done of planned (FR-407)', async () => {
@@ -198,5 +205,161 @@ describe('mountTagesweg', () => {
     q(root, 'start')!.click();
     // synchronous: browsers grant the permission prompt and audio only inside the user gesture
     expect(prepared).toHaveLength(1);
+  });
+});
+
+const press = (key: string, target: EventTarget = document.body) => {
+  const e = new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+  });
+  target.dispatchEvent(e);
+  return e;
+};
+const twoTasks = [
+  newEvent('task.created', { taskId: 'b', title: 'Slides', estimate: 1 }, 5),
+  newEvent('plan.changed', { day: dayKey(NOW), taskIds: ['a', 'b'] }, 6),
+];
+
+describe('Today screen (FR-610, FR-604)', () => {
+  it('without a plan shows one calm empty state with «Plan the day»', async () => {
+    const { root } = await setup([
+      newEvent('plan.changed', { day: dayKey(NOW), taskIds: [] }, 5),
+    ]);
+    expect(root.querySelector('[data-role="empty"]')).not.toBeNull();
+    expect(q(root, 'start')).toBeNull();
+    q(root, 'plan')!.click();
+    expect(location.hash).toBe('#/tasks');
+    location.hash = '';
+  });
+
+  it('a tapped task row becomes the next round', async () => {
+    const { root, timer } = await setup(twoTasks);
+    const picks = root.querySelectorAll<HTMLElement>('[data-action="pick"]');
+    expect(picks).toHaveLength(2);
+    picks[1]!.click();
+    expect(root.querySelector('[data-role="next"]')?.textContent).toContain(
+      'Slides',
+    );
+    q(root, 'start')!.click();
+    await flush();
+    expect(timer.view.taskId).toBe('b');
+  });
+
+  it('the task picked in the Horizon is used for the next round (FR-607)', async () => {
+    const { root, timer } = await setup(twoTasks);
+    document.dispatchEvent(new CustomEvent(PICK_TASK, { detail: 'b' }));
+    q(root, 'start')!.click();
+    await flush();
+    expect(timer.view.taskId).toBe('b');
+  });
+
+  it('flexible mode offers Pause in the round, strict only Abort (FR-107)', async () => {
+    const strict = await setup();
+    q(strict.root, 'start')!.click();
+    await flush();
+    expect(q(strict.root, 'pause')).toBeNull();
+    const flex = await setup([
+      newEvent('settings.changed', { changes: { mode: 'flexible' } }, 5),
+    ]);
+    q(flex.root, 'start')!.click();
+    for (let i = 0; i < 20 && !q(flex.root, 'pause'); i++) await flush();
+    flex.at(NOW + 60_000); // events at the same instant have no defined order
+    q(flex.root, 'pause')!.click();
+    for (let i = 0; i < 20 && flex.timer.view.phase !== 'paused'; i++)
+      await flush();
+    expect(flex.timer.view.phase).toBe('paused');
+    expect(q(flex.root, 'resume')).not.toBeNull();
+  });
+});
+
+describe('ticks (NFR-18)', () => {
+  it('a tick moves the piece but keeps the buttons, so a tap on the iPhone is not lost', async () => {
+    const { root, timer, at } = await setup();
+    q(root, 'start')!.click();
+    await flush();
+    const abort = q(root, 'abort');
+    const piece = root.querySelector('[data-role="piece"]')!;
+    const before = piece.getAttribute('aria-valuenow');
+    at(NOW + 5 * 60_000);
+    await timer.refresh();
+    await flush();
+    expect(q(root, 'abort')).toBe(abort);
+    expect(piece.getAttribute('aria-valuenow')).not.toBe(before);
+  });
+});
+
+describe('keyboard (NFR-06)', () => {
+  it('Space starts a round without a mouse click', async () => {
+    const { timer } = await setup();
+    const e = press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('focus');
+    expect(e.defaultPrevented).toBe(true);
+  });
+
+  it('Space does not start while typing in a text field or on a focused button', async () => {
+    const { root, timer } = await setup();
+    const input = document.createElement('input');
+    document.body.append(input);
+    press(' ', input);
+    press(' ', q(root, 'start')!);
+    await flush();
+    expect(timer.view.phase).toBe('idle');
+  });
+
+  it('Space does nothing while a dialog such as the intro is open', async () => {
+    const { timer } = await setup();
+    const closed = openDialog({
+      title: 'Intro',
+      actions: [{ label: 'Skip', value: 'skip' }],
+    });
+    (document.activeElement as HTMLElement | null)?.blur();
+    const e = press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('idle');
+    expect(e.defaultPrevented).toBe(false);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await closed;
+    press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('focus');
+  });
+
+  it('Space does nothing while Today is not the visible screen', async () => {
+    const { root, timer } = await setup();
+    const hidden = document.createElement('section');
+    hidden.hidden = true;
+    document.body.append(hidden);
+    hidden.append(root);
+    press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('idle');
+  });
+
+  it('N picks the next open task, wrapping around, and Space then starts it', async () => {
+    const { root, timer } = await setup(twoTasks);
+    const next = () => root.querySelector('[data-role="next"]')?.textContent;
+    expect(next()).toContain('Report');
+    press('n');
+    expect(next()).toContain('Slides');
+    press('N');
+    expect(next()).toContain('Report');
+    press('n');
+    press(' ');
+    await flush();
+    expect(timer.view.taskId).toBe('b');
+  });
+
+  it('P opens the park dialog, the round keeps running', async () => {
+    const { timer } = await setup();
+    press(' ');
+    await flush();
+    press('p');
+    await flush();
+    expect(document.querySelector('.ui-dialog')).not.toBeNull();
+    expect(timer.view.phase).toBe('focus');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
   });
 });

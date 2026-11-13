@@ -1,7 +1,6 @@
 import './ui/tokens.css';
 import './ui/components/components.css';
 import './ui/forms.css';
-import './timer/timer.css';
 import './tasks/tasks.css';
 import './tagesweg/tagesweg.css';
 import './horizon/horizon.css';
@@ -27,7 +26,7 @@ import { mountTasks } from './tasks/view';
 import { createTimer } from './timer/controller';
 import { createAlerts } from './timer/alerts';
 import { startTicker } from './timer/ticker';
-import { mountTimer } from './timer/view';
+import { mountAnnouncer } from './timer/announcer';
 import { mountTagesweg } from './tagesweg/view';
 import { mountDayClose } from './dayclose/view';
 import { mountWeek } from './week/view';
@@ -45,13 +44,15 @@ if (import.meta.env.PROD) void registerServiceWorker();
 const theme = createTheme();
 const i18n = createI18n();
 const store = openStore();
+// Dev server only: `?demo` loads a demo day for design checks (POMO-79).
+if (import.meta.env.DEV)
+  void import('./dev/demo').then((m) => m.maybeLoadDemo(store));
 
 // App shell (FR-610): header, one screen at a time, bottom nav. Each view mounts into a slot.
 const shell = mountShell(document.getElementById('shell')!, i18n);
 const place: [Screen, string][] = [
   ['today', 'ios-hint'],
   ['today', 'tagesweg'],
-  ['today', 'timer'],
   ['horizon', 'horizon'],
   ['tasks', 'tasks'],
   ['shop', 'rewards'],
@@ -101,30 +102,35 @@ const iosHintRoot = document.getElementById('ios-hint');
 if (iosHintRoot)
   mountIosHint(iosHintRoot, i18n, undefined, { dismissible: true });
 
-const timerRoot = document.getElementById('timer');
 const tageswegRoot = document.getElementById('tagesweg');
-if (timerRoot || tageswegRoot)
+if (tageswegRoot)
   void store.then((s) => {
     const timer = createTimer({ log: s });
-    // One alerts instance: the Tagesweg Start prepares it, the timer panel announces with it (FR-104).
+    // One alerts instance: the Start click prepares it, the announcer uses it (FR-104).
     const alerts = createAlerts();
-    if (tageswegRoot)
-      mountTagesweg(tageswegRoot, i18n, timer, createShop({ log: s }), {
-        state: () => s.state(),
-        prepareAlerts: () => alerts.prepare(),
-        tickBullet: (id, bullet, done) =>
-          createInventory({ log: s }).tickBullet(id, bullet, done),
-      });
-    if (timerRoot)
-      mountTimer(timerRoot, i18n, timer, {
-        tasks: async () =>
-          Object.values((await s.state()).tasks).filter((x) => !x.done),
-        getMode: async () => (await s.state()).settings.mode,
-        digitsAlways: async () => !!(await s.state()).settings.digitsAlways,
-        setMode: (mode) =>
-          s.append(newEvent('settings.changed', { changes: { mode } })),
-        alerts,
-      });
+    mountTagesweg(tageswegRoot, i18n, timer, createShop({ log: s }), {
+      state: () => s.state(),
+      prepareAlerts: () => alerts.prepare(),
+      tickBullet: (id, bullet, done) =>
+        createInventory({ log: s }).tickBullet(id, bullet, done),
+    });
+    // Tab title and end-of-phase alerts on every screen (FR-104, FR-108).
+    let titles: Record<string, string> = {};
+    const readTitles = () =>
+      s
+        .state()
+        .then((st) => {
+          titles = Object.fromEntries(
+            Object.values(st.tasks).map((x) => [x.id, x.title]),
+          );
+        })
+        .catch(() => {});
+    document.addEventListener(DATA_CHANGED, () => void readTitles());
+    void readTitles().then(() => timer.refresh());
+    mountAnnouncer(timer, i18n, {
+      alerts,
+      taskTitle: (id) => (id ? (titles[id] ?? '') : ''),
+    });
     // Round running → only the round on screen (FR-604); coins refresh after the ring.
     timer.onChange((view, end) => {
       shell.setFocus(view.phase === 'focus' || view.phase === 'paused');

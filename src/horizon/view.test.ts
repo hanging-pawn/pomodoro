@@ -120,33 +120,3 @@ describe('inventory shows the days left of a project (FR-608)', () => {
     expect(text('Task x1')).not.toContain('days left');
   });
 });
-
-describe('the picked task is used for the next round (FR-607)', () => {
-  it('the timer view preselects the task announced on document', async () => {
-    const { mountTimer } = await import('../timer/view');
-    const { createTimer } = await import('../timer/controller');
-    const log: DomainEvent[] = [];
-    const timer = createTimer({
-      log: {
-        events: async () => [...log],
-        append: async (...e) => void log.push(...e),
-      },
-      now: () => NOW,
-    });
-    const root = document.createElement('div');
-    document.body.replaceChildren(root);
-    mountTimer(root, i18n(), timer, {
-      tasks: async () => [
-        { id: 'a1', title: 'Task a1' },
-        { id: 'b1', title: 'Task b1' },
-      ],
-      getMode: async () => 'strict',
-      setMode: async () => {},
-    });
-    await flush();
-    document.dispatchEvent(new CustomEvent(PICK_TASK, { detail: 'b1' }));
-    root.querySelector<HTMLElement>('[data-action="start"]')!.click();
-    await flush();
-    expect(timer.view.taskId).toBe('b1');
-  });
-});
