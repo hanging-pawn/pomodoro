@@ -45,6 +45,74 @@ export const en = {
   'settings.level.hint.subtle': 'Coins and shop, no streak.',
   'settings.level.hint.full': 'Coins, shop, streak and random bonus.',
   'settings.about': '{app} · {tagline} · version {version}',
+  'tour.next': 'Next',
+  'tour.back': 'Back',
+  'tour.done': 'Done',
+  'tour.skip': 'Skip',
+  'tour.count': '{n} of {m}',
+  'tour.start': 'Start the tour of this screen',
+  'tour.today.task.title': 'Your tasks on the path',
+  'tour.today.task.body':
+    'Each row is a task, each dot a focus round. Tap a row to make it the next one.',
+  'tour.today.reward.title': 'Rewards on the way',
+  'tour.today.reward.body':
+    'Tinted rows are rewards. You see the price and how many coins are still missing. Once you have enough, redeem it here.',
+  'tour.today.next.title': 'The next round',
+  'tour.today.next.body':
+    'Start the round here. The bookmark parks a thought without interrupting the round.',
+  'tour.today.coins.title': 'Your balance',
+  'tour.today.coins.body':
+    'This is how many coins you have. Every finished round brings new ones.',
+  'tour.today.horizon.title': 'Horizon',
+  'tour.today.horizon.body':
+    'Your projects with a target date on a timeline: what is due soon, what is still open?',
+  'tour.today.settings.title': 'Settings',
+  'tour.today.settings.body':
+    'Round mode, rewards, language and your beta account.',
+  'tour.today.nav.title': 'The four areas',
+  'tour.today.nav.body':
+    'Today, Tasks, Shop and Week. The (i) next to every title starts the tour again at any time.',
+  'tour.tasks.budget.title': 'Daily budget',
+  'tour.tasks.budget.body':
+    'How many rounds are realistic today. The bar shows how much of it is already planned.',
+  'tour.tasks.today.title': 'Planned for today',
+  'tour.tasks.today.body':
+    'These tasks are on your day path. Tick them off with «Done»; more actions sit behind «…».',
+  'tour.tasks.add.title': 'New task',
+  'tour.tasks.add.body':
+    'Type a title and add it. Under «Project, estimate …» you set rounds, project, due date and repeat.',
+  'tour.tasks.list.title': 'All tasks',
+  'tour.tasks.list.body':
+    'Your backlog. «Add to today» brings a task onto your day.',
+  'tour.shop.balance.title': 'Balance',
+  'tour.shop.balance.body': 'Your coins. They come from finished rounds.',
+  'tour.shop.list.title': 'Your rewards',
+  'tour.shop.list.body':
+    'Price and what is still missing. «Redeem» once you have enough; «…» edits or deletes a reward.',
+  'tour.shop.add.title': 'Your own reward',
+  'tour.shop.add.body': 'Decide what you treat yourself to and what it costs.',
+  'tour.week.days.title': 'Rounds per day',
+  'tour.week.days.body':
+    'How many focus rounds you did on each day of this week, and below per project.',
+  'tour.week.plan.title': 'Plan fulfilment',
+  'tour.week.plan.body': 'How much of what you planned you actually did.',
+  'tour.week.close.title': 'Day close',
+  'tour.week.close.body':
+    'Your estimate next to the real rounds. This is how you learn to estimate better.',
+  'tour.horizon.lines.title': 'Projects on a timeline',
+  'tour.horizon.lines.body':
+    'Each line is a project up to its target date; the mark shows today.',
+  'tour.horizon.target.title': 'Set a target date',
+  'tour.horizon.target.body':
+    'Pick a project and enter a date. Without a target date a project does not show up here.',
+  'tour.settings.focus.title': 'Focus rounds',
+  'tour.settings.focus.body':
+    'Strict or flexible, and whether the time left shows as digits.',
+  'tour.settings.beta.title': 'Your beta account',
+  'tour.settings.beta.body':
+    'Your login. With it, feedback and data reach the beta team, and your data is on all your devices.',
+  'tour.settings.data.title': 'Your data',
+  'tour.settings.data.body': 'Export, import or delete everything.',
   'info.open': 'What is this?',
   'info.close': 'Got it',
   'info.today':

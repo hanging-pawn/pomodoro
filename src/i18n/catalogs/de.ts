@@ -46,6 +46,75 @@ export const de: Messages = {
   'settings.level.hint.subtle': 'Münzen und Laden, ohne Serie.',
   'settings.level.hint.full': 'Münzen, Laden, Serie und Zufallsbonus.',
   'settings.about': '{app} · {tagline} · Version {version}',
+  'tour.next': 'Weiter',
+  'tour.back': 'Zurück',
+  'tour.done': 'Fertig',
+  'tour.skip': 'Überspringen',
+  'tour.count': '{n} von {m}',
+  'tour.start': 'Tour zu diesem Screen starten',
+  'tour.today.task.title': 'Deine Aufgaben auf dem Weg',
+  'tour.today.task.body':
+    'Jede Zeile ist eine Aufgabe, jeder Punkt eine Fokusrunde. Tippe eine Zeile an, damit sie als nächste drankommt.',
+  'tour.today.reward.title': 'Belohnungen unterwegs',
+  'tour.today.reward.body':
+    'Getönte Zeilen sind Belohnungen. Du siehst den Preis und wie viele Münzen noch fehlen. Sobald es reicht, löst du sie hier ein.',
+  'tour.today.next.title': 'Die nächste Runde',
+  'tour.today.next.body':
+    'Hier startest du die Runde. Mit dem Lesezeichen parkst du einen Gedanken, ohne die Runde zu unterbrechen.',
+  'tour.today.coins.title': 'Dein Kontostand',
+  'tour.today.coins.body':
+    'So viele Münzen hast du gerade. Jede fertige Runde bringt neue.',
+  'tour.today.horizon.title': 'Horizont',
+  'tour.today.horizon.body':
+    'Deine Projekte mit Zieldatum auf einer Zeitachse: Was ist bald fällig, was ist noch offen?',
+  'tour.today.settings.title': 'Einstellungen',
+  'tour.today.settings.body':
+    'Rundenmodus, Belohnungen, Sprache und dein Beta-Konto.',
+  'tour.today.nav.title': 'Die vier Bereiche',
+  'tour.today.nav.body':
+    'Heute, Aufgaben, Laden und Woche. Über das (i) neben jedem Titel startest du die Tour jederzeit wieder.',
+  'tour.tasks.budget.title': 'Tagesbudget',
+  'tour.tasks.budget.body':
+    'Wie viele Runden heute realistisch sind. Der Balken zeigt, wie viel davon schon eingeplant ist.',
+  'tour.tasks.today.title': 'Heute geplant',
+  'tour.tasks.today.body':
+    'Diese Aufgaben stehen auf deinem Tagesweg. Hake sie mit «Erledigt» ab; weitere Aktionen findest du hinter «…».',
+  'tour.tasks.add.title': 'Neue Aufgabe',
+  'tour.tasks.add.body':
+    'Titel eingeben und hinzufügen. Unter «Projekt, Schätzung …» legst du Runden, Projekt, Termin und Wiederholung fest.',
+  'tour.tasks.list.title': 'Alle Aufgaben',
+  'tour.tasks.list.body':
+    'Dein Vorrat. Mit «Zu heute» holst du eine Aufgabe auf deinen Tag.',
+  'tour.shop.balance.title': 'Kontostand',
+  'tour.shop.balance.body': 'Deine Münzen. Sie kommen aus fertigen Runden.',
+  'tour.shop.list.title': 'Deine Belohnungen',
+  'tour.shop.list.body':
+    'Preis und was noch fehlt. «Einlösen», sobald es reicht; mit «…» änderst oder löschst du eine Belohnung.',
+  'tour.shop.add.title': 'Eigene Belohnung',
+  'tour.shop.add.body': 'Leg fest, was du dir gönnst und was es kostet.',
+  'tour.week.days.title': 'Runden pro Tag',
+  'tour.week.days.body':
+    'Wie viele Fokusrunden du an jedem Tag dieser Woche geschafft hast, darunter pro Projekt.',
+  'tour.week.plan.title': 'Plan erfüllt',
+  'tour.week.plan.body':
+    'Wie viel von dem, was du eingeplant hast, du wirklich geschafft hast.',
+  'tour.week.close.title': 'Tagesabschluss',
+  'tour.week.close.body':
+    'Deine Schätzung neben den echten Runden. So lernst du, besser zu schätzen.',
+  'tour.horizon.lines.title': 'Projekte auf der Zeitachse',
+  'tour.horizon.lines.body':
+    'Jede Linie ist ein Projekt bis zu seinem Zieldatum; der Strich markiert heute.',
+  'tour.horizon.target.title': 'Zieldatum setzen',
+  'tour.horizon.target.body':
+    'Projekt wählen und Datum eintragen. Ohne Zieldatum erscheint ein Projekt hier nicht.',
+  'tour.settings.focus.title': 'Fokusrunden',
+  'tour.settings.focus.body':
+    'Streng oder flexibel, und ob die Restzeit als Zahl zu sehen ist.',
+  'tour.settings.beta.title': 'Dein Beta-Konto',
+  'tour.settings.beta.body':
+    'Dein Login. Damit landen Feedback und Daten beim Beta-Team, und deine Daten sind auf allen Geräten.',
+  'tour.settings.data.title': 'Deine Daten',
+  'tour.settings.data.body': 'Exportieren, importieren oder alles löschen.',
   'info.open': 'Was ist das?',
   'info.close': 'Verstanden',
   'info.today':

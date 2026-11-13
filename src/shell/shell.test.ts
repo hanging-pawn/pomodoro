@@ -124,6 +124,23 @@ describe('mountShell (FR-610)', () => {
     expect(location.hash).toBe('#/today');
   });
 
+  it('with a tour, the info button starts the tour of that screen (POMO-86)', () => {
+    const started: string[] = [];
+    const root = document.createElement('div');
+    shell = mountShell(root, i18nFor('de'), {
+      tour: (s) => void started.push(s),
+    });
+    expect(root.querySelector<HTMLElement>('#info-shop')!.hidden).toBe(true);
+    const btn = root.querySelector<HTMLElement>(
+      '.app-screen--shop [data-action="info"]',
+    )!;
+    expect(btn.getAttribute('aria-label')).toBe(
+      'Tour zu diesem Screen starten',
+    );
+    btn.click();
+    expect(started).toEqual(['shop']);
+  });
+
   it('explains each screen on the first visit, then behind the info button', () => {
     const m = new Map<string, string>();
     const storage = {

@@ -59,6 +59,11 @@ export function parseRoute(hash: string): Screen {
 export interface ShellOptions {
   /** Remembers which screen explanations were read (default localStorage). */
   storage?: Pick<Storage, 'getItem' | 'setItem'>;
+  /**
+   * Guided tour per screen (POMO-86). When set, the info button starts it and the static
+   * explanation card stays closed (the tour's first step carries that text).
+   */
+  tour?: (screen: Screen) => void;
 }
 
 const INFO_SEEN = 'pomo.info.seen.';
@@ -177,12 +182,13 @@ export function mountShell(
       label: '',
       action: 'info',
       onClick: () => {
+        if (options.tour) return options.tour(s);
         const opening = info.hidden === true;
         // Closing with the button counts as read; opening does not.
         setInfo(s, opening, !opening);
       },
     });
-    infoBtn.setAttribute('aria-controls', info.id);
+    if (!options.tour) infoBtn.setAttribute('aria-controls', info.id);
     head.append(h1, infoBtn);
     const slot = document.createElement('div');
     slot.className = 'app-slot';
@@ -192,8 +198,9 @@ export function mountShell(
     titles.set(s, h1);
     slots.set(s, slot);
     infos.set(s, { box: info, text: infoText, close: infoClose, btn: infoBtn });
-    info.hidden = infoSeen(s);
-    infoBtn.setAttribute('aria-expanded', String(!info.hidden));
+    info.hidden = options.tour ? true : infoSeen(s);
+    if (!options.tour)
+      infoBtn.setAttribute('aria-expanded', String(!info.hidden));
   }
 
   function setInfo(s: Screen, open: boolean, read: boolean) {
@@ -242,8 +249,9 @@ export function mountShell(
       const parts = infos.get(s)!;
       parts.text.textContent = t(`info.${s}`);
       parts.close.textContent = t('info.close');
-      parts.btn.setAttribute('aria-label', t('info.open'));
-      parts.btn.title = t('info.open');
+      const infoLabel = t(options.tour ? 'tour.start' : 'info.open');
+      parts.btn.setAttribute('aria-label', infoLabel);
+      parts.btn.title = infoLabel;
     }
     for (const s of NAV) navLabels.get(s)!.textContent = t(`screen.${s}`);
     // Number and tomato (POMO-82); the accessible name says «30 coins».

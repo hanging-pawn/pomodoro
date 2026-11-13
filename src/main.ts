@@ -36,6 +36,7 @@ import { mountWeek } from './week/view';
 import { mountHorizon } from './horizon/view';
 import { createTheme } from './ui/theme';
 import { showIntro } from './onboarding/intro';
+import { createTours } from './onboarding/tours';
 import { mountIosHint } from './onboarding/ios-hint';
 import { registerServiceWorker } from './pwa/register';
 import { DATA_CHANGED } from './tasks/events';
@@ -52,7 +53,16 @@ if (import.meta.env.DEV)
   void import('./dev/demo').then((m) => m.maybeLoadDemo(store));
 
 // App shell (FR-610): header, one screen at a time, bottom nav. Each view mounts into a slot.
-const shell = mountShell(document.getElementById('shell')!, i18n);
+// Tour per screen (POMO-86): the info button starts it; first visits start it by themselves.
+const tours = createTours(i18n, {
+  busy: () =>
+    !!document.querySelector('.ui-dialog-backdrop, [data-role="tour"]') ||
+    document.querySelector('.app')?.getAttribute('data-focus') === 'on',
+});
+const shell = mountShell(document.getElementById('shell')!, i18n, {
+  tour: (screen) => void tours.start(screen),
+});
+shell.onShow((screen) => tours.shown(screen));
 const place: [Screen, string][] = [
   ['today', 'beta-reminder'],
   ['today', 'ios-hint'],
@@ -271,6 +281,8 @@ if (beta) {
 
 // First start only (NFR-15): after the views are mounted, so skipping lands on the timer.
 // Then the beta sign-in, which is the app login (POMO-85); «Later» asks again tomorrow.
-void showIntro(i18n).then(() => maybeShowLogin(i18n, betaSession));
+void showIntro(i18n)
+  .then(() => maybeShowLogin(i18n, betaSession))
+  .then(() => tours.enableAuto(shell.current));
 // Signed in from before: get the other devices' data now.
 void betaSession.pull();

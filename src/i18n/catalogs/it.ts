@@ -46,6 +46,75 @@ export const it: Messages = {
   'settings.level.hint.subtle': 'Monete e negozio, senza serie.',
   'settings.level.hint.full': 'Monete, negozio, serie e bonus casuale.',
   'settings.about': '{app} · {tagline} · versione {version}',
+  'tour.next': 'Avanti',
+  'tour.back': 'Indietro',
+  'tour.done': 'Fine',
+  'tour.skip': 'Salta',
+  'tour.count': '{n} di {m}',
+  'tour.start': 'Avvia la guida di questa schermata',
+  'tour.today.task.title': 'Le tue attività sul percorso',
+  'tour.today.task.body':
+    'Ogni riga è un’attività, ogni punto un round di concentrazione. Tocca una riga per farla diventare la prossima.',
+  'tour.today.reward.title': 'Premi lungo la strada',
+  'tour.today.reward.body':
+    'Le righe colorate sono premi. Vedi il prezzo e quante monete mancano ancora. Quando ne hai abbastanza, lo riscatti qui.',
+  'tour.today.next.title': 'Il prossimo round',
+  'tour.today.next.body':
+    'Qui avvii il round. Con il segnalibro parcheggi un pensiero senza interrompere il round.',
+  'tour.today.coins.title': 'Il tuo saldo',
+  'tour.today.coins.body':
+    'Ecco quante monete hai. Ogni round concluso ne porta di nuove.',
+  'tour.today.horizon.title': 'Orizzonte',
+  'tour.today.horizon.body':
+    'I tuoi progetti con data obiettivo su una linea del tempo: cosa scade presto, cosa è ancora aperto?',
+  'tour.today.settings.title': 'Impostazioni',
+  'tour.today.settings.body':
+    'Modalità dei round, premi, lingua e il tuo account beta.',
+  'tour.today.nav.title': 'Le quattro aree',
+  'tour.today.nav.body':
+    'Oggi, Attività, Negozio e Settimana. La (i) accanto a ogni titolo riavvia la guida in qualsiasi momento.',
+  'tour.tasks.budget.title': 'Budget giornaliero',
+  'tour.tasks.budget.body':
+    'Quanti round sono realistici oggi. La barra mostra quanto è già pianificato.',
+  'tour.tasks.today.title': 'Pianificate per oggi',
+  'tour.tasks.today.body':
+    'Queste attività sono sul tuo percorso del giorno. Spuntale con «Fatto»; altre azioni sono dietro «…».',
+  'tour.tasks.add.title': 'Nuova attività',
+  'tour.tasks.add.body':
+    'Scrivi un titolo e aggiungila. In «Progetto, stima …» imposti round, progetto, scadenza e ripetizione.',
+  'tour.tasks.list.title': 'Tutte le attività',
+  'tour.tasks.list.body':
+    'La tua scorta. Con «Aggiungi a oggi» porti un’attività nella tua giornata.',
+  'tour.shop.balance.title': 'Saldo',
+  'tour.shop.balance.body': 'Le tue monete. Arrivano dai round conclusi.',
+  'tour.shop.list.title': 'I tuoi premi',
+  'tour.shop.list.body':
+    'Prezzo e quanto manca. «Riscatta» quando ne hai abbastanza; con «…» modifichi o elimini un premio.',
+  'tour.shop.add.title': 'Un premio tuo',
+  'tour.shop.add.body': 'Decidi cosa concederti e quanto costa.',
+  'tour.week.days.title': 'Round al giorno',
+  'tour.week.days.body':
+    'Quanti round di concentrazione hai fatto in ogni giorno di questa settimana, e sotto per progetto.',
+  'tour.week.plan.title': 'Piano rispettato',
+  'tour.week.plan.body':
+    'Quanto di ciò che avevi pianificato hai fatto davvero.',
+  'tour.week.close.title': 'Chiusura della giornata',
+  'tour.week.close.body':
+    'La tua stima accanto ai round reali. Così impari a stimare meglio.',
+  'tour.horizon.lines.title': 'Progetti sulla linea del tempo',
+  'tour.horizon.lines.body':
+    'Ogni linea è un progetto fino alla sua data obiettivo; il segno indica oggi.',
+  'tour.horizon.target.title': 'Imposta una data obiettivo',
+  'tour.horizon.target.body':
+    'Scegli un progetto e inserisci una data. Senza data obiettivo un progetto non appare qui.',
+  'tour.settings.focus.title': 'Round di concentrazione',
+  'tour.settings.focus.body':
+    'Rigorosa o flessibile, e se il tempo rimanente si vede in cifre.',
+  'tour.settings.beta.title': 'Il tuo account beta',
+  'tour.settings.beta.body':
+    'Il tuo accesso. Con esso feedback e dati arrivano al team beta, e i tuoi dati sono su tutti i tuoi dispositivi.',
+  'tour.settings.data.title': 'I tuoi dati',
+  'tour.settings.data.body': 'Esporta, importa o elimina tutto.',
   'info.open': 'Che cos’è?',
   'info.close': 'Ho capito',
   'info.today':
