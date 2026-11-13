@@ -54,7 +54,7 @@ export const de: Messages = {
   'beta.signIn': 'Anmelden',
   'beta.consent.title': 'Vor deinem ersten Upload',
   'beta.consent.stored':
-    'Gespeichert im privaten Beta-Daten-Repo: dein Konto (testers/<id>/account.json: Tester-ID, Name, E-Mail, Sprache, angelegt am, letzte Anmeldung, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Coins, Belohnungen) mit einer Zusammenfassung.',
+    'Gespeichert im privaten Beta-Daten-Repo: dein Konto (testers/<id>/account.json: Tester-ID, Name, E-Mail, Sprache, angelegt am, letzte Anmeldung, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Münzen, Belohnungen) mit einer Zusammenfassung.',
   'beta.consent.evaluated':
     'Wir werten aus, wie Fokusrunden, Aufgaben und Belohnungen genutzt werden, um {app} zu verbessern. Nur das Beta-Team kann die Daten lesen.',
   'beta.consent.signOut':
@@ -217,6 +217,7 @@ export const de: Messages = {
   'intro.3.title': 'Tasten und Benachrichtigungen',
   'intro.3.body':
     'Leertaste startet eine Runde, N wählt die nächste Aufgabe, P hält eine Störung fest, ohne die Uhr anzuhalten. Erlaube Benachrichtigungen, damit du das Ende einer Runde auch in einem anderen Tab hörst.',
+  'ios.dismiss': 'Hinweis ausblenden',
   'ios.title': 'Benachrichtigungen auf iPhone und iPad',
   'ios.body':
     'Safari auf iOS liefert Benachrichtigungen nur an installierte Apps. Tippe auf Teilen, dann auf Zum Home-Bildschirm, und öffne {app} vom Home-Bildschirm aus. Erlaube danach Benachrichtigungen, wenn du gefragt wirst.',
@@ -225,17 +226,17 @@ export const de: Messages = {
   'privacy.close': 'Schliessen',
   'privacy.local.title': 'Auf diesem Gerät',
   'privacy.local.body':
-    'Deine Aufgaben, Fokusrunden, Coins und Einstellungen liegen nur in diesem Browser (IndexedDB), als Protokoll von Ereignissen. Ohne Sync oder Beta verlässt nichts dieses Gerät. Du kannst deine Daten jederzeit exportieren oder löschen.',
+    'Deine Aufgaben, Fokusrunden, Münzen und Einstellungen liegen nur in diesem Browser (IndexedDB), als Protokoll von Ereignissen. Ohne Sync oder Beta verlässt nichts dieses Gerät. Du kannst deine Daten jederzeit exportieren oder löschen.',
   'privacy.sync.title': 'Mit Sync',
   'privacy.sync.body':
     'Wenn du Sync verbindest, wird dein Ereignisprotokoll über api.github.com in ein privates GitHub-Repo kopiert, das dir gehört. Der Token, den du erstellst, bleibt auf diesem Gerät, wird nie exportiert und beim Trennen gelöscht.',
   'privacy.beta.title': 'In der Beta',
   'privacy.beta.body':
-    'Wenn du dich in der Beta anmeldest, werden dein Konto (Tester-ID, Name, E-Mail, Sprache, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Coins, Belohnungen, genutzte Funktionen) im privaten Beta-Daten-Repo des Beta-Teams gespeichert und ausgewertet, um {app} zu verbessern. Nur das Beta-Team kann sie lesen. Mit dem Abmelden enden alle Uploads; deine Daten auf diesem Gerät bleiben.',
+    'Wenn du dich in der Beta anmeldest, werden dein Konto (Tester-ID, Name, E-Mail, Sprache, Browser/Gerät, App-Version) und deine Fokusdaten (Aufgaben, Fokusrunden, Pausen, Unterbrechungen, Münzen, Belohnungen, genutzte Funktionen) im privaten Beta-Daten-Repo des Beta-Teams gespeichert und ausgewertet, um {app} zu verbessern. Nur das Beta-Team kann sie lesen. Mit dem Abmelden enden alle Uploads; deine Daten auf diesem Gerät bleiben.',
   'tagesweg.title': 'Tagesweg',
   'tagesweg.empty': 'Noch nichts geplant. Plane Aufgaben in der Liste unten.',
-  'tagesweg.coins': '{n} Coins',
-  'tagesweg.coinsLabel': 'Coin-Stand',
+  'tagesweg.coins': '{n} Münzen',
+  'tagesweg.coinsLabel': 'Münzstand',
   'tagesweg.start': 'Runde starten',
   'tagesweg.park': 'Gedanken parken',
   'tagesweg.abort': 'Abbrechen',
@@ -247,8 +248,8 @@ export const de: Messages = {
   'tagesweg.station.current': 'nächste Runde',
   'tagesweg.station.open': 'Runde offen',
   'tagesweg.piece': 'Wegstück dieser Runde',
-  'tagesweg.ring': 'Runde geschafft: +{n} Coins',
-  'tagesweg.ringNext': '{n} Coins bis zur nächsten Belohnung',
+  'tagesweg.ring': 'Runde geschafft: +{n} Münzen',
+  'tagesweg.ringNext': '{n} Münzen bis zur nächsten Belohnung',
   'tagesweg.ringReached': 'Eine Belohnung ist in Reichweite.',
   'tagesweg.ringContinue': 'Weiter',
   'tagesweg.parkSave': 'Parken',

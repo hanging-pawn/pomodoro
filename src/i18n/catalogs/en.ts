@@ -214,6 +214,7 @@ export const en = {
   'intro.3.title': 'Keys and notifications',
   'intro.3.body':
     'Space starts a round, N picks the next task, P notes a distraction without stopping the clock. Allow notifications to hear when a round ends while you are in another tab.',
+  'ios.dismiss': 'Hide hint',
   'ios.title': 'Notifications on iPhone and iPad',
   'ios.body':
     'Safari on iOS only delivers notifications to apps you installed. Tap Share, then Add to Home Screen, and open {app} from the home screen. Then allow notifications when asked.',

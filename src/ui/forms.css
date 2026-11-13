@@ -1,0 +1,221 @@
+/*
+ * Form controls for every view (NFR-18): no unstyled system controls on iPhone, 16 px text in
+ * fields so Safari does not zoom, labels above fields, full-width fields. Tokens only.
+ */
+
+input:not([type='checkbox']):not([type='radio']):not([type='file']),
+select,
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 var(--space-3);
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-row);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px; /* below 16 px iOS Safari zooms into the field */
+  line-height: 1.25;
+}
+textarea {
+  min-height: 96px;
+  padding: var(--space-3);
+  resize: vertical;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+select {
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  text-overflow: ellipsis;
+}
+/* iOS renders an empty date field as a grey pill; give it the field look and left-aligned text */
+input[type='date'] {
+  display: flex;
+  align-items: center;
+}
+input[type='date']::-webkit-date-and-time-value {
+  margin: 0;
+  text-align: left;
+}
+input[type='date']::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+}
+input[type='number'] {
+  font-variant-numeric: tabular-nums;
+}
+input:not([type='checkbox']):not([type='radio']):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+  border-color: var(--focus-ring);
+}
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.55;
+}
+
+/* Labels sit above their field; a checkbox label stays on its line */
+label {
+  display: block;
+  margin: var(--space-3) 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+}
+label:has(input[type='checkbox']),
+label:has(input[type='radio']),
+input[type='checkbox'] + label,
+input[type='radio'] + label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  margin: var(--space-1) 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: var(--font-weight-regular);
+}
+input[type='checkbox'] + label {
+  display: inline-flex;
+}
+label > input:not([type='checkbox']):not([type='radio']),
+label > select,
+label > textarea {
+  margin-top: var(--space-1);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Checkbox: 24 px box drawn inside a 44 px hit area (NFR-05); negative margin keeps the row tight */
+input[type='checkbox'] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin: -10px 2px -10px -10px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+}
+input[type='checkbox']::before {
+  content: '';
+  grid-area: 1 / 1;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 7px;
+  background: var(--bg-card);
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+input[type='checkbox']::after {
+  content: '';
+  grid-area: 1 / 1;
+  place-self: center;
+  width: 12px;
+  height: 12px;
+  background: var(--on-cta);
+  clip-path: polygon(14% 52%, 0 66%, 38% 100%, 100% 22%, 86% 8%, 37% 70%);
+  transform: scale(0);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+input[type='checkbox']:checked::before {
+  border-color: var(--accent-cta);
+  background: var(--accent-cta);
+}
+input[type='checkbox']:checked::after {
+  transform: scale(1);
+}
+input[type='checkbox']:focus-visible {
+  outline: none;
+}
+input[type='checkbox']:focus-visible::before {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+input[type='checkbox']:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* File picker: the system button becomes a secondary button */
+input[type='file'] {
+  max-width: 100%;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--font-size-body);
+}
+input[type='file']::file-selector-button {
+  min-height: var(--touch-target);
+  margin-right: var(--space-3);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+/* Plain buttons from older panels look like secondary buttons, never like iOS system buttons */
+button:not([class]) {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+button:not([class]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+button:not([class]):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+fieldset {
+  min-width: 0;
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-row);
+}
+legend {
+  padding: 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+}
+
+h2,
+h3 {
+  letter-spacing: -0.01em;
+}

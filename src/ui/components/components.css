@@ -227,13 +227,4 @@ textarea {
   min-height: var(--touch-target);
   min-width: var(--touch-target);
 }
-
-/* NFR-05: checkboxes and radios get the full 44 x 44 px target too (digits always, streak). */
-input[type='checkbox'],
-input[type='radio'] {
-  width: var(--touch-target);
-  height: var(--touch-target);
-  margin: 0;
-  accent-color: var(--accent-cta);
-  vertical-align: middle;
-}
+/* Checkboxes (forms.css) are 24 px; their label row carries the 44 px target. */

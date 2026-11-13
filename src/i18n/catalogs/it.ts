@@ -218,6 +218,7 @@ export const it: Messages = {
   'intro.3.title': 'Tasti e notifiche',
   'intro.3.body':
     'Spazio avvia un round, N sceglie il compito successivo, P annota una distrazione senza fermare l’orologio. Consenti le notifiche per sapere quando un round finisce mentre sei in un’altra scheda.',
+  'ios.dismiss': 'Nascondi avviso',
   'ios.title': 'Notifiche su iPhone e iPad',
   'ios.body':
     'Safari su iOS consegna le notifiche solo alle app installate. Tocca Condividi, poi Aggiungi alla schermata Home, e apri {app} dalla schermata Home. Poi consenti le notifiche quando richiesto.',

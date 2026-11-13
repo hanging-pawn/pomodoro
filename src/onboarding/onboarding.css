@@ -1,6 +1,7 @@
 .ios-hint {
-  margin: var(--space-3);
-  padding: var(--space-3);
+  position: relative;
+  margin: 0;
+  padding: var(--space-4);
   background: var(--bg-highlight);
   border: 1px solid var(--accent-light);
   border-radius: var(--radius-card);
@@ -12,4 +13,16 @@
 }
 .ios-hint p {
   margin: 0;
+}
+
+.ios-hint--dismissible h2 {
+  padding-right: 40px;
+}
+.ios-hint__close.ui-icon-button {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
 }

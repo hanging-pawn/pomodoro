@@ -133,4 +133,41 @@ describe('iOS notification hint (NFR-12)', () => {
     i18n.setLocale('de');
     expect(root.textContent).toContain('Zum Home-Bildschirm');
   });
+
+  it('can be closed on Today and stays closed on this device (NFR-18)', () => {
+    const m = new Map<string, string>();
+    const storage = {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+    };
+    const root = document.createElement('div');
+    mountIosHint(
+      root,
+      i18nFor('en'),
+      { userAgent: IPHONE },
+      {
+        dismissible: true,
+        storage,
+      },
+    );
+    root
+      .querySelector<HTMLButtonElement>('[data-action="dismiss-ios-hint"]')!
+      .click();
+    expect(root.childElementCount).toBe(0);
+    const again = document.createElement('div');
+    mountIosHint(
+      again,
+      i18nFor('en'),
+      { userAgent: IPHONE },
+      {
+        dismissible: true,
+        storage,
+      },
+    );
+    expect(again.childElementCount).toBe(0);
+    // Settings keeps showing it (not dismissible there).
+    const settings = document.createElement('div');
+    mountIosHint(settings, i18nFor('en'), { userAgent: IPHONE }, { storage });
+    expect(settings.querySelector('.ios-hint')).not.toBeNull();
+  });
 });

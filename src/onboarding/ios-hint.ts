@@ -1,5 +1,8 @@
 import { APP_NAME } from '../config';
 import type { I18n, MessageKey } from '../i18n/i18n';
+import { iconButton } from '../ui/components/icon-button';
+
+const DISMISSED = 'pomo.iosHint.dismissed';
 
 export interface IosEnv {
   userAgent: string;
@@ -32,14 +35,41 @@ export function currentIosEnv(): IosEnv {
   };
 }
 
-/** Mounts the hint (with instructions) only where it applies; follows the language. */
+export interface IosHintOptions {
+  /** Shows a close button; once closed the hint stays away on this device (Today screen). */
+  dismissible?: boolean;
+  storage?: Pick<Storage, 'getItem' | 'setItem'>;
+}
+
+const safeStorage = (): IosHintOptions['storage'] => {
+  try {
+    return globalThis.localStorage;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Mounts the hint (with instructions) only where it applies; follows the language. Dismissible on
+ * the Today screen, always present in Settings (NFR-12, NFR-18).
+ */
 export function mountIosHint(
   root: HTMLElement,
   i18n: I18n,
   env: IosEnv = currentIosEnv(),
+  options: IosHintOptions = {},
 ): () => void {
+  const storage = options.storage ?? safeStorage();
+  const dismissed = () => {
+    try {
+      return storage?.getItem(DISMISSED) === '1';
+    } catch {
+      return false;
+    }
+  };
   const render = () => {
-    if (!isIosNotInstalled(env)) return root.replaceChildren();
+    if (!isIosNotInstalled(env) || (options.dismissible && dismissed()))
+      return root.replaceChildren();
     const t = (key: string) =>
       i18n.t(key as MessageKey).replaceAll('{app}', APP_NAME);
     const box = document.createElement('section');
@@ -50,6 +80,24 @@ export function mountIosHint(
     const p = document.createElement('p');
     p.textContent = t('ios.body');
     box.append(h, p);
+    if (options.dismissible) {
+      const close = iconButton({
+        icon: 'close',
+        label: t('ios.dismiss'),
+        action: 'dismiss-ios-hint',
+        onClick: () => {
+          try {
+            storage?.setItem(DISMISSED, '1');
+          } catch {
+            /* private mode: hide for this visit only */
+          }
+          root.replaceChildren();
+        },
+      });
+      close.classList.add('ios-hint__close');
+      box.classList.add('ios-hint--dismissible');
+      box.prepend(close);
+    }
     root.replaceChildren(box);
   };
   render();

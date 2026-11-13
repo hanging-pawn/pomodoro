@@ -1,5 +1,6 @@
 import './ui/tokens.css';
 import './ui/components/components.css';
+import './ui/forms.css';
 import './timer/timer.css';
 import './tasks/tasks.css';
 import './tagesweg/tagesweg.css';
@@ -97,7 +98,8 @@ if (root)
   });
 
 const iosHintRoot = document.getElementById('ios-hint');
-if (iosHintRoot) mountIosHint(iosHintRoot, i18n);
+if (iosHintRoot)
+  mountIosHint(iosHintRoot, i18n, undefined, { dismissible: true });
 
 const timerRoot = document.getElementById('timer');
 const tageswegRoot = document.getElementById('tagesweg');
