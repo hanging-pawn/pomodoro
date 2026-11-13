@@ -87,6 +87,7 @@ export async function launch({
   width = 1000,
   height = 800,
   lang,
+  headless = true,
 }) {
   const preview = spawn(
     'npx',
@@ -104,7 +105,7 @@ export async function launch({
   const chrome = spawn(
     CHROME,
     [
-      '--headless=new',
+      ...(headless ? ['--headless=new'] : []),
       `--remote-debugging-port=${port}`,
       `--user-data-dir=${mkdtempSync(join(tmpdir(), 'cdp-'))}`,
       '--no-first-run',

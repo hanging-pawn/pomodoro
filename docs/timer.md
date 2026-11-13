@@ -18,5 +18,13 @@ title (`mm:ss · task`), sound and Notification API run from the same refresh.
 3. Expected: sound and system notification at most 3 s after the end; title shows the break countdown.
 4. Repeat in Safari.
 
-Status of this check: not run by the autonomous build (needs a human in a real Chrome/Safari); to be recorded
-here with date and measured delay.
+### Chrome, scripted (POMO-52, 2026-11-13)
+
+`npm run build && node scripts/notification-check.mjs` starts a visible Chrome, runs three 15 s rounds with the app
+tab in the background (a second tab in front, `visibilityState` hidden) and records when the app raises the
+notification relative to the computed end. Result on 2026-11-13: delay 1073 / 1002 / 4 ms, limit 3000 ms: OK.
+It measures the app side (the Notification constructor call), not the operating system's banner.
+
+### Safari (open, POMO-52)
+
+Safari value: not yet measured; needs a human in a real Safari. Record date and delay here.
