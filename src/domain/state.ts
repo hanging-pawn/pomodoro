@@ -18,6 +18,8 @@ export interface Task {
   due?: string;
   /** Next instance on done (FR-207); empty or missing = does not repeat. */
   recurrence?: Recurrence | '';
+  /** Second estimate (FR-304), kept apart from `estimate`. */
+  secondEstimate?: number;
   /** Set on a subtask: id of its parent (one level only, FR-209). */
   parentId?: string;
   /** Parents only: subtasks done of total; `estimate` and `actual` are then the sums over the subtasks. */
@@ -40,6 +42,14 @@ export interface ParkedNote {
   at: number;
 }
 
+/** One finished or aborted round with its day, for the day close (FR-302). */
+export interface RoundRecord {
+  taskId?: string;
+  at: number;
+  kind: 'completed' | 'aborted';
+  interruption?: InterruptionType;
+}
+
 export interface Reward {
   id: string;
   title: string;
@@ -53,6 +63,8 @@ export interface AppState {
   plans: Record<string, string[]>;
   /** Parked interruption notes in log order. */
   parked: ParkedNote[];
+  /** Completed and aborted rounds in log order. */
+  rounds: RoundRecord[];
   rewards: Record<string, Reward>;
   rewardsSeeded: boolean;
   /** Balance: finished rounds, set bonus, flexible partial credit, minus redemptions (FR-401–403). */
@@ -73,6 +85,7 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
     pomodoros: { completed: 0, aborted: 0 },
     plans: {},
     parked: [],
+    rounds: [],
     rewards: {},
     rewardsSeeded: false,
     coins: 0,
@@ -104,6 +117,11 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
       case 'task.deleted':
         delete state.tasks[e.payload.taskId];
         break;
+      case 'task.reestimated': {
+        const task = state.tasks[e.payload.taskId];
+        if (task) task.secondEstimate = e.payload.estimate;
+        break;
+      }
       case 'plan.changed':
         state.plans[e.payload.day] = [...e.payload.taskIds];
         break;
@@ -125,6 +143,11 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
           state.coins += settings.setBonus;
         const task = state.tasks[pomodoroTask.get(e.payload.pomodoroId) ?? ''];
         if (task) task.actual += 1;
+        state.rounds.push({
+          taskId: pomodoroTask.get(e.payload.pomodoroId),
+          at: e.at,
+          kind: 'completed',
+        });
         break;
       }
       case 'interruption.parked':
@@ -132,6 +155,12 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         break;
       case 'pomodoro.aborted': {
         state.pomodoros.aborted += 1;
+        state.rounds.push({
+          taskId: pomodoroTask.get(e.payload.pomodoroId),
+          at: e.at,
+          kind: 'aborted',
+          interruption: e.payload.interruption,
+        });
         // Strict: nothing. Flexible: ⌊coinsPerPomodoro × worked / focus⌋ (FR-403).
         const round = rounds.get(e.payload.pomodoroId);
         if (round?.mode === 'flexible' && round.focusMinutes > 0)

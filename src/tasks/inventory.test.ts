@@ -316,3 +316,19 @@ describe('due dates and recurrence (FR-207, FR-208)', () => {
     expect(Object.keys(state().tasks)).toHaveLength(1);
   });
 });
+
+describe('second estimate (FR-304)', () => {
+  it('is logged as its own event and leaves the first estimate untouched', async () => {
+    const { inv, events, state } = setup();
+    const id = await inv.create({ title: 'Report', estimate: 2 });
+    await inv.reestimate(id, 4);
+    expect(events.filter((e) => e.type === 'task.reestimated')).toHaveLength(1);
+    expect(state().tasks[id]).toMatchObject({ estimate: 2, secondEstimate: 4 });
+  });
+
+  it('rejects a non-positive second estimate', async () => {
+    const { inv } = setup();
+    const id = await inv.create({ title: 'Report', estimate: 2 });
+    expect(await errorOf(inv.reestimate(id, 0))).toBe('invalid-estimate');
+  });
+});

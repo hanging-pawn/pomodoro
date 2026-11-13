@@ -57,6 +57,8 @@ export interface EventPayloads {
     changes: Partial<TaskFields> & { done?: boolean };
   };
   'task.deleted': { taskId: string };
+  /** Second estimate when the actual exceeded the first (FR-304); the first estimate stays untouched. */
+  'task.reestimated': { taskId: string; estimate: number };
   /** The ordered Today plan of one local day (`YYYY-MM-DD`); the latest event for a day wins. */
   'plan.changed': { day: string; taskIds: string[] };
   'pomodoro.started': {
@@ -119,6 +121,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'task.created',
   'task.changed',
   'task.deleted',
+  'task.reestimated',
   'plan.changed',
   'pomodoro.started',
   'pomodoro.completed',

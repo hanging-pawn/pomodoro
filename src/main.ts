@@ -22,6 +22,7 @@ import { createTimer } from './timer/controller';
 import { startTicker } from './timer/ticker';
 import { mountTimer } from './timer/view';
 import { mountTagesweg } from './tagesweg/view';
+import { mountDayClose } from './dayclose/view';
 import { createTheme } from './ui/theme';
 
 // Stored light/dark choice applies before the first render (FR-601).
@@ -58,6 +59,14 @@ const tasksRoot = document.getElementById('tasks');
 if (tasksRoot)
   void store.then((s) =>
     mountTasks(tasksRoot, i18n, createInventory({ log: s }), {
+      state: () => s.state(),
+    }),
+  );
+
+const dayCloseRoot = document.getElementById('dayclose');
+if (dayCloseRoot)
+  void store.then((s) =>
+    mountDayClose(dayCloseRoot, i18n, createInventory({ log: s }), {
       state: () => s.state(),
     }),
   );

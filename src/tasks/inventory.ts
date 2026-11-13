@@ -65,6 +65,8 @@ export interface Inventory {
   remove(id: string): Promise<void>;
   /** Marks the task done; it leaves Today (FR-305). */
   checkOff(id: string): Promise<void>;
+  /** Records a second estimate once the actual exceeded the first (FR-304); the first stays as it was. */
+  reestimate(id: string, estimate: number): Promise<void>;
   addToToday(id: string): Promise<void>;
   removeFromToday(id: string): Promise<void>;
   /** Moves one place up (-1) or down (+1) in the Today plan. */
@@ -312,6 +314,13 @@ export function createInventory(options: InventoryOptions): Inventory {
       await log.append(
         newEvent('task.changed', { taskId: id, changes: { done: true } }, at),
         ...(next ? [next] : []),
+      );
+    },
+    async reestimate(id, estimate) {
+      await known(id);
+      if (!isWhole(estimate)) throw new InventoryError('invalid-estimate');
+      await log.append(
+        newEvent('task.reestimated', { taskId: id, estimate }, now()),
       );
     },
     async addToToday(id) {
