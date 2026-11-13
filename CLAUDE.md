@@ -12,7 +12,7 @@ Profil: Software · Sprints 2 Wo · Releases
 - Name is pending its own trademark and availability check; keep it in one place so a rename is a one-line change.
 
 ## Sources of truth
-- Requirements (62 IDs FR-nnn / NFR-nn; FR-601–609 UI «Tagesweg» as draft): vault `Projekte/Pomodoro/01_Anforderungen/2026-11-13_Anforderungen_Pomodoro_v0.4.md`
+- Requirements (62 IDs FR-nnn / NFR-nn; FR-601–609 UI «Tagesweg», all released): vault `Projekte/Pomodoro/01_Anforderungen/2026-11-13_Anforderungen_Pomodoro_v0.4.md`
 - Decisions E1–E7: vault `Projekte/Pomodoro/01_Anforderungen/2026-11-12_Entscheidvorlage_Anforderungen.md`
 - Architecture decisions: `docs/adr/` in this repo (create on first decision)
 - Vault root: `/Users/gianluca/Library/Mobile Documents/iCloud~md~obsidian/Documents/Projekte/Pomodoro`
