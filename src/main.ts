@@ -13,6 +13,7 @@ import { APP_VERSION } from './config';
 import { newEvent } from './domain/events';
 import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
+import { mountDataPanel } from './data/panel';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
 import { mountPrivacyLink } from './privacy/notice';
@@ -129,6 +130,9 @@ if (rewardsRoot)
 
 const privacyRoot = document.getElementById('privacy');
 if (privacyRoot) mountPrivacyLink(privacyRoot, i18n);
+
+const dataRoot = document.getElementById('data');
+if (dataRoot) void store.then((s) => mountDataPanel(dataRoot, i18n, s));
 
 // Optional personal sync (NFR-10): no request until the user connects a repo.
 const syncRoot = document.getElementById('sync');

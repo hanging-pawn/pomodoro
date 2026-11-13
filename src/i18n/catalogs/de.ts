@@ -6,6 +6,23 @@ export const de: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.title': 'Deine Daten',
+  'data.intro':
+    'Alles bleibt in diesem Browser. Sichere eine Kopie, nimm sie auf ein anderes Gerät mit oder fang neu an.',
+  'data.exportJson': 'Alle Daten exportieren (JSON)',
+  'data.exportCsv': 'Protokoll exportieren (CSV)',
+  'data.import': 'JSON-Export importieren',
+  'data.wipe': 'Alle Daten löschen',
+  'data.wipe.title': 'Alle Daten löschen?',
+  'data.wipe.body':
+    'Aufgaben, Runden, Münzen und Belohnungen werden aus diesem Browser entfernt. Exportiere vorher eine Kopie, wenn du sie behalten willst.',
+  'data.wipe.confirm': 'Alle Daten löschen',
+  'data.cancel': 'Abbrechen',
+  'data.imported': 'Daten importiert.',
+  'data.wiped': 'Alle Daten gelöscht.',
+  'data.error.invalid':
+    'Diese Datei ist kein pomo.pomo-Export. Es wurde nichts geändert.',
+  'data.error.failed': 'Das hat nicht geklappt. Es wurde nichts geändert.',
   'theme.label': 'Darstellung',
   'theme.system': 'Wie System',
   'theme.light': 'Hell',

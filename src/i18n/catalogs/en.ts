@@ -5,6 +5,23 @@ export const en = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.title': 'Your data',
+  'data.intro':
+    'Everything stays in this browser. Save a copy, move it to another device or start over.',
+  'data.exportJson': 'Export all data (JSON)',
+  'data.exportCsv': 'Export protocol (CSV)',
+  'data.import': 'Import a JSON export',
+  'data.wipe': 'Delete all data',
+  'data.wipe.title': 'Delete all data?',
+  'data.wipe.body':
+    'Tasks, rounds, coins and rewards are removed from this browser. Export a copy first if you want to keep them.',
+  'data.wipe.confirm': 'Delete all data',
+  'data.cancel': 'Cancel',
+  'data.imported': 'Data imported.',
+  'data.wiped': 'All data deleted.',
+  'data.error.invalid':
+    'This file is not a pomo.pomo export. Nothing was changed.',
+  'data.error.failed': 'That did not work. Nothing was changed.',
   'theme.label': 'Appearance',
   'theme.system': 'Match system',
   'theme.light': 'Light',

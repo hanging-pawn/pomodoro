@@ -6,6 +6,23 @@ export const it: Messages = {
   'language.de': 'Deutsch',
   'language.en': 'English',
   'language.it': 'Italiano',
+  'data.title': 'I tuoi dati',
+  'data.intro':
+    'Tutto resta in questo browser. Salva una copia, portala su un altro dispositivo o ricomincia da capo.',
+  'data.exportJson': 'Esporta tutti i dati (JSON)',
+  'data.exportCsv': 'Esporta il protocollo (CSV)',
+  'data.import': "Importa un'esportazione JSON",
+  'data.wipe': 'Elimina tutti i dati',
+  'data.wipe.title': 'Eliminare tutti i dati?',
+  'data.wipe.body':
+    'Attività, sessioni, monete e ricompense vengono rimosse da questo browser. Esporta prima una copia se vuoi conservarle.',
+  'data.wipe.confirm': 'Elimina tutti i dati',
+  'data.cancel': 'Annulla',
+  'data.imported': 'Dati importati.',
+  'data.wiped': 'Tutti i dati eliminati.',
+  'data.error.invalid':
+    "Questo file non è un'esportazione pomo.pomo. Non è stato modificato nulla.",
+  'data.error.failed': 'Non ha funzionato. Non è stato modificato nulla.',
   'theme.label': 'Aspetto',
   'theme.system': 'Come il sistema',
   'theme.light': 'Chiaro',
