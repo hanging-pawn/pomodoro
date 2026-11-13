@@ -21,4 +21,41 @@ describe('registerServiceWorker (NFR-04)', () => {
     } as unknown as Navigator;
     expect(await registerServiceWorker(nav)).toBe(false);
   });
+
+  it('reloads once when a new worker takes over a controlled page (POMO-84)', async () => {
+    const sw = new EventTarget() as EventTarget & Record<string, unknown>;
+    sw.controller = {};
+    let updates = 0;
+    sw.register = async () => ({ update: async () => void updates++ });
+    const doc = new EventTarget() as EventTarget & { visibilityState: string };
+    doc.visibilityState = 'visible';
+    let reloads = 0;
+    await registerServiceWorker(
+      { serviceWorker: sw } as unknown as Navigator,
+      './sw.js',
+      { doc: doc as unknown as Document, reload: () => void reloads++ },
+    );
+    doc.dispatchEvent(new Event('visibilitychange'));
+    expect(updates).toBe(1);
+    sw.dispatchEvent(new Event('controllerchange'));
+    sw.dispatchEvent(new Event('controllerchange'));
+    expect(reloads).toBe(1);
+  });
+
+  it('does not reload on the very first install', async () => {
+    const sw = new EventTarget() as EventTarget & Record<string, unknown>;
+    sw.controller = null;
+    sw.register = async () => ({});
+    let reloads = 0;
+    await registerServiceWorker(
+      { serviceWorker: sw } as unknown as Navigator,
+      './sw.js',
+      {
+        doc: new EventTarget() as unknown as Document,
+        reload: () => void reloads++,
+      },
+    );
+    sw.dispatchEvent(new Event('controllerchange'));
+    expect(reloads).toBe(0);
+  });
 });

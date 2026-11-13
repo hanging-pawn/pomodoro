@@ -1,7 +1,7 @@
 import type { Messages } from './index';
 
 export const it: Messages = {
-  'app.tagline': 'Sessioni di concentrazione per le tue attività.',
+  'app.tagline': 'Round di concentrazione per le tue attività.',
   'language.label': 'Lingua',
   'language.de': 'Deutsch',
   'language.en': 'English',
@@ -19,7 +19,7 @@ export const it: Messages = {
   'data.wipe': 'Elimina tutti i dati',
   'data.wipe.title': 'Eliminare tutti i dati?',
   'data.wipe.body':
-    'Attività, sessioni, monete e ricompense vengono rimosse da questo browser. Esporta prima una copia se vuoi conservarle.',
+    'Attività, round, monete e premi vengono rimossi da questo browser. Esporta prima una copia se vuoi conservarle.',
   'data.wipe.confirm': 'Elimina tutti i dati',
   'data.cancel': 'Annulla',
   'data.imported': 'Dati importati.',
@@ -33,10 +33,10 @@ export const it: Messages = {
   'theme.dark': 'Scuro',
   'settings.digitsAlways': 'Mostra sempre le cifre',
   'settings.group.focus': 'Round di concentrazione',
-  'settings.group.rewards': 'Ricompense',
+  'settings.group.rewards': 'Premi',
   'settings.group.look': 'Lingua e aspetto',
   'settings.group.setup': 'Dati e dispositivi',
-  'settings.mode.strict': 'Rigoroso',
+  'settings.mode.strict': 'Rigorosa',
   'settings.mode.flexible': 'Flessibile',
   'settings.mode.hint.strict':
     'Un round va fino in fondo o si interrompe. I round interrotti non contano.',
@@ -49,17 +49,17 @@ export const it: Messages = {
   'info.open': 'Che cos’è?',
   'info.close': 'Ho capito',
   'info.today':
-    'La tua giornata come un percorso: ogni riga è un’attività, ogni punto un round di concentrazione di 25 minuti. Tocca un’attività per sceglierla come prossima, poi avvia il round qui sotto. Le righe colorate sono ricompense che raggiungi con le monete dei tuoi round.',
+    'La tua giornata come un percorso: ogni riga è un’attività, ogni punto un round di concentrazione di 25 minuti. Tocca un’attività per sceglierla come prossima, poi avvia il round qui sotto. Le righe colorate sono premi che raggiungi con le monete dei tuoi round.',
   'info.tasks':
     'Qui raccogli tutte le attività. Stima quanti round servono e portale nella tua giornata con «Aggiungi a oggi». Il budget giornaliero indica quanti round sono realistici oggi. Altre azioni sono dietro «…».',
   'info.shop':
-    'Le tue ricompense: ogni round completato fa guadagnare monete. Quando ne hai abbastanza, riscatti una ricompensa. Decidi tu cosa c’è e quanto costa.',
+    'I tuoi premi: ogni round completato fa guadagnare monete. Quando ne hai abbastanza, riscatti un premio. Decidi tu cosa c’è e quanto costa.',
   'info.week':
     'La tua settimana in breve: round per giorno e progetto, e quanto del piano hai realizzato. La chiusura del giorno qui sotto confronta la stima con i round effettivi.',
   'info.horizon':
     'Progetti con una data obiettivo, come un esame o una scadenza. La linea mostra quanto tempo è passato; il punto indica oggi. Tocca un progetto per scegliere la sua prossima attività aperta.',
   'info.settings':
-    'Come lavora pomo.pomo per te: modalità dei round, ricompense, lingua e aspetto. In «Dati e dispositivi» salvi i tuoi dati o colleghi un altro dispositivo.',
+    'Come lavora pomo.pomo per te: modalità dei round, premi, lingua e aspetto. In «Dati e dispositivi» salvi i tuoi dati o colleghi un altro dispositivo.',
   'nav.label': 'Navigazione principale',
   'screen.today': 'Oggi',
   'screen.tasks': 'Attività',
@@ -82,9 +82,9 @@ export const it: Messages = {
   'beta.signIn': 'Accedi',
   'beta.consent.title': 'Prima del tuo primo caricamento',
   'beta.consent.stored':
-    "Salvato nel repository privato dei dati beta: il tuo account (testers/<id>/account.json: ID tester, nome, e-mail, lingua, data di creazione, ultimo accesso, browser/dispositivo, versione dell'app) e i tuoi dati di concentrazione (attività, sessioni, pause, interruzioni, monete, ricompense) con un riepilogo.",
+    "Salvato nel repository privato dei dati beta: il tuo account (testers/<id>/account.json: ID tester, nome, e-mail, lingua, data di creazione, ultimo accesso, browser/dispositivo, versione dell'app) e i tuoi dati di concentrazione (attività, round, pause, interruzioni, monete, premi) con un riepilogo.",
   'beta.consent.evaluated':
-    'Valutiamo come vengono usate sessioni, attività e ricompense, per migliorare {app}. Solo il team beta può leggere i dati.',
+    'Valutiamo come vengono usati round, attività e premi, per migliorare {app}. Solo il team beta può leggere i dati.',
   'beta.consent.signOut':
     'Puoi uscire in qualsiasi momento: i caricamenti si fermano, i tuoi dati su questo dispositivo restano.',
   'beta.consent.accept': 'Accetto e accedo',
@@ -135,8 +135,8 @@ export const it: Messages = {
     'Il repository è vuoto. Aggiungi un README su GitHub, poi collega di nuovo.',
   'sync.error.offline':
     'GitHub non è raggiungibile. Le tue modifiche restano qui e verranno sincronizzate più tardi.',
-  'timer.title': 'Sessione di concentrazione',
-  'timer.start': 'Avvia sessione',
+  'timer.title': 'Round di concentrazione',
+  'timer.start': 'Avvia round',
   'timer.abort': 'Interrompi',
   'timer.pause': 'Pausa',
   'timer.resume': 'Riprendi',
@@ -150,10 +150,10 @@ export const it: Messages = {
   'timer.phase.long-break': 'Pausa lunga',
   'timer.progress': 'Avanzamento di questa fase',
   'timer.mode': 'Modalità',
-  'timer.mode.strict': 'Rigida (solo interrompi)',
+  'timer.mode.strict': 'Rigorosa (solo interrompi)',
   'timer.mode.flexible': 'Flessibile (pausa consentita)',
-  'timer.abort.title': 'Interrompere questa sessione?',
-  'timer.abort.hint': 'Una sessione interrotta non conta. Perché ti fermi?',
+  'timer.abort.title': 'Interrompere questo round?',
+  'timer.abort.hint': 'Un round interrotto non conta. Perché ti fermi?',
   'timer.abort.internal': 'Una mia distrazione',
   'timer.abort.external': 'Interrotto da qualcuno o qualcosa',
   'timer.abort.keep': 'Continua',
@@ -162,7 +162,7 @@ export const it: Messages = {
   'timer.park.kind': 'Tipo di interruzione',
   'timer.park.internal': 'Distrazione propria',
   'timer.park.external': "Qualcuno o qualcosa d'altro",
-  'timer.park.saved': 'Annotato. Il giro continua.',
+  'timer.park.saved': 'Annotato. Il round continua.',
   'park.title': 'Note parcheggiate',
   'rewards.heading': 'Premi',
   'rewards.level': 'Elementi di gioco',
@@ -185,10 +185,10 @@ export const it: Messages = {
   'unplanned.mark': 'Non pianificato',
   'unplanned.add': "Aggiungi un'attività urgente",
   'unplanned.submit': 'Aggiungi',
-  'timer.notify.focus.title': 'Sessione completata',
+  'timer.notify.focus.title': 'Round completato',
   'timer.notify.focus.body': 'È ora di una pausa.',
   'timer.notify.break.title': 'Pausa finita',
-  'timer.notify.break.body': 'Pronto per la prossima sessione.',
+  'timer.notify.break.body': 'Pronto per il prossimo round.',
   'tasks.more': 'Altre azioni',
   'tasks.add.placeholder': 'Nuova attività',
   'tasks.add.details': 'Progetto, stima, scadenza, ripetizione',
@@ -196,13 +196,13 @@ export const it: Messages = {
   'tasks.title': 'Attività',
   'tasks.add.title': 'Titolo',
   'tasks.add.project': 'Progetto (facoltativo)',
-  'tasks.add.estimate': 'Stima (sessioni)',
+  'tasks.add.estimate': 'Stima (round)',
   'tasks.add.submit': 'Aggiungi',
   'tasks.estimate.hint':
     'Attività grande: valuta di dividerla in parti più piccole.',
   'tasks.confirm.title': 'Salvare un’attività grande?',
   'tasks.confirm.body':
-    'Questa attività ha {n} sessioni. Le attività oltre 7 sessioni riescono meglio se divise.',
+    'Questa attività ha {n} round. Le attività oltre 7 round riescono meglio se divise.',
   'tasks.confirm.save': 'Salva comunque',
   'tasks.confirm.back': 'Indietro',
   'tasks.confirm.split': 'Dividi in sottoattività',
@@ -231,9 +231,9 @@ export const it: Messages = {
   'today.title': 'Oggi',
   'today.empty':
     'Niente in programma. Aggiungi attività dall’elenco qui sotto.',
-  'today.budget': 'Budget giornaliero (sessioni)',
+  'today.budget': 'Budget giornaliero (round)',
   'today.budgetBar': 'Budget di oggi',
-  'today.summary': '{planned} di {budget} sessioni pianificate',
+  'today.summary': '{planned} di {budget} round pianificati',
   'today.over': '{n} oltre il budget',
   'today.moveUp': 'Sposta su',
   'today.moveDown': 'Sposta giù',
@@ -244,13 +244,13 @@ export const it: Messages = {
   'intro.done': 'Inizia',
   'intro.1.title': 'Lavora a round di concentrazione',
   'intro.1.body':
-    'Scegli un compito e avvia un round di concentrazione di 25 minuti. Fino alla fine nient’altro conta; poi fai una breve pausa. Dopo quattro round la pausa è più lunga.',
+    'Scegli un’attività e avvia un round di concentrazione di 25 minuti. Fino alla fine nient’altro conta; poi fai una breve pausa. Dopo quattro round la pausa è più lunga.',
   'intro.2.title': 'Pianifica la giornata',
   'intro.2.body':
-    'Raccogli i compiti con una stima in round, metti quelli di oggi sul tuo percorso del giorno e spuntali. Ogni round finito dà monete da spendere in ricompense.',
+    'Raccogli le attività con una stima in round, metti quelle di oggi sul tuo percorso del giorno e spuntali. Ogni round finito dà monete da spendere in premi.',
   'intro.3.title': 'Tasti e notifiche',
   'intro.3.body':
-    'Spazio avvia un round, N sceglie il compito successivo, P annota una distrazione senza fermare l’orologio. Consenti le notifiche per sapere quando un round finisce mentre sei in un’altra scheda.',
+    'Spazio avvia un round, N sceglie l’attività successiva, P annota una distrazione senza fermare l’orologio. Consenti le notifiche per sapere quando un round finisce mentre sei in un’altra scheda.',
   'ios.dismiss': 'Nascondi avviso',
   'ios.title': 'Notifiche su iPhone e iPad',
   'ios.body':
@@ -260,13 +260,13 @@ export const it: Messages = {
   'privacy.close': 'Chiudi',
   'privacy.local.title': 'Su questo dispositivo',
   'privacy.local.body':
-    'Attività, sessioni di concentrazione, monete e impostazioni sono salvate solo in questo browser (IndexedDB), come registro di eventi. Senza sincronizzazione o beta nulla lascia questo dispositivo. Puoi esportare o eliminare i tuoi dati in qualsiasi momento.',
+    'Attività, round di concentrazione, monete e impostazioni sono salvate solo in questo browser (IndexedDB), come registro di eventi. Senza sincronizzazione o beta nulla lascia questo dispositivo. Puoi esportare o eliminare i tuoi dati in qualsiasi momento.',
   'privacy.sync.title': 'Con la sincronizzazione',
   'privacy.sync.body':
     'Se colleghi la sincronizzazione, il tuo registro di eventi viene copiato tramite api.github.com in un repository GitHub privato di tua proprietà. Il token che crei resta su questo dispositivo, non viene mai esportato e viene eliminato quando ti scolleghi.',
   'privacy.beta.title': 'Nella beta',
   'privacy.beta.body':
-    'Se accedi alla beta, il tuo account (ID tester, nome, e-mail, lingua, browser/dispositivo, versione dell’app) e i tuoi dati (attività, sessioni, pause, interruzioni, monete, premi, funzioni usate) vengono salvati nel repository dati privato del team beta e valutati per migliorare {app}. Solo il team beta può leggerli. Uscendo si interrompono tutti i caricamenti; i dati su questo dispositivo restano.',
+    'Se accedi alla beta, il tuo account (ID tester, nome, e-mail, lingua, browser/dispositivo, versione dell’app) e i tuoi dati (attività, round, pause, interruzioni, monete, premi, funzioni usate) vengono salvati nel repository dati privato del team beta e valutati per migliorare {app}. Solo il team beta può leggerli. Uscendo si interrompono tutti i caricamenti; i dati su questo dispositivo restano.',
   'tagesweg.summary': '{done} di {planned} round fatti · budget {budget}',
   'tagesweg.next': 'Prossimo round',
   'tagesweg.emptyTitle': 'Ancora niente in programma',
@@ -306,8 +306,8 @@ export const it: Messages = {
   'tasks.due': 'scadenza',
   'tasks.error.invalid-due': 'Inserisci la scadenza come giorno valido.',
   'dayclose.title': 'Chiusura della giornata',
-  'dayclose.empty': 'Oggi nessun compito da confrontare.',
-  'dayclose.col.task': 'Compito',
+  'dayclose.empty': 'Oggi nessuna attività da confrontare.',
+  'dayclose.col.task': 'Attività',
   'dayclose.col.estimate': 'Stima',
   'dayclose.col.actual': 'Effettivo',
   'dayclose.col.difference': 'Differenza',
@@ -324,8 +324,8 @@ export const it: Messages = {
   'week.col.project': 'Progetto',
   'week.noProject': 'Senza progetto',
   'week.fulfilment':
-    'Adempimento del piano: {percent} % ({done} di {planned} pianificati)',
-  'week.fulfilment.label': 'Adempimento del piano',
+    'Piano rispettato: {percent} % ({done} di {planned} pianificati)',
+  'week.fulfilment.label': 'Piano rispettato',
   'tagesweg.ringBalance': 'Saldo: {c}',
   'tagesweg.ringDay': '{done} di {planned} round oggi',
   'tagesweg.ringDone': 'Round concluso.',

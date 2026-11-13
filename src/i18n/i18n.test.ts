@@ -68,4 +68,24 @@ describe('catalogs', () => {
       }
     }
   });
+
+  // One word per concept and language (POMO-84): round, task, reward. Feedback 13.11.: the
+  // Italian texts mixed «sessione/giro/round», «compito/attività» and «ricompensa/premio».
+  it('uses one term per concept in each language', () => {
+    const banned: Record<string, RegExp> = {
+      de: /Sitzung|Session|Pomodoro|Prämie/i,
+      en: /\bsessions?\b|pomodoro|\bprizes?\b/i,
+      it: /session[ei]|\bgir[oi]\b|\bcompit[oi]\b|ricompens|pomodoro/i,
+    };
+    for (const [locale, messages] of Object.entries(catalogs))
+      for (const [key, text] of Object.entries(messages))
+        expect(text, `${locale}: ${key}`).not.toMatch(banned[locale]!);
+  });
+
+  it('no English or Italian text is left in German (and the other way round)', () => {
+    const german = /\b(und|oder|nicht|Runde|Aufgabe|Belohnung|Münze)\b/;
+    for (const locale of ['en', 'it'] as const)
+      for (const [key, text] of Object.entries(catalogs[locale]))
+        expect(text, `${locale}: ${key}`).not.toMatch(german);
+  });
 });
