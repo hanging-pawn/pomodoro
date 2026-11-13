@@ -71,6 +71,37 @@ export const en = {
   'header.settings': 'Settings',
   'header.coins': '{n} coins',
   'tagesweg.eta': 'about {time}',
+  'beta.login.title': 'Sign in to the beta',
+  'beta.login.why':
+    '{app} is in beta. I need your feedback and your usage data to make the app better. With your beta account your data is on every device, too.',
+  'beta.login.later': 'Later',
+  'beta.reminder.title': 'Not signed in to the beta yet',
+  'beta.reminder.body':
+    'Your feedback and your data help make {app} better. With an account your data is on all your devices.',
+  'beta.reminder.action': 'Sign in',
+  'beta.mode.signIn': 'I have an account',
+  'beta.mode.create': 'New account',
+  'beta.name': 'Name',
+  'beta.email': 'E-mail (optional)',
+  'beta.idHint':
+    'Lower-case letters, digits and hyphens, e.g. anna. The same on every device.',
+  'beta.create': 'Create account',
+  'beta.error.taken':
+    'This tester ID is already taken. Pick another one or sign in with «I have an account».',
+  'beta.error.no-name': 'Enter your name.',
+  'beta.devices':
+    'Your data lives in your beta account and is there on every device where you sign in with this tester ID.',
+  'beta.syncNow': 'Sync now',
+  'beta.lastPull': 'Last synced: {time}',
+  'beta.syncOffline':
+    'Syncing is not possible right now. It runs by itself once you are back online.',
+  'beta.feedback.label': 'Feedback to the beta team',
+  'beta.feedback.placeholder':
+    'What bothers you, what is missing, what do you like?',
+  'beta.feedback.send': 'Send feedback',
+  'beta.feedback.sent': 'Thank you! Your feedback has arrived.',
+  'beta.feedback.failed':
+    'Sending did not work. Check your connection and try again.',
   'beta.title': 'Beta',
   'beta.intro':
     'Sign in with your tester ID and personal key to share your data with the beta.',
@@ -99,7 +130,8 @@ export const en = {
     'This tester ID is not valid. Use lower-case letters, digits and hyphens.',
   'beta.error.bad-key':
     'This key was not accepted. Check the key and try again; nothing was sent.',
-  'beta.error.unknown-tester': 'There is no beta account with this tester ID.',
+  'beta.error.unknown-tester':
+    'There is no account for this tester ID yet. Create it under «New account».',
   'beta.error.locked': 'This beta account is locked.',
   'beta.error.offline':
     'GitHub is not reachable. Check your connection and try again.',

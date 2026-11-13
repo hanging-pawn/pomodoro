@@ -1,0 +1,52 @@
+/* Beta account = login (POMO-85): mode switch, login dialog, Today reminder, feedback. Tokens only. */
+
+.beta-mode {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+.beta-mode button {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+}
+.beta-mode button[aria-pressed='true'] {
+  border-color: var(--accent-mid);
+  background: var(--bg-highlight);
+  color: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+.beta-login {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+}
+.beta-login__why {
+  margin-top: 0;
+  color: var(--text-secondary);
+}
+.beta-login h2 {
+  display: none; /* the dialog already has the title */
+}
+
+.beta-reminder {
+  margin-bottom: var(--space-4);
+}
+.beta-reminder__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-body);
+}
+.beta-reminder p {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+}
+
+.beta-feedback {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}

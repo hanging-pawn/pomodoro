@@ -85,23 +85,8 @@ export function createSync(options: SyncOptions): Sync {
   const notify = () => listeners.forEach((l) => l());
 
   async function run(target: Saved): Promise<Exclude<SyncResult, 'off'>> {
-    let remote: DomainEvent[] = [];
     try {
-      await client(target.repo, target.token).commit(
-        'sync: merge events',
-        async (read) => {
-          const text = (await read(SYNC_FILE)) ?? '';
-          remote = parseLines(text);
-          const byId = new Map<string, DomainEvent>();
-          for (const e of [...remote, ...(await store.events())])
-            if (!byId.has(e.id)) byId.set(e.id, e);
-          const next = [...byId.values()]
-            .sort(compareEvents)
-            .map((e) => JSON.stringify(e) + '\n')
-            .join('');
-          return next === text ? null : { [SYNC_FILE]: next };
-        },
-      );
+      await mergeRepoLog(client(target.repo, target.token), SYNC_FILE, store);
     } catch (e) {
       if (e instanceof GitHubError) {
         if (e.status === 401) return 'bad-token';
@@ -110,15 +95,6 @@ export function createSync(options: SyncOptions): Sync {
       }
       return 'offline';
     }
-    // Validates every event; merging by id makes a repeated import harmless.
-    if (remote.length)
-      await store.importJson(
-        JSON.stringify({
-          format: EXPORT_FORMAT,
-          version: EXPORT_VERSION,
-          events: remote,
-        }),
-      );
     lastSync = new Date();
     return 'synced';
   }
@@ -193,6 +169,47 @@ export function createSync(options: SyncOptions): Sync {
       return () => listeners.delete(listener);
     },
   };
+}
+
+/**
+ * One two-way merge of the local log with a JSONL file in a repo (by event id, at most one
+ * commit): remote events go into the local log, local events into the file. Shared by the
+ * personal sync and the beta account (POMO-85). Resolves with the number of events that were
+ * new on this device; rejects on network or API errors.
+ */
+export async function mergeRepoLog(
+  repo: RepoClient,
+  file: string,
+  store: Pick<Store, 'events' | 'importJson'>,
+  message = 'sync: merge events',
+): Promise<number> {
+  let remote: DomainEvent[] = [];
+  let fresh = 0;
+  await repo.commit(message, async (read) => {
+    const text = (await read(file)) ?? '';
+    remote = parseLines(text);
+    const local = await store.events();
+    const known = new Set(local.map((e) => e.id));
+    fresh = remote.filter((e) => !known.has(e.id)).length;
+    const byId = new Map<string, DomainEvent>();
+    for (const e of [...remote, ...local])
+      if (!byId.has(e.id)) byId.set(e.id, e);
+    const next = [...byId.values()]
+      .sort(compareEvents)
+      .map((e) => JSON.stringify(e) + '\n')
+      .join('');
+    return next === text ? null : { [file]: next };
+  });
+  // Validates every event; merging by id makes a repeated import harmless.
+  if (fresh)
+    await store.importJson(
+      JSON.stringify({
+        format: EXPORT_FORMAT,
+        version: EXPORT_VERSION,
+        events: remote,
+      }),
+    );
+  return fresh;
 }
 
 function parseLines(text: string): DomainEvent[] {

@@ -72,6 +72,36 @@ export const it: Messages = {
   'header.settings': 'Impostazioni',
   'header.coins': '{n} monete',
   'tagesweg.eta': 'verso le {time}',
+  'beta.login.title': 'Accedi alla beta',
+  'beta.login.why':
+    '{app} è in beta. Mi servono il tuo feedback e i tuoi dati di utilizzo per migliorare l’app. Con il tuo account beta hai i tuoi dati anche su ogni dispositivo.',
+  'beta.login.later': 'Più tardi',
+  'beta.reminder.title': 'Non hai ancora fatto l’accesso alla beta',
+  'beta.reminder.body':
+    'Il tuo feedback e i tuoi dati aiutano a migliorare {app}. Con un account i tuoi dati sono su tutti i tuoi dispositivi.',
+  'beta.reminder.action': 'Accedi',
+  'beta.mode.signIn': 'Ho un account',
+  'beta.mode.create': 'Nuovo account',
+  'beta.name': 'Nome',
+  'beta.email': 'E-mail (facoltativa)',
+  'beta.idHint':
+    'Lettere minuscole, cifre e trattini, ad es. anna. Uguale su ogni dispositivo.',
+  'beta.create': 'Crea account',
+  'beta.error.taken':
+    'Questo ID tester è già in uso. Scegline un altro o accedi con «Ho un account».',
+  'beta.error.no-name': 'Inserisci il tuo nome.',
+  'beta.devices':
+    'I tuoi dati stanno nel tuo account beta e li trovi su ogni dispositivo in cui accedi con questo ID tester.',
+  'beta.syncNow': 'Sincronizza ora',
+  'beta.lastPull': 'Ultima sincronizzazione: {time}',
+  'beta.syncOffline':
+    'Ora non è possibile sincronizzare. Riparte da sola quando torni online.',
+  'beta.feedback.label': 'Feedback per il team beta',
+  'beta.feedback.placeholder': 'Cosa ti disturba, cosa manca, cosa ti piace?',
+  'beta.feedback.send': 'Invia feedback',
+  'beta.feedback.sent': 'Grazie! Il tuo feedback è arrivato.',
+  'beta.feedback.failed':
+    'Invio non riuscito. Controlla la connessione e riprova.',
   'beta.title': 'Beta',
   'beta.intro':
     'Accedi con il tuo ID tester e la tua chiave personale per condividere i tuoi dati con la beta.',
@@ -101,7 +131,7 @@ export const it: Messages = {
   'beta.error.bad-key':
     'Questa chiave non è stata accettata. Controlla la chiave e riprova; non è stato inviato nulla.',
   'beta.error.unknown-tester':
-    'Non esiste un account beta con questo ID tester.',
+    'Per questo ID tester non esiste ancora un account. Crealo in «Nuovo account».',
   'beta.error.locked': 'Questo account beta è bloccato.',
   'beta.error.offline':
     'GitHub non è raggiungibile. Controlla la connessione e riprova.',

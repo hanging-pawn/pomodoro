@@ -72,6 +72,36 @@ export const de: Messages = {
   'header.settings': 'Einstellungen',
   'header.coins': '{n} Münzen',
   'tagesweg.eta': 'etwa {time}',
+  'beta.login.title': 'Bei der Beta anmelden',
+  'beta.login.why':
+    '{app} ist in der Beta. Ich brauche dein Feedback und deine Nutzungsdaten, um die App besser zu machen. Mit deinem Beta-Konto hast du deine Daten ausserdem auf jedem Gerät.',
+  'beta.login.later': 'Später',
+  'beta.reminder.title': 'Noch nicht bei der Beta angemeldet',
+  'beta.reminder.body':
+    'Dein Feedback und deine Daten helfen, {app} besser zu machen. Mit Konto sind deine Daten auf allen Geräten.',
+  'beta.reminder.action': 'Anmelden',
+  'beta.mode.signIn': 'Ich habe ein Konto',
+  'beta.mode.create': 'Neues Konto',
+  'beta.name': 'Name',
+  'beta.email': 'E-Mail (freiwillig)',
+  'beta.idHint':
+    'Kleinbuchstaben, Ziffern und Bindestrich, z. B. anna. Auf jedem Gerät dieselbe.',
+  'beta.create': 'Konto anlegen',
+  'beta.error.taken':
+    'Diese Tester-ID ist schon vergeben. Wähle eine andere oder melde dich mit «Ich habe ein Konto» an.',
+  'beta.error.no-name': 'Gib deinen Namen ein.',
+  'beta.devices':
+    'Deine Daten liegen in deinem Beta-Konto und sind auf jedem Gerät da, auf dem du dich mit dieser Tester-ID anmeldest.',
+  'beta.syncNow': 'Jetzt abgleichen',
+  'beta.lastPull': 'Zuletzt abgeglichen: {time}',
+  'beta.syncOffline':
+    'Abgleich gerade nicht möglich. Er läuft von selbst, sobald du wieder online bist.',
+  'beta.feedback.label': 'Feedback an das Beta-Team',
+  'beta.feedback.placeholder': 'Was stört, was fehlt, was gefällt dir?',
+  'beta.feedback.send': 'Feedback senden',
+  'beta.feedback.sent': 'Danke! Dein Feedback ist angekommen.',
+  'beta.feedback.failed':
+    'Senden hat nicht geklappt. Prüfe die Verbindung und versuch es nochmal.',
   'beta.title': 'Beta',
   'beta.intro':
     'Melde dich mit deiner Tester-ID und deinem persönlichen Schlüssel an, um deine Daten mit der Beta zu teilen.',
@@ -100,7 +130,8 @@ export const de: Messages = {
     'Diese Tester-ID ist ungültig. Erlaubt sind Kleinbuchstaben, Ziffern und Bindestriche.',
   'beta.error.bad-key':
     'Dieser Schlüssel wurde nicht akzeptiert. Prüfe den Schlüssel und versuche es nochmals; es wurde nichts übertragen.',
-  'beta.error.unknown-tester': 'Zu dieser Tester-ID gibt es kein Beta-Konto.',
+  'beta.error.unknown-tester':
+    'Zu dieser Tester-ID gibt es noch kein Konto. Leg es unter «Neues Konto» an.',
   'beta.error.locked': 'Dieses Beta-Konto ist gesperrt.',
   'beta.error.offline':
     'GitHub ist nicht erreichbar. Prüfe deine Verbindung und versuche es nochmals.',

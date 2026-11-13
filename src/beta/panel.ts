@@ -1,10 +1,12 @@
 import { APP_NAME } from '../config';
 import type { I18n, MessageKey } from '../i18n/i18n';
-import type { BetaSession, SignInResult } from './session';
+import type { BetaSession, Profile, SignInResult } from './session';
 
 /**
  * Beta sign-in panel (FR-502, FR-506, NFR-13): form → consent notice on the first sign-in of a
  * tester on this device → signed-in view with sign-out. Declining sends nothing.
+ * The beta account is the app login (POMO-85): «New account» creates it, the signed-in view
+ * syncs the devices and takes feedback.
  * Returns an unmount function.
  */
 export function mountBetaPanel(
@@ -14,9 +16,12 @@ export function mountBetaPanel(
 ): () => void {
   type View =
     | { kind: 'form'; message?: MessageKey; testerId?: string }
-    | { kind: 'consent'; testerId: string; key: string }
+    | { kind: 'consent'; testerId: string; key: string; profile?: Profile }
     | { kind: 'busy' };
   let view: View = { kind: 'form' };
+  let mode: 'sign-in' | 'create' = 'sign-in';
+  let note: MessageKey | undefined;
+  let feedbackDraft = '';
 
   const text = (key: MessageKey) => i18n.t(key).replaceAll('{app}', APP_NAME);
   const el = <K extends keyof HTMLElementTagNameMap>(
@@ -39,10 +44,12 @@ export function mountBetaPanel(
     return p;
   };
 
-  async function signIn(testerId: string, key: string) {
+  async function signIn(testerId: string, key: string, profile?: Profile) {
     view = { kind: 'busy' };
     render();
-    const result: SignInResult = await session.signIn(testerId, key);
+    const result: SignInResult = await session.signIn(testerId, key, profile);
+    // No account yet: offer to create it with the same id.
+    if (result === 'unknown-tester') mode = 'create';
     view =
       result === 'signed-in'
         ? { kind: 'form' }
@@ -54,32 +61,69 @@ export function mountBetaPanel(
     render();
   }
 
+  function modeSwitch() {
+    const box = el('div');
+    box.className = 'beta-mode';
+    box.setAttribute('role', 'group');
+    for (const [m, key] of [
+      ['sign-in', 'beta.mode.signIn'],
+      ['create', 'beta.mode.create'],
+    ] as const) {
+      const b = button(`mode-${m}`, key);
+      b.setAttribute('aria-pressed', String(mode === m));
+      b.addEventListener('click', () => {
+        mode = m;
+        view = { kind: 'form' };
+        render();
+      });
+      box.append(b);
+    }
+    return box;
+  }
+
   function formView(v: Extract<View, { kind: 'form' }>) {
     const form = el('form');
+    const create = mode === 'create';
+    const name = input('name', 'text', 'beta.name');
+    name.input.autocomplete = 'name';
+    const email = input('email', 'email', 'beta.email');
+    email.input.autocomplete = 'email';
     const id = input('testerId', 'text', 'beta.testerId', v.testerId);
+    id.input.autocapitalize = 'none';
+    id.input.setAttribute('autocorrect', 'off');
+    const idHint = el('p', 'beta.idHint');
+    idHint.id = 'beta-id-hint';
+    id.input.setAttribute('aria-describedby', idHint.id);
     const key = input('key', 'password', 'beta.key');
     key.input.autocomplete = 'off';
     const hint = el('p', 'beta.keyHint');
     hint.id = 'beta-key-hint';
     key.input.setAttribute('aria-describedby', hint.id);
+    form.append(el('p', 'beta.intro'), modeSwitch());
+    if (create) form.append(name.label, name.input, email.label, email.input);
     form.append(
-      el('p', 'beta.intro'),
       id.label,
       id.input,
+      idHint,
       key.label,
       key.input,
       hint,
-      button('sign-in', 'beta.signIn', 'submit'),
+      create
+        ? button('create', 'beta.create', 'submit')
+        : button('sign-in', 'beta.signIn', 'submit'),
     );
     if (v.message) form.append(alert(v.message));
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const testerId = id.input.value.trim();
+      const testerId = id.input.value.trim().toLowerCase();
       const k = key.input.value.trim();
+      const profile = create
+        ? { name: name.input.value, email: email.input.value }
+        : undefined;
       if (session.needsConsent(testerId)) {
-        view = { kind: 'consent', testerId, key: k };
+        view = { kind: 'consent', testerId, key: k, profile };
         render();
-      } else void signIn(testerId, k);
+      } else void signIn(testerId, k, profile);
     });
     return [form];
   }
@@ -89,7 +133,7 @@ export function mountBetaPanel(
     const decline = button('decline', 'beta.consent.decline');
     accept.addEventListener('click', () => {
       session.consent(v.testerId);
-      void signIn(v.testerId, v.key);
+      void signIn(v.testerId, v.key, v.profile);
     });
     decline.addEventListener('click', () => {
       view = { kind: 'form', message: 'beta.declined', testerId: v.testerId };
@@ -114,10 +158,65 @@ export function mountBetaPanel(
     const out = button('sign-out', 'beta.signOut');
     out.addEventListener('click', () => {
       session.signOut();
+      note = undefined;
       view = { kind: 'form', message: 'beta.signedOut' };
       render();
     });
-    return [p, out];
+
+    // Devices (POMO-85): same data wherever this tester id signs in.
+    const devices = el('p', 'beta.devices');
+    const last = el('p');
+    last.dataset.role = 'last-pull';
+    if (session.lastPull)
+      last.textContent = text('beta.lastPull').replace(
+        '{time}',
+        session.lastPull.toLocaleTimeString(i18n.locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      );
+    const now = button('sync-now', 'beta.syncNow');
+    now.addEventListener('click', () => {
+      now.disabled = true;
+      void session.pull().then((r) => {
+        note = r === 'offline' ? 'beta.syncOffline' : undefined;
+        render();
+      });
+    });
+
+    // Feedback straight into the tester folder.
+    const fb = el('form');
+    fb.className = 'beta-feedback';
+    const area = el('textarea');
+    area.name = 'feedback';
+    area.id = 'beta-feedback';
+    area.rows = 4;
+    area.placeholder = text('beta.feedback.placeholder');
+    area.value = feedbackDraft;
+    area.addEventListener('input', () => (feedbackDraft = area.value));
+    const label = el('label', 'beta.feedback.label');
+    label.htmlFor = area.id;
+    const send = button('send-feedback', 'beta.feedback.send', 'submit');
+    fb.append(label, area, send);
+    fb.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!area.value.trim()) return;
+      send.disabled = true;
+      void session.sendFeedback(area.value).then((r) => {
+        if (r === 'sent') feedbackDraft = '';
+        note = r === 'sent' ? 'beta.feedback.sent' : 'beta.feedback.failed';
+        render();
+      });
+    });
+
+    const parts: Node[] = [p, devices, last, now, fb];
+    if (note) {
+      const msg = el('p', note);
+      msg.setAttribute('role', 'status');
+      parts.push(msg);
+    }
+    parts.push(out);
+    return parts;
   }
 
   function input(name: string, type: string, key: MessageKey, value?: string) {

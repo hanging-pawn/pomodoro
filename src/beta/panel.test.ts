@@ -109,3 +109,43 @@ describe('beta panel', () => {
     expect(root.textContent).toContain('anna');
   });
 });
+
+describe('beta panel: account is the login (POMO-85)', () => {
+  it('unknown id switches to «New account»; creating it signs in', async () => {
+    await submit('lea', KEY);
+    button('accept').click();
+    await settle();
+    expect(alertText()).toContain('no account for this tester ID yet');
+    expect(button('create')).not.toBeNull();
+    field('name').value = 'Lea';
+    field('email').value = 'lea@example.com';
+    await submit('lea', KEY);
+    expect(JSON.parse(gh.file('testers/lea/account.json')!)).toMatchObject({
+      name: 'Lea',
+      selfRegistered: true,
+    });
+    expect(button('sign-out')).not.toBeNull();
+    expect(root.textContent).toContain('on every device');
+  });
+
+  it('signed in: sends feedback into the tester folder', async () => {
+    await submit('anna', KEY);
+    button('accept').click();
+    await settle();
+    const area = root.querySelector<HTMLTextAreaElement>(
+      'textarea[name="feedback"]',
+    )!;
+    area.value = 'Mehr Farben bitte';
+    area.dispatchEvent(new Event('input'));
+    area.form!.dispatchEvent(new Event('submit', { cancelable: true }));
+    await settle();
+    await settle();
+    expect(root.querySelector('[role="status"]')?.textContent).toContain(
+      'Thank you',
+    );
+    const fb = gh
+      .commits()
+      .some((c) => c.message === 'beta: feedback from anna');
+    expect(fb).toBe(true);
+  });
+});

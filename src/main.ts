@@ -7,12 +7,14 @@ import './horizon/horizon.css';
 import './onboarding/onboarding.css';
 import './shell/shell.css';
 import './settings/settings.css';
+import './beta/beta.css';
 import { mountSettings } from './settings/view';
 import { mountShell, type Screen } from './shell/shell';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
 import { createUsageLog } from './beta/usage';
-import { APP_VERSION } from './config';
+import { APP_VERSION, OWN_REPO_SYNC } from './config';
+import { maybeShowLogin, mountBetaReminder, openLogin } from './beta/login';
 import { newEvent } from './domain/events';
 import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
@@ -52,6 +54,7 @@ if (import.meta.env.DEV)
 // App shell (FR-610): header, one screen at a time, bottom nav. Each view mounts into a slot.
 const shell = mountShell(document.getElementById('shell')!, i18n);
 const place: [Screen, string][] = [
+  ['today', 'beta-reminder'],
   ['today', 'ios-hint'],
   ['today', 'tagesweg'],
   ['horizon', 'horizon'],
@@ -62,7 +65,7 @@ const place: [Screen, string][] = [
   ['settings', 'app'],
   ['settings', 'ios-hint-settings'],
   ['settings', 'data'],
-  ['settings', 'sync'],
+  ...(OWN_REPO_SYNC ? [['settings', 'sync'] as [Screen, string]] : []),
   ['settings', 'beta'],
   ['settings', 'privacy'],
 ];
@@ -71,6 +74,24 @@ for (const [screen, id] of place) {
   el.id = id;
   shell.slot(screen).append(el);
 }
+
+// Beta account = login (POMO-85): created early so every data change reaches it.
+const betaSession = createBetaSession({
+  events: async () => (await store).events(),
+  importJson: async (json) => (await store).importJson(json),
+  // Events from another device: let every view re-read the log.
+  onImported: () => document.dispatchEvent(new Event(DATA_CHANGED)),
+  lang: () => i18n.locale,
+  appVersion: APP_VERSION,
+});
+document.addEventListener(DATA_CHANGED, () => betaSession.changed());
+// Back in front: merge what the other devices did meanwhile.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') void betaSession.pull();
+});
+setInterval(() => {
+  if (document.visibilityState === 'visible') void betaSession.pull();
+}, 5 * 60_000);
 
 // Header coins and the Shop item follow the gamification level (FR-405).
 const paintShell = () =>
@@ -137,7 +158,10 @@ if (tageswegRoot)
     // Round running → only the round on screen (FR-604); coins refresh after the ring.
     timer.onChange((view, end) => {
       shell.setFocus(view.phase === 'focus' || view.phase === 'paused');
-      if (end) paintShell();
+      if (end) {
+        paintShell();
+        betaSession.changed();
+      }
     });
     // Worker-driven tick keeps the end of a phase on time in background tabs (FR-104).
     startTicker(() => void timer.refresh());
@@ -196,20 +220,39 @@ if (syncRoot)
     void sync.sync();
   });
 
+// «Delete all data» signs out of the beta account first, or the next merge would bring every
+// event back (same rule as the personal sync, POMO-61). The copy in the account stays.
+const betaAsSync = {
+  get state() {
+    return betaSession.state === 'signed-in'
+      ? ('on' as const)
+      : ('off' as const);
+  },
+  get repo() {
+    return betaSession.testerId;
+  },
+  disconnect: () => betaSession.signOut(),
+};
 const dataRoot = document.getElementById('data');
 if (dataRoot)
   void Promise.all([store, syncReady]).then(([s, sync]) =>
-    mountDataPanel(dataRoot, i18n, s, { sync }),
+    mountDataPanel(dataRoot, i18n, s, {
+      sync: OWN_REPO_SYNC ? sync : betaAsSync,
+    }),
   );
 
 const beta = document.getElementById('beta');
 if (beta) {
-  const session = createBetaSession({
-    events: async () => (await store).events(),
-    lang: () => i18n.locale,
-    appVersion: APP_VERSION,
-  });
+  const session = betaSession;
   mountBetaPanel(beta, i18n, session);
+  const reminder = document.getElementById('beta-reminder');
+  if (reminder)
+    mountBetaReminder(
+      reminder,
+      i18n,
+      session,
+      () => void openLogin(i18n, session),
+    );
   // Beta mode only (FR-505); views and features call `usage` once they exist.
   const usage = createUsageLog({
     isBeta: () => session.state === 'signed-in',
@@ -227,4 +270,7 @@ if (beta) {
 }
 
 // First start only (NFR-15): after the views are mounted, so skipping lands on the timer.
-void showIntro(i18n);
+// Then the beta sign-in, which is the app login (POMO-85); «Later» asks again tomorrow.
+void showIntro(i18n).then(() => maybeShowLogin(i18n, betaSession));
+// Signed in from before: get the other devices' data now.
+void betaSession.pull();

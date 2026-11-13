@@ -14,6 +14,8 @@ export interface DialogOptions {
   actions: DialogAction[];
   /** Where the dialog is attached; default document.body. */
   parent?: HTMLElement;
+  /** Gets a function that closes the dialog from outside (e.g. after a sign-in). */
+  onOpen?: (close: (value?: string) => void) => void;
 }
 
 let nextId = 0;
@@ -45,7 +47,10 @@ export function openDialog(
   if (options.body) dialog.append(options.body);
 
   return new Promise((resolve) => {
+    let open = true;
     const close = (value: string | undefined) => {
+      if (!open) return;
+      open = false;
       document.removeEventListener('keydown', onKey, true);
       backdrop.remove();
       for (const s of siblings) s.removeAttribute('inert');
@@ -101,5 +106,6 @@ export function openDialog(
     for (const s of siblings) s.setAttribute('inert', '');
     parent.append(backdrop);
     (actions.querySelector('button') ?? dialog).focus();
+    options.onOpen?.((v) => close(v));
   });
 }

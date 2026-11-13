@@ -1,4 +1,5 @@
 import type { DomainEvent } from '../domain/events';
+import { mergeRepoLog } from '../sync/sync';
 import { createRepoClient, GitHubError, type RepoClient } from './github';
 import { createUploader, type Uploader } from './uploader';
 
@@ -11,6 +12,10 @@ import { createUploader, type Uploader } from './uploader';
  *   device, app version) in one commit. A wrong key, unknown or locked tester writes nothing.
  * - The key lives only in local storage (never in the event log, so never in an export) and is
  *   deleted on sign-out. Local data stays.
+ * - Account = login (POMO-85): with a profile, sign-in creates `testers/<id>/account.json`
+ *   itself (self-registration, refused if the id is taken). With `importJson`, the whole log is
+ *   merged both ways with `testers/<id>/sync.jsonl`, so every device signed in with the same
+ *   tester id has the same data. Feedback goes to `testers/<id>/feedback/<time>.md`.
  */
 export type SignInResult =
   | 'signed-in'
@@ -19,7 +24,18 @@ export type SignInResult =
   | 'bad-key'
   | 'unknown-tester'
   | 'locked'
+  | 'taken'
+  | 'no-name'
   | 'offline';
+
+/** Name and e-mail for a new account (self-registration, POMO-85). */
+export interface Profile {
+  name: string;
+  email: string;
+}
+
+export type PullResult = 'synced' | 'off' | 'offline';
+export type FeedbackResult = 'sent' | 'empty' | 'signed-out' | 'offline';
 
 export interface BetaSession {
   readonly state: 'signed-out' | 'signed-in';
@@ -28,7 +44,17 @@ export interface BetaSession {
   needsConsent(testerId: string): boolean;
   /** Records the tester's consent on this device. */
   consent(testerId: string): void;
-  signIn(testerId: string, key: string): Promise<SignInResult>;
+  /** With `profile`: creates the account (refused with 'taken' if it exists). */
+  signIn(
+    testerId: string,
+    key: string,
+    profile?: Profile,
+  ): Promise<SignInResult>;
+  /** Merges the local log with the account's copy (other devices); 'off' when signed out. */
+  pull(): Promise<PullResult>;
+  /** Time of the last successful merge on this page, or null. */
+  readonly lastPull: Date | null;
+  sendFeedback(text: string): Promise<FeedbackResult>;
   /** Deletes the key and stops uploads. */
   signOut(): void;
   /** Tell the session the log has new events; uploaded only while signed in. */
@@ -40,6 +66,12 @@ export interface BetaSession {
 export interface BetaSessionOptions {
   /** The whole local log (e.g. `store.events`). */
   events: () => Promise<DomainEvent[]>;
+  /** Merges remote events into the local log; enables the device sync (POMO-85). */
+  importJson?: (json: string) => Promise<unknown>;
+  /** Called after a merge brought events from another device (views should re-read). */
+  onImported?: () => void;
+  /** Wait after a local change before the account copy is merged. Defaults to 60 s. */
+  pullDelayMs?: number;
   /** Current UI language, written to account.json. */
   lang: () => string;
   appVersion: string;
@@ -66,7 +98,12 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
   const storage = options.storage ?? safeLocalStorage();
   const device = options.device ?? globalThis.navigator?.userAgent ?? null;
   const listeners = new Set<() => void>();
-  let current: { testerId: string; uploader: Uploader } | null = null;
+  let current: { testerId: string; key: string; uploader: Uploader } | null =
+    null;
+  let lastPull: Date | null = null;
+  let pullTimer: ReturnType<typeof setTimeout> | undefined;
+  let pulling: Promise<PullResult> | null = null;
+  const pullDelay = options.pullDelayMs ?? 60_000;
 
   const client =
     options.connect ??
@@ -75,6 +112,7 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
   function start(saved: Saved) {
     current = {
       testerId: saved.testerId,
+      key: saved.key,
       uploader: createUploader({
         client: client(saved.key),
         testerId: saved.testerId,
@@ -85,6 +123,46 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
   }
 
   const notify = () => listeners.forEach((l) => l());
+
+  function pull(): Promise<PullResult> {
+    const importJson = options.importJson;
+    if (!current || !importJson) return Promise.resolve('off');
+    if (pulling) return pulling;
+    const { testerId, key } = current;
+    pulling = mergeRepoLog(
+      client(key),
+      `testers/${testerId}/sync.jsonl`,
+      {
+        events: options.events,
+        importJson: async (j) => void (await importJson(j)),
+      },
+      `beta: devices of ${testerId}`,
+    )
+      .then((fresh): PullResult => {
+        lastPull = new Date();
+        if (fresh) options.onImported?.();
+        return 'synced';
+      })
+      .catch((): PullResult => 'offline')
+      .finally(() => {
+        pulling = null;
+        notify();
+      });
+    return pulling;
+  }
+
+  function schedulePull(delay: number) {
+    if (!current || !options.importJson || pullTimer !== undefined) return;
+    pullTimer = setTimeout(() => {
+      pullTimer = undefined;
+      void pull();
+    }, delay);
+  }
+
+  function stopPull() {
+    if (pullTimer !== undefined) clearTimeout(pullTimer);
+    pullTimer = undefined;
+  }
 
   const saved = readSaved(storage);
   if (saved && TESTER_ID.test(saved.testerId) && hasConsent(saved.testerId))
@@ -105,10 +183,14 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
     consent(testerId) {
       set(storage, CONSENT_PREFIX + testerId, new Date().toISOString());
     },
-    async signIn(testerId, key) {
+    get lastPull() {
+      return lastPull;
+    },
+    async signIn(testerId, key, profile) {
       if (!TESTER_ID.test(testerId)) return 'invalid-id';
       if (!hasConsent(testerId)) return 'no-consent';
       if (!key.trim()) return 'bad-key';
+      if (profile && !profile.name.trim()) return 'no-name';
       const path = `testers/${testerId}/account.json`;
       let outcome: SignInResult = 'signed-in';
       try {
@@ -117,6 +199,26 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
           async (read) => {
             outcome = 'signed-in';
             const text = await read(path);
+            if (profile) {
+              if (text !== null) {
+                outcome = 'taken';
+                return null;
+              }
+              const at = new Date().toISOString();
+              const created = {
+                testerId,
+                name: profile.name.trim(),
+                email: profile.email.trim(),
+                lang: options.lang(),
+                status: 'aktiv',
+                createdAt: at,
+                lastLogin: at,
+                device,
+                appVersion: options.appVersion,
+                selfRegistered: true,
+              };
+              return { [path]: JSON.stringify(created, null, 2) + '\n' };
+            }
             if (text === null) {
               outcome = 'unknown-tester';
               return null;
@@ -145,15 +247,20 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
       }
       if (outcome !== 'signed-in') return outcome;
       current?.uploader.stop();
+      stopPull();
       const next = { testerId, key: key.trim() };
       set(storage, BETA_KEY_STORAGE, JSON.stringify(next));
       start(next);
       current!.uploader.changed();
+      // Data of the other devices arrives right away; a failure only delays it.
+      await pull();
       notify();
       return 'signed-in';
     },
     signOut() {
       remove(storage, BETA_KEY_STORAGE);
+      stopPull();
+      lastPull = null;
       if (!current) return;
       current.uploader.stop();
       current = null;
@@ -161,6 +268,35 @@ export function createBetaSession(options: BetaSessionOptions): BetaSession {
     },
     changed() {
       current?.uploader.changed();
+      schedulePull(pullDelay);
+    },
+    pull,
+    async sendFeedback(text) {
+      if (!current) return 'signed-out';
+      const body = text.trim();
+      if (!body) return 'empty';
+      const at = new Date().toISOString();
+      const path = `testers/${current.testerId}/feedback/${at.replace(/[:.]/g, '-')}.md`;
+      const doc = [
+        `# Feedback ${current.testerId}`,
+        '',
+        `- at: ${at}`,
+        `- lang: ${options.lang()}`,
+        `- app: ${options.appVersion}`,
+        `- device: ${device ?? '-'}`,
+        '',
+        body,
+        '',
+      ].join('\n');
+      try {
+        await client(current.key).commit(
+          `beta: feedback from ${current.testerId}`,
+          async () => ({ [path]: doc }),
+        );
+        return 'sent';
+      } catch {
+        return 'offline';
+      }
     },
     onChange(listener) {
       listeners.add(listener);
