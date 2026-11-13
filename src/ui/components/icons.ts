@@ -9,6 +9,9 @@ export const ICONS = {
   back: 'M15 5l-7 7 7 7',
   shop: 'M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0',
   settings: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  today: 'M6 4v4M6 20v-4M6 12a2 2 0 1 0 0 .01M10 12h10M10 6h10M10 18h6',
+  tasks: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',
+  week: 'M5 20V12M10 20V6M15 20v-9M20 20V9',
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -5,7 +5,9 @@ import './tasks/tasks.css';
 import './tagesweg/tagesweg.css';
 import './horizon/horizon.css';
 import './onboarding/onboarding.css';
+import './shell/shell.css';
 import { mountApp } from './app';
+import { mountShell, type Screen } from './shell/shell';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
 import { createUsageLog } from './beta/usage';
@@ -42,6 +44,43 @@ if (import.meta.env.PROD) void registerServiceWorker();
 const theme = createTheme();
 const i18n = createI18n();
 const store = openStore();
+
+// App shell (FR-610): header, one screen at a time, bottom nav. Each view mounts into a slot.
+const shell = mountShell(document.getElementById('shell')!, i18n);
+const place: [Screen, string][] = [
+  ['today', 'ios-hint'],
+  ['today', 'tagesweg'],
+  ['today', 'timer'],
+  ['horizon', 'horizon'],
+  ['tasks', 'tasks'],
+  ['shop', 'rewards'],
+  ['week', 'dayclose'],
+  ['week', 'week'],
+  ['settings', 'app'],
+  ['settings', 'data'],
+  ['settings', 'sync'],
+  ['settings', 'beta'],
+  ['settings', 'privacy'],
+];
+for (const [screen, id] of place) {
+  const el = document.createElement('div');
+  el.id = id;
+  shell.slot(screen).append(el);
+}
+
+// Header coins and the Shop item follow the gamification level (FR-405).
+const paintShell = () =>
+  void store
+    .then((s) => s.state())
+    .then((st) => {
+      const on = st.settings.gamification !== 'off';
+      shell.setCoins(on ? st.coins : undefined);
+      shell.setShop(on);
+    })
+    .catch(() => {});
+document.addEventListener(DATA_CHANGED, paintShell);
+paintShell();
+
 const root = document.getElementById('app');
 if (root)
   mountApp(root, i18n, {
@@ -84,6 +123,11 @@ if (timerRoot || tageswegRoot)
           s.append(newEvent('settings.changed', { changes: { mode } })),
         alerts,
       });
+    // Round running → only the round on screen (FR-604); coins refresh after the ring.
+    timer.onChange((view, end) => {
+      shell.setFocus(view.phase === 'focus' || view.phase === 'paused');
+      if (end) paintShell();
+    });
     // Worker-driven tick keeps the end of a phase on time in background tabs (FR-104).
     startTicker(() => void timer.refresh());
     document.addEventListener('visibilitychange', () => void timer.refresh());
@@ -162,6 +206,7 @@ if (beta) {
     changed: () => session.changed(),
   });
   // A failing write must not raise another error event (no loop).
+  shell.onShow((screen) => void usage.viewOpened(screen).catch(() => {}));
   const recordError = (error: unknown) => usage.error(error).catch(() => {});
   globalThis.addEventListener('error', (e) => void recordError(e.error));
   globalThis.addEventListener(

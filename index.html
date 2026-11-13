@@ -2,26 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f8fafc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      content="#f8fafc"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0b1120"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="pomo.pomo" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <title>pomo.pomo</title>
   </head>
   <body>
-    <div id="app"></div>
-    <div id="ios-hint"></div>
-    <div id="tagesweg"></div>
-    <div id="horizon"></div>
-    <div id="timer"></div>
-    <div id="tasks"></div>
-    <div id="dayclose"></div>
-    <div id="week"></div>
-    <div id="rewards"></div>
-    <div id="data"></div>
-    <div id="sync"></div>
-    <div id="beta"></div>
-    <footer id="privacy"></footer>
+    <div id="shell"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

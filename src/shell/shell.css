@@ -1,0 +1,189 @@
+/* App shell (FR-610, NFR-18): header, one screen, bottom nav; safe areas for iPhone. */
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg-base);
+}
+
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Header: product name or back, coins, Horizon, Settings */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: calc(env(safe-area-inset-top) + var(--space-2))
+    calc(env(safe-area-inset-right) + var(--space-4)) var(--space-2)
+    calc(env(safe-area-inset-left) + var(--space-4));
+  background: color-mix(in srgb, var(--bg-base) 88%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+}
+.app-brand {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.app-header__back {
+  display: none;
+}
+.app[data-sub='true'] .app-header__back {
+  display: inline-grid;
+}
+.app[data-sub='true'] .app-brand {
+  visibility: hidden;
+}
+.app-header__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.app-coins {
+  padding: 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.app-header .ui-icon-button {
+  border-color: transparent;
+  background: transparent;
+}
+.app-header .ui-icon-button[aria-pressed='true'] {
+  background: var(--bg-highlight);
+}
+.app-header .ui-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Content */
+.app-main {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 calc(env(safe-area-inset-right) + var(--space-4))
+    calc(env(safe-area-inset-bottom) + 96px)
+    calc(env(safe-area-inset-left) + var(--space-4));
+}
+.app-title {
+  margin: var(--space-2) 0 var(--space-4);
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--line-height-tight);
+}
+.app-slot > * + * {
+  margin-top: var(--space-4);
+}
+.app-slot > :empty {
+  display: none;
+}
+
+/* Bottom nav */
+.app-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  padding: var(--space-1) calc(env(safe-area-inset-right) + var(--space-2))
+    calc(env(safe-area-inset-bottom) + var(--space-1))
+    calc(env(safe-area-inset-left) + var(--space-2));
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+}
+.app-nav__item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  border-radius: var(--radius-row);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+.app-nav__item .ui-icon {
+  width: 24px;
+  height: 24px;
+}
+.app-nav__item[aria-current='page'] {
+  color: var(--text-accent);
+}
+.app-nav__item:focus-visible,
+.app-brand:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Round running (FR-604): only the round */
+.app[data-focus='on'] .app-header,
+.app[data-focus='on'] .app-nav,
+.app[data-focus='on'] .app-title {
+  display: none;
+}
+.app[data-focus='on'] .app-main {
+  padding-top: calc(env(safe-area-inset-top) + var(--space-5));
+}
+
+/* Desktop: the four items move to the top (screens.md §Navigation) */
+@media (min-width: 1024px) {
+  .app-header {
+    padding-inline: var(--space-6);
+  }
+  .app-nav {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + var(--space-2));
+    bottom: auto;
+    left: 50%;
+    z-index: 11;
+    gap: var(--space-1);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    transform: translateX(-50%);
+  }
+  .app-nav__item {
+    flex-direction: row;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    padding: 0 var(--space-4);
+    font-size: var(--font-size-body);
+  }
+  .app-nav__item .ui-icon {
+    width: 20px;
+    height: 20px;
+  }
+  .app-nav__item[aria-current='page'] {
+    background: var(--bg-highlight);
+  }
+  .app-main {
+    padding-bottom: var(--space-7);
+  }
+}
