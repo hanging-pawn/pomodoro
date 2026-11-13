@@ -4,6 +4,8 @@
  */
 
 export type Mode = 'strict' | 'flexible';
+/** FR-405: «off» hides coins, shop and streak; «subtle» shows balance and shop; «full» adds the streak. */
+export type GamificationLevel = 'off' | 'subtle' | 'full';
 export type InterruptionType = 'internal' | 'external';
 
 export interface Settings {
@@ -16,6 +18,7 @@ export interface Settings {
   setBonus: number;
   /** Pomodoro budget per day for the Today plan (FR-203). */
   dailyBudget: number;
+  gamification: GamificationLevel;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -27,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   coinsPerPomodoro: 10,
   setBonus: 10,
   dailyBudget: 8,
+  gamification: 'full',
 };
 
 export interface TaskFields {
@@ -73,6 +77,11 @@ export interface EventPayloads {
     reason: 'pomodoro' | 'set-bonus' | 'partial';
     pomodoroId?: string;
   };
+  /** Creates or edits a shop reward; the latest event per `rewardId` wins (FR-408). */
+  'reward.saved': { rewardId: string; title: string; price: number };
+  'reward.deleted': { rewardId: string };
+  /** Marks that the localized template rewards were written once, so deleting them sticks. */
+  'rewards.seeded': { locale: string };
   'reward.redeemed': { rewardId: string; title: string; price: number };
   'settings.changed': { changes: Partial<Settings> };
   /** Usage events, recorded only in beta mode (FR-505); the projection ignores them. */
@@ -108,6 +117,9 @@ export const EVENT_TYPES: readonly EventType[] = [
   'interruption.parked',
   'pomodoro.aborted',
   'coins.earned',
+  'reward.saved',
+  'reward.deleted',
+  'rewards.seeded',
   'reward.redeemed',
   'settings.changed',
   'usage.view-opened',

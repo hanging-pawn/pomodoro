@@ -13,6 +13,8 @@ import { openStore } from './storage/store';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
 import { mountPrivacyLink } from './privacy/notice';
+import { createShop } from './rewards/shop';
+import { mountRewards } from './rewards/view';
 import { createInventory } from './tasks/inventory';
 import { mountTasks } from './tasks/view';
 import { createTimer } from './timer/controller';
@@ -51,6 +53,15 @@ if (tasksRoot)
       state: () => s.state(),
     }),
   );
+
+const rewardsRoot = document.getElementById('rewards');
+if (rewardsRoot)
+  void store.then(async (s) => {
+    const shop = createShop({ log: s });
+    // First start: seed the localized template rewards once (FR-408).
+    await shop.ensureSeeded(i18n.locale);
+    mountRewards(rewardsRoot, i18n, shop, { state: () => s.state() });
+  });
 
 const privacyRoot = document.getElementById('privacy');
 if (privacyRoot) mountPrivacyLink(privacyRoot, i18n);
