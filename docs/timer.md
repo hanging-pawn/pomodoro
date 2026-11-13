@@ -26,14 +26,22 @@ while typing in a field and on focused buttons/links/selects (they handle Space 
 
 ### Chrome, scripted (POMO-52, 2026-11-13)
 
-`npm run build && node scripts/notification-check.mjs` starts a visible Chrome, runs three 15 s rounds with the app
-tab in the background (a second tab in front, `visibilityState` hidden) and records when the app raises the
-notification relative to the computed end. Result on 2026-11-13: delay 1073 / 1002 / 4 ms, limit 3000 ms: OK.
-It measures the app side (the Notification constructor call), not the operating system's banner.
+`npm run build && node scripts/notification-check.mjs [1,1,7]` starts a visible Chrome with notifications granted,
+runs rounds of the given minutes with the app tab in the background (a second tab in front, `visibilityState`
+hidden) and records when the app raises the notification relative to the round's end. The 7 min run stays hidden
+longer than Chrome's 5 min threshold for intensive timer throttling. Result on 2026-11-13 (HEAD 45f1680):
+delay 460 / 504 / 509 ms, limit 3000 ms: OK. It measures the app side (the Notification constructor call), not
+the operating system's banner.
 
-### Safari (open, POMO-52)
+### Safari, scripted (POMO-52/POMO-53, 2026-11-13)
 
-Safari value: not yet measured; needs a human in a real Safari. Record date and delay here.
+`npx vite preview --host 127.0.0.1 --port 4191` on the build, then `node scripts/safari-check.mjs [1,1,7]` drives
+Safari over AppleScript. One-time setup by a human: Safari > Develop > «Allow JavaScript from Apple Events», and
+allow notifications for `http://127.0.0.1:4191` (one real click on «Runde starten»). `node scripts/safari-check.mjs
+check` tests the access. Result on 2026-11-13 (HEAD 67dc3ed): delay 1070 / 646 / 791 ms, limit 3000 ms: OK.
+
+Permission and sound are prepared inside the Start click on the Tagesweg and on the timer card (POMO-54); without
+that the browser never asks and the end stays silent.
 
 ## First start and iOS hint (NFR-15, NFR-12, POMO-32)
 
