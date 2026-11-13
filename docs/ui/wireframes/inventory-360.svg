@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="760" viewBox="0 0 360 760" font-family="DM Sans, system-ui, sans-serif" role="img" aria-label="Task inventory at 360 px">
+  <title>Task inventory at 360 px</title>
+  <rect width="360" height="760" fill="#f8fafc"/>
+  <text x="16" y="44" font-size="26" fill="#111827" font-weight="700" text-anchor="start">Tasks</text>
+  <circle cx="322" cy="38" r="22" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="322" y="42" font-size="11" fill="#4b5563" font-weight="500" text-anchor="middle">+</text>
+  <rect x="16" y="70" width="328" height="44" rx="12" fill="#f1f5f9" stroke="none"/>
+  <text x="32" y="97" font-size="14" fill="#5b6472" font-weight="400" text-anchor="start">Add a task or paste lines…</text>
+  <rect x="16" y="126" width="74" height="32" rx="16" fill="#eef2ff" stroke="none"/>
+  <text x="53" y="147" font-size="12" fill="#3730a3" font-weight="600" text-anchor="middle">All</text>
+  <rect x="98" y="126" width="74" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="135" y="147" font-size="12" fill="#4b5563" font-weight="400" text-anchor="middle">Thesis</text>
+  <rect x="180" y="126" width="74" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="217" y="147" font-size="12" fill="#4b5563" font-weight="400" text-anchor="middle">Exam</text>
+  <rect x="262" y="126" width="74" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="299" y="147" font-size="12" fill="#4b5563" font-weight="400" text-anchor="middle">Unplanned</text>
+  <line x1="16" y1="228" x2="344" y2="228" stroke="#e5e7eb"/>
+  <text x="16" y="196" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Read chapter 3</text>
+  <text x="16" y="214" font-size="11" fill="#4b5563" font-weight="400" text-anchor="start">Exam · 2 rounds · today</text>
+  <rect x="268" y="184" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="205" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <line x1="16" y1="284" x2="344" y2="284" stroke="#e5e7eb"/>
+  <text x="16" y="252" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Write report</text>
+  <text x="16" y="270" font-size="11" fill="#4b5563" font-weight="400" text-anchor="start">Thesis · 2 of 2 · done today</text>
+  <rect x="268" y="240" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="261" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <line x1="16" y1="340" x2="344" y2="340" stroke="#e5e7eb"/>
+  <text x="16" y="308" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Summarise paper B</text>
+  <text x="16" y="326" font-size="11" fill="#4b5563" font-weight="400" text-anchor="start">Thesis · 3 rounds · due tomorrow</text>
+  <rect x="268" y="296" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="317" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <line x1="16" y1="396" x2="344" y2="396" stroke="#e5e7eb"/>
+  <text x="16" y="364" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Register for exam</text>
+  <text x="16" y="382" font-size="11" fill="#b91c1c" font-weight="400" text-anchor="start">Exam · 1 round · overdue</text>
+  <rect x="268" y="352" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="373" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <line x1="16" y1="452" x2="344" y2="452" stroke="#e5e7eb"/>
+  <text x="16" y="420" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Call landlord  U</text>
+  <text x="16" y="438" font-size="11" fill="#4b5563" font-weight="400" text-anchor="start">unplanned · external · parked 09:40</text>
+  <rect x="268" y="408" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="429" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <line x1="16" y1="508" x2="344" y2="508" stroke="#e5e7eb"/>
+  <text x="16" y="476" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Weekly review</text>
+  <text x="16" y="494" font-size="11" fill="#4b5563" font-weight="400" text-anchor="start">weekly, Monday · 1 round</text>
+  <rect x="268" y="464" width="76" height="32" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="306" y="485" font-size="12" fill="#111827" font-weight="500" text-anchor="middle">+ today</text>
+  <text x="16" y="536" font-size="14" fill="#111827" font-weight="600" text-anchor="start">Projects</text>
+  <text x="16" y="556" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">Exam statistics · target 12 Dec · 29 days left</text>
+  <text x="16" y="578" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">estimate &gt; 7 → hint «split» (FR-202, FR-209)</text>
+  <rect x="0" y="696" width="360" height="64" fill="#ffffff"/>
+  <line x1="0" y1="696" x2="360" y2="696" stroke="#e5e7eb"/>
+  <rect x="35.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="45.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Today</text>
+  <rect x="125.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#3730a3" stroke-width="1.5"/>
+  <text x="135.0" y="744" font-size="11" fill="#3730a3" font-weight="600" text-anchor="middle">Tasks</text>
+  <rect x="215.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="225.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Shop</text>
+  <rect x="305.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="315.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Week</text>
+</svg>

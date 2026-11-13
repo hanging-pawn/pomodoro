@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="760" viewBox="0 0 360 760" font-family="DM Sans, system-ui, sans-serif" role="img" aria-label="Reward shop at 360 px">
+  <title>Reward shop at 360 px</title>
+  <rect width="360" height="760" fill="#f8fafc"/>
+  <text x="16" y="44" font-size="26" fill="#111827" font-weight="700" text-anchor="start">Shop</text>
+  <text x="344" y="40" font-size="22" fill="#111827" font-weight="700" text-anchor="end">30</text>
+  <text x="344" y="56" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">coins</text>
+  <rect x="16" y="74" width="328" height="44" rx="12" fill="#f1f5f9" stroke="none"/>
+  <text x="32" y="101" font-size="14" fill="#5b6472" font-weight="400" text-anchor="start">New reward: title and price…</text>
+  <line x1="16" y1="192" x2="344" y2="192" stroke="#e5e7eb"/>
+  <text x="16" y="162" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Coffee outside</text>
+  <text x="16" y="180" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">40 coins</text>
+  <rect x="248" y="148" width="96" height="36" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="296" y="171" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">10 to go</text>
+  <line x1="16" y1="248" x2="344" y2="248" stroke="#e5e7eb"/>
+  <text x="16" y="218" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Episode of a series</text>
+  <text x="16" y="236" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">60 coins</text>
+  <rect x="248" y="204" width="96" height="36" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="296" y="227" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">30 to go</text>
+  <line x1="16" y1="304" x2="344" y2="304" stroke="#e5e7eb"/>
+  <text x="16" y="274" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Walk by the lake</text>
+  <text x="16" y="292" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">30 coins</text>
+  <rect x="248" y="260" width="96" height="36" rx="14" fill="#111827" stroke="#111827"/>
+  <text x="296" y="283" font-size="12" fill="#ffffff" font-weight="600" text-anchor="middle">Redeem</text>
+  <line x1="16" y1="360" x2="344" y2="360" stroke="#e5e7eb"/>
+  <text x="16" y="330" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Cake</text>
+  <text x="16" y="348" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">80 coins</text>
+  <rect x="248" y="316" width="96" height="36" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="296" y="339" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">50 to go</text>
+  <line x1="16" y1="416" x2="344" y2="416" stroke="#e5e7eb"/>
+  <text x="16" y="386" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Evening off</text>
+  <text x="16" y="404" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">200 coins</text>
+  <rect x="248" y="372" width="96" height="36" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="296" y="395" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">170 to go</text>
+  <line x1="16" y1="472" x2="344" y2="472" stroke="#e5e7eb"/>
+  <text x="16" y="442" font-size="14" fill="#111827" font-weight="500" text-anchor="start">New book</text>
+  <text x="16" y="460" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">300 coins</text>
+  <rect x="248" y="428" width="96" height="36" rx="14" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="296" y="451" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">270 to go</text>
+  <text x="16" y="502" font-size="14" fill="#111827" font-weight="600" text-anchor="start">History</text>
+  <text x="16" y="522" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">Yesterday 16:10 · Coffee outside · −40</text>
+  <text x="16" y="544" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">templates on first start (FR-408), editable;</text>
+  <text x="16" y="558" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">hidden when gamification is off (FR-405)</text>
+  <rect x="0" y="696" width="360" height="64" fill="#ffffff"/>
+  <line x1="0" y1="696" x2="360" y2="696" stroke="#e5e7eb"/>
+  <rect x="35.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="45.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Today</text>
+  <rect x="125.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="135.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Tasks</text>
+  <rect x="215.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#3730a3" stroke-width="1.5"/>
+  <text x="225.0" y="744" font-size="11" fill="#3730a3" font-weight="600" text-anchor="middle">Shop</text>
+  <rect x="305.0" y="708" width="20" height="20" rx="5" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="315.0" y="744" font-size="11" fill="#4b5563" font-weight="400" text-anchor="middle">Week</text>
+</svg>

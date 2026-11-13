@@ -1,4 +1,4 @@
-/** Outline, monochrome icons (24 × 24, stroke = currentColor). No tomato imagery (POMO-33). */
+/** Outline, monochrome icons (24 × 24, stroke = currentColor). No trademark imagery (POMO-33, CLAUDE.md). */
 export const ICONS = {
   park: 'M5 4h14v16l-7-4-7 4z',
   close: 'M6 6l12 12M18 6L6 18',

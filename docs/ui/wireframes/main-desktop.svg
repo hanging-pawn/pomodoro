@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="DM Sans, system-ui, sans-serif" role="img" aria-label="Main screen Tagesweg overview on desktop">
+  <title>Main screen Tagesweg overview on desktop</title>
+  <rect width="1280" height="800" fill="#f8fafc"/>
+  <text x="40" y="48" font-size="20" fill="#111827" font-weight="700" text-anchor="start">pomo.pomo</text>
+  <text x="40" y="62" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">name from config APP_NAME</text>
+  <text x="220" y="48" font-size="14" fill="#3730a3" font-weight="600" text-anchor="start">Today</text>
+  <text x="300" y="48" font-size="14" fill="#4b5563" font-weight="400" text-anchor="start">Tasks</text>
+  <text x="380" y="48" font-size="14" fill="#4b5563" font-weight="400" text-anchor="start">Shop</text>
+  <text x="460" y="48" font-size="14" fill="#4b5563" font-weight="400" text-anchor="start">Week</text>
+  <text x="1120" y="46" font-size="20" fill="#111827" font-weight="700" text-anchor="end">20</text>
+  <text x="1120" y="60" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">coins</text>
+  <circle cx="1166" cy="42" r="22" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="1166" y="46" font-size="11" fill="#4b5563" font-weight="500" text-anchor="middle">Hz</text>
+  <circle cx="1220" cy="42" r="22" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="1220" y="46" font-size="11" fill="#4b5563" font-weight="500" text-anchor="middle">Set</text>
+  <rect x="40" y="90" width="720" height="680" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="72" y="124" font-size="14" fill="#111827" font-weight="600" text-anchor="start">Today</text>
+  <text x="728" y="124" font-size="12" fill="#4b5563" font-weight="400" text-anchor="end">2 of 6 rounds · budget 8</text>
+  <rect x="72" y="134" width="656" height="6" rx="3" fill="#c7d2fe" stroke="none"/>
+  <rect x="72" y="134" width="492.0" height="6" rx="3" fill="#6366f1" stroke="none"/>
+  <rect x="72" y="134" width="164.0" height="6" rx="3" fill="#3730a3"/>
+  <text x="100" y="180" font-size="11" fill="#5b6472" font-weight="400" text-anchor="start">Start of day</text>
+  <text x="100" y="200" font-size="14" fill="#4b5563" font-weight="500" text-anchor="start">Write report</text>
+  <text x="700" y="200" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">2 of 2 rounds</text>
+  <text x="100" y="262" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Read chapter 3</text>
+  <text x="700" y="262" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">0 of 2 rounds</text>
+  <rect x="96" y="306" width="608" height="42" rx="12" fill="#eef2ff" stroke="none"/>
+  <text x="110" y="324" font-size="13" fill="#3730a3" font-weight="600" text-anchor="start">Coffee outside · about 10:50</text>
+  <text x="110" y="340" font-size="11" fill="#3730a3" font-weight="400" text-anchor="start">40 coins · in 2 rounds</text>
+  <text x="100" y="374" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Answer mails</text>
+  <text x="700" y="374" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">0 of 1 round</text>
+  <text x="100" y="436" font-size="14" fill="#111827" font-weight="500" text-anchor="start">Plan tomorrow</text>
+  <text x="700" y="436" font-size="11" fill="#4b5563" font-weight="400" text-anchor="end">0 of 1 round</text>
+  <rect x="96" y="480" width="608" height="42" rx="12" fill="#eef2ff" stroke="none"/>
+  <text x="110" y="498" font-size="13" fill="#3730a3" font-weight="600" text-anchor="start">Walk by the lake · about 14:30</text>
+  <text x="110" y="514" font-size="11" fill="#3730a3" font-weight="400" text-anchor="start">40 coins · in 4 rounds</text>
+  <text x="400.0" y="542" font-size="12" fill="#5b6472" font-weight="600" text-anchor="middle">Goal · day done</text>
+  <polyline points="505.33333333333337,286 294.6666666666667,286 84,286 84,398 400.0,398 716,398 716,460 400.0,460 84,460 84,538" fill="none" stroke="#5b6472" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 7"/>
+  <polyline points="84,176 84,224 294.66666666666663,224 505.3333333333333,224 716,224 716,286 505.33333333333337,286" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="294.66666666666663" cy="224" r="7" fill="#6366f1"/>
+  <circle cx="505.3333333333333" cy="224" r="7" fill="#6366f1"/>
+  <circle cx="505.33333333333337" cy="286" r="7" fill="#ffffff" stroke="#5b6472" stroke-width="2"/>
+  <circle cx="294.6666666666667" cy="286" r="7" fill="#ffffff" stroke="#5b6472" stroke-width="2"/>
+  <circle cx="400.0" cy="398" r="7" fill="#ffffff" stroke="#5b6472" stroke-width="2"/>
+  <circle cx="400.0" cy="460" r="7" fill="#ffffff" stroke="#5b6472" stroke-width="2"/>
+  <circle cx="505.33333333333337" cy="286" r="11" fill="none" stroke="#3730a3" stroke-width="3"/>
+  <circle cx="505.33333333333337" cy="286" r="4" fill="#3730a3"/>
+  <rect x="800" y="90" width="440" height="300" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="824" y="124" font-size="11" fill="#4b5563" font-weight="600" text-anchor="start">NEXT ROUND</text>
+  <text x="824" y="152" font-size="18" fill="#111827" font-weight="600" text-anchor="start">Read chapter 3 · round 1 of 2</text>
+  <text x="824" y="176" font-size="13" fill="#4b5563" font-weight="400" text-anchor="start">25 min focus · strict · Space to start</text>
+  <rect x="824" y="200" width="320" height="52" rx="14" fill="#111827" stroke="#111827"/>
+  <text x="984.0" y="231.0" font-size="15" fill="#ffffff" font-weight="600" text-anchor="middle">Start round</text>
+  <circle cx="1192" cy="226" r="22" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="1192" y="230" font-size="11" fill="#4b5563" font-weight="500" text-anchor="middle">P</text>
+  <text x="824" y="300" font-size="12" fill="#4b5563" font-weight="400" text-anchor="start">Keys: Space start · P park · N next task (NFR-06)</text>
+  <rect x="800" y="410" width="440" height="360" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="824" y="444" font-size="14" fill="#111827" font-weight="600" text-anchor="start">Unplanned &amp; urgent</text>
+  <text x="824" y="474" font-size="13" fill="#4b5563" font-weight="400" text-anchor="start">Call landlord · external · parked 09:40</text>
+  <text x="824" y="520" font-size="14" fill="#111827" font-weight="600" text-anchor="start">Parked thoughts</text>
+  <text x="824" y="550" font-size="13" fill="#4b5563" font-weight="400" text-anchor="start">look up formula for variance · internal</text>
+  <text x="824" y="600" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">side column: today extras; same components as mobile</text>
+  <text x="40" y="790" font-size="10" fill="#b45309" font-weight="400" text-anchor="start">desktop ≥ 1024 px: path left, next-round card and extras right; focus view centres the path piece</text>
+</svg>
