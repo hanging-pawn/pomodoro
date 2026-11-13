@@ -23,6 +23,8 @@ export interface FakeGitHub {
   file: (path: string) => string | undefined;
   /** Every request rejects like a browser without network while true. */
   offline: boolean;
+  /** When set, only `Bearer <acceptToken>` is accepted; any other key gets 401 like GitHub. */
+  acceptToken?: string;
   /** Writes a file directly on the branch, as another device would. */
   pushFromElsewhere: (path: string, content: string) => void;
   /** Called once before the next ref update is applied (to simulate a race). */
@@ -88,7 +90,11 @@ export function createFakeGitHub(
       if (fake.offline) throw new TypeError('Failed to fetch');
       const method = (init?.method ?? 'GET').toUpperCase();
       const auth = new Headers(init?.headers).get('authorization');
-      if (!auth?.startsWith('Bearer '))
+      if (
+        !auth?.startsWith('Bearer ') ||
+        (fake.acceptToken !== undefined &&
+          auth !== `Bearer ${fake.acceptToken}`)
+      )
         return json(401, { message: 'Bad credentials' });
       if (!url.startsWith(prefix)) return json(404, { message: 'Not Found' });
       const u = new URL(url);
