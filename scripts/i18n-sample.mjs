@@ -34,20 +34,59 @@ const patterns = (locale) =>
 const neutral = (v) =>
   /^[\d\s:.,·+\-–—%/×()]+$/.test(v) || DATA.some((d) => v === d);
 
+// A date label like «Mo., 9.11.» is language-specific (Intl): its weekday must be one of the
+// locale's own short weekday names.
+const weekdays = (locale) =>
+  new Set(
+    [...Array(7).keys()].map((i) =>
+      new Intl.DateTimeFormat(locale, { weekday: 'short' })
+        .format(new Date(2026, 10, 9 + i))
+        .replace(/\.$/, ''),
+    ),
+  );
+const isLocalDate = (v, locale) => {
+  const m = /^(\p{L}+)\.?,? \d{1,2}[./]\d{1,2}\.?$/u.exec(v);
+  return !!m && weekdays(locale).has(m[1]);
+};
+
 const now = Date.now();
 const MIN = 60_000;
 let n = 0;
 const ev = (type, payload, at) => ({ id: `s-${n++}`, at, type, payload });
 // A round finished a minute ago: the app opens in the short break.
 const SEED = [
-  ev('task.created', { taskId: 'a', title: 'Write the report', estimate: 3 }, now - 40 * MIN),
-  ev('task.created', { taskId: 'b', title: 'Answer mail', estimate: 1 }, now - 39 * MIN),
+  ev(
+    'task.created',
+    { taskId: 'a', title: 'Write the report', estimate: 3 },
+    now - 40 * MIN,
+  ),
+  ev(
+    'task.created',
+    { taskId: 'b', title: 'Answer mail', estimate: 1 },
+    now - 39 * MIN,
+  ),
   ev('plan.changed', { day: dayKey(now), taskIds: ['a', 'b'] }, now - 38 * MIN),
-  ev('reward.saved', { rewardId: 'r1', title: 'Walk', price: 20 }, now - 37 * MIN),
-  ev('reward.saved', { rewardId: 'r2', title: 'Long coffee', price: 60 }, now - 36 * MIN),
+  ev(
+    'reward.saved',
+    { rewardId: 'r1', title: 'Walk', price: 20 },
+    now - 37 * MIN,
+  ),
+  ev(
+    'reward.saved',
+    { rewardId: 'r2', title: 'Long coffee', price: 60 },
+    now - 36 * MIN,
+  ),
   ev('rewards.seeded', { locale: 'en' }, now - 35 * MIN),
-  ev('interruption.parked', { text: 'Call back', kind: 'external' }, now - 34 * MIN),
-  ev('pomodoro.started', { pomodoroId: 'p1', taskId: 'a', mode: 'strict', focusMinutes: 25 }, now - 26 * MIN),
+  ev(
+    'interruption.parked',
+    { text: 'Call back', kind: 'external' },
+    now - 34 * MIN,
+  ),
+  ev(
+    'pomodoro.started',
+    { pomodoroId: 'p1', taskId: 'a', mode: 'strict', focusMinutes: 25 },
+    now - 26 * MIN,
+  ),
   ev('pomodoro.completed', { pomodoroId: 'p1' }, now - MIN),
 ];
 DATA.push('Call back');
@@ -88,7 +127,9 @@ try {
     await sleep(1500);
     const before = await app.evaluate(`document.documentElement.lang`);
     if (locale !== 'it')
-      await app.evaluate(`(() => { const s = document.querySelector('select#language'); s.value = ${JSON.stringify(locale)}; s.dispatchEvent(new Event('change')); })()`);
+      await app.evaluate(
+        `(() => { const s = document.querySelector('select#language'); s.value = ${JSON.stringify(locale)}; s.dispatchEvent(new Event('change')); })()`,
+      );
     await sleep(300);
     const cat = catalogs[locale];
     const pats = patterns(locale);
@@ -96,7 +137,15 @@ try {
     const sample = async (state) => {
       const { lang, texts } = await app.evaluate(COLLECT);
       const foreign = texts.filter(
-        ({ v }) => !neutral(v) && !pats.some((p) => p.test(v)),
+        ({ v }) =>
+          !neutral(v) &&
+          !isLocalDate(v, locale) &&
+          !pats.some((p) => p.test(v)) &&
+          // «<catalog text>: <number>», e.g. a bar title with its count.
+          !(
+            /: \d+$/.test(v) &&
+            pats.some((p) => p.test(v.replace(/: \d+$/, '')))
+          ),
       );
       failures += foreign.length + (lang === locale ? 0 : 1);
       states.push({ state, lang, texts: texts.length, foreign });
@@ -111,7 +160,9 @@ try {
     await app.evaluate(click('.tagesweg [data-action="park"]'));
     await sleep(300);
     await sample('park-dialog');
-    await app.evaluate(clickText('.ui-dialog button', cat['tagesweg.parkCancel']));
+    await app.evaluate(
+      clickText('.ui-dialog button', cat['tagesweg.parkCancel']),
+    );
     await sleep(300);
     await app.evaluate(click('.tagesweg [data-action="abort"]'));
     await sleep(300);
@@ -120,7 +171,10 @@ try {
     await sleep(300);
     report.push({
       locale,
-      via: locale === 'it' ? `browser language (lang=${before})` : `live switch from ${before}, no reload`,
+      via:
+        locale === 'it'
+          ? `browser language (lang=${before})`
+          : `live switch from ${before}, no reload`,
       states,
     });
   }
@@ -130,9 +184,15 @@ try {
 for (const r of report) {
   console.log(`${r.locale} (${r.via})`);
   for (const s of r.states) {
-    console.log(`  ${s.state.padEnd(12)} lang=${s.lang} texts=${s.texts} foreign=${s.foreign.length}`);
+    console.log(
+      `  ${s.state.padEnd(12)} lang=${s.lang} texts=${s.texts} foreign=${s.foreign.length}`,
+    );
     for (const f of s.foreign) console.log(`    ✗ «${f.v}» at ${f.at}`);
   }
 }
-console.log(failures === 0 ? 'NFR-11 sample: OK' : `NFR-11 sample: ${failures} problem(s)`);
+console.log(
+  failures === 0
+    ? 'NFR-11 sample: OK'
+    : `NFR-11 sample: ${failures} problem(s)`,
+);
 process.exit(failures === 0 ? 0 : 1);
