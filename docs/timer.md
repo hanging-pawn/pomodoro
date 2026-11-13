@@ -10,6 +10,12 @@ at the completion time (5 min, 15 min after every 4th completed round; aborted r
 A worker-driven ticker (`ticker.ts`) refreshes once a second and is not throttled in background tabs; the tab
 title (`mm:ss · task`), sound and Notification API run from the same refresh.
 
+## Keyboard (NFR-06, POMO-30)
+
+Space starts the round, N preselects the next open task (wraps around), P focuses the park field. Keys are ignored
+while typing in a field and on focused buttons/links/selects (they handle Space themselves). Unit tests in
+`view.test.ts`; real-Chrome check with real key events: `npm run build && node scripts/keys-check.mjs`.
+
 ## Manual check: notification in a background tab (FR-104, Chrome)
 
 1. `npm run dev`, open the page in Chrome, click Start round once and allow notifications.

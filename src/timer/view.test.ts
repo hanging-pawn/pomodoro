@@ -9,7 +9,11 @@ const MIN = 60_000;
 const T0 = Date.UTC(2026, 10, 13, 9, 0, 0);
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
-async function setup(mode: 'strict' | 'flexible', digitsAlways = false) {
+async function setup(
+  mode: 'strict' | 'flexible',
+  digitsAlways = false,
+  taskList = [{ id: 't1', title: 'Write report' }],
+) {
   const events: DomainEvent[] = [];
   if (mode === 'flexible')
     events.push(newEvent('settings.changed', { changes: { mode } }, T0 - 1));
@@ -29,7 +33,7 @@ async function setup(mode: 'strict' | 'flexible', digitsAlways = false) {
   });
   const sounds: number[] = [];
   mountTimer(root, i18n, timer, {
-    tasks: async () => [{ id: 't1', title: 'Write report' }],
+    tasks: async () => taskList,
     getMode: async () => mode,
     setMode: async (m) =>
       void events.push(
@@ -119,5 +123,66 @@ describe('park key (FR-205)', () => {
     expect(always.root.querySelector('[role="timer"]')?.textContent).toBe(
       '25:00',
     );
+  });
+});
+
+const press = (key: string, target: EventTarget = document.body) => {
+  const e = new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+  });
+  target.dispatchEvent(e);
+  return e;
+};
+
+describe('keyboard (NFR-06)', () => {
+  it('Space starts a round without a mouse click', async () => {
+    const { timer } = await setup('strict');
+    const e = press(' ');
+    await flush();
+    expect(timer.view.phase).toBe('focus');
+    expect(e.defaultPrevented).toBe(true);
+  });
+
+  it('Space does not start while typing in a text field or on a focused button', async () => {
+    const { root, timer } = await setup('strict');
+    const input = document.createElement('input');
+    input.type = 'text';
+    document.body.append(input);
+    press(' ', input);
+    press(' ', action(root, 'start')!);
+    await flush();
+    expect(timer.view.phase).toBe('idle');
+    input.remove();
+  });
+
+  it('N preselects the next open task, wrapping around, and ignores text fields', async () => {
+    const { root } = await setup('strict', false, [
+      { id: 't1', title: 'One' },
+      { id: 't2', title: 'Two' },
+    ]);
+    const select = root.querySelector<HTMLSelectElement>('#timer-task')!;
+    expect(select.value).toBe('t1');
+    press('n');
+    expect(select.value).toBe('t2');
+    press('N');
+    expect(select.value).toBe('t1');
+    const input = document.createElement('input');
+    document.body.append(input);
+    press('n', input);
+    expect(select.value).toBe('t1');
+    input.remove();
+  });
+
+  it('N changes which task Space then starts', async () => {
+    const { timer } = await setup('strict', false, [
+      { id: 't1', title: 'One' },
+      { id: 't2', title: 'Two' },
+    ]);
+    press('n');
+    press(' ');
+    await flush();
+    expect(timer.view.taskId).toBe('t2');
   });
 });

@@ -99,15 +99,47 @@ export function mountTimer(
     return form;
   }
 
+  const startRound = () => {
+    alerts.prepare();
+    void run(timer.start(taskId));
+  };
+
+  /** Next open task in the idle task select, wrapping around (NFR-06, N). */
+  function nextTask() {
+    const select = root.querySelector<HTMLSelectElement>('#timer-task');
+    if (!select || tasks.length === 0) return false;
+    const i = tasks.findIndex((x) => x.id === select.value);
+    taskId = tasks[(i + 1) % tasks.length]?.id ?? '';
+    select.value = taskId;
+    return true;
+  }
+
+  /**
+   * Keys (NFR-06): Space starts, P parks, N picks the next task. Typing in a field and
+   * focused controls (where Space or Enter already act) are left alone.
+   */
   const onKey = (e: KeyboardEvent) => {
-    if (e.key.toLowerCase() !== 'p' || e.ctrlKey || e.metaKey || e.altKey)
-      return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     const el = e.target as HTMLElement | null;
-    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
-    const field = root.querySelector<HTMLInputElement>('input[name="park"]');
-    if (!field) return;
-    e.preventDefault();
-    field.focus();
+    if (
+      el &&
+      (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(el.tagName) ||
+        el.isContentEditable)
+    )
+      return;
+    const key = e.key.toLowerCase();
+    if (key === ' ') {
+      if (!root.querySelector('[data-action="start"]')) return;
+      e.preventDefault();
+      startRound();
+    } else if (key === 'n') {
+      if (nextTask()) e.preventDefault();
+    } else if (key === 'p') {
+      const field = root.querySelector<HTMLInputElement>('input[name="park"]');
+      if (!field) return;
+      e.preventDefault();
+      field.focus();
+    }
   };
   document.addEventListener('keydown', onKey);
 
@@ -166,10 +198,7 @@ export function mountTimer(
           label: t('timer.start'),
           variant: 'primary',
           action: 'start',
-          onClick: () => {
-            alerts.prepare();
-            void run(timer.start(taskId));
-          },
+          onClick: startRound,
         }),
       );
     } else if (view.phase === 'focus' || view.phase === 'paused') {
