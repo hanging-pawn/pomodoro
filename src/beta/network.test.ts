@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
  * NFR-09: the app talks only to its own Pages origin (relative URLs) and, for sync or beta
  * upload, to api.github.com. Network calls at runtime are checked in github.test.ts and
  * uploader.test.ts (every request goes through the fake and is api.github.com); this test checks
- * the source: no other host is named and only the GitHub client opens connections.
+ * the source: no other host is named and only the GitHub client and the same-origin service worker open connections.
  */
 const ROOT = join(__dirname, '../..');
 const ALLOWED_HOSTS = new Set(['api.github.com']);
@@ -44,6 +44,7 @@ describe('network hosts (NFR-09)', () => {
     const callers = files
       .filter((f) => NETWORK_API.test(readFileSync(f, 'utf8')))
       .map((f) => relative(ROOT, f));
-    expect(callers).toEqual(['src/beta/github.ts']);
+    // The service worker (NFR-04) fetches only same-origin GET requests, see its origin check.
+    expect(callers).toEqual(['src/beta/github.ts', 'src/pwa/sw.js']);
   });
 });

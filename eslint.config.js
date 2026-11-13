@@ -37,6 +37,18 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   prettier,
   {
+    // Service worker globals (NFR-04).
+    files: ['src/pwa/sw.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+        __PRECACHE__: 'readonly',
+      },
+    },
+  },
+  {
     files: ['src/**/*.ts'],
     ignores: ['src/**/*.test.ts', 'src/i18n/catalogs/**'],
     rules: { 'no-restricted-syntax': noHardcodedUiStrings },

@@ -27,7 +27,11 @@ import { mountDayClose } from './dayclose/view';
 import { mountWeek } from './week/view';
 import { mountHorizon } from './horizon/view';
 import { createTheme } from './ui/theme';
+import { registerServiceWorker } from './pwa/register';
 import { DATA_CHANGED } from './tasks/events';
+
+// Offline and installable (NFR-04); the worker only exists in the production build.
+if (import.meta.env.PROD) void registerServiceWorker();
 
 // Stored light/dark choice applies before the first render (FR-601).
 const theme = createTheme();

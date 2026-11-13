@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "size": "node scripts/size.mjs",
     "viewport": "node scripts/viewport-check.mjs",
+    "offline-check": "node scripts/offline-check.mjs",
     "start-check": "node scripts/start-check.mjs",
     "i18n-sample": "node scripts/i18n-sample.mjs",
     "beta-admin": "tsx tools/beta-admin/main.ts",
