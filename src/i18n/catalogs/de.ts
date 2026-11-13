@@ -38,4 +38,34 @@ export const de: Messages = {
   'beta.error.locked': 'Dieses Beta-Konto ist gesperrt.',
   'beta.error.offline':
     'GitHub ist nicht erreichbar. Prüfe deine Verbindung und versuche es nochmals.',
+  'sync.title': 'Sync zwischen Geräten',
+  'sync.intro':
+    'Optional: Halte deine Daten über dein eigenes privates GitHub-Repo auf allen Geräten gleich. Ohne Sync verlässt nichts dieses Gerät.',
+  'sync.step1':
+    'Lege auf GitHub ein neues privates Repository mit README an (z. B. pomo-data).',
+  'sync.step2':
+    'Settings → Developer settings → Fine-grained tokens → Generate new token. Repository access: «Only select repositories» mit nur diesem Repo. Permissions: «Contents: read/write», sonst nichts.',
+  'sync.step3':
+    'Gib das Repo als owner/name ein und füge den Token ein. Der Token bleibt auf diesem Gerät, wird nie exportiert und beim Trennen gelöscht.',
+  'sync.repo': 'Repository (owner/name)',
+  'sync.token': 'Token',
+  'sync.connect': 'Verbinden',
+  'sync.busy': 'Synchronisiere…',
+  'sync.connectedTo': 'Synchronisiert mit',
+  'sync.lastSync': 'Letzter Sync:',
+  'sync.never': 'auf dieser Seite noch keiner',
+  'sync.now': 'Jetzt synchronisieren',
+  'sync.disconnect': 'Trennen',
+  'sync.disconnected':
+    'Getrennt. Der Token ist gelöscht; deine Daten auf diesem Gerät bleiben.',
+  'sync.error.invalid-repo':
+    'Gib das Repo als owner/name ein, z. B. anna/pomo-data.',
+  'sync.error.bad-token':
+    'Dieser Token wurde nicht akzeptiert. Prüfe ihn und versuche es nochmals.',
+  'sync.error.no-access':
+    'Der Token erreicht dieses Repo nicht. Prüfe den Repo-Namen und ob der Token «Contents: read/write» darauf hat.',
+  'sync.error.empty-repo':
+    'Das Repo ist leer. Lege auf GitHub ein README an und verbinde dich nochmals.',
+  'sync.error.offline':
+    'GitHub ist nicht erreichbar. Deine Änderungen bleiben hier und werden später synchronisiert.',
 };

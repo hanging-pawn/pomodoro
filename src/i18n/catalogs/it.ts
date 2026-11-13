@@ -39,4 +39,34 @@ export const it: Messages = {
   'beta.error.locked': 'Questo account beta è bloccato.',
   'beta.error.offline':
     'GitHub non è raggiungibile. Controlla la connessione e riprova.',
+  'sync.title': 'Sincronizzazione tra dispositivi',
+  'sync.intro':
+    'Facoltativo: mantieni i tuoi dati allineati su tutti i dispositivi tramite il tuo repository GitHub privato. Senza sincronizzazione nulla lascia questo dispositivo.',
+  'sync.step1':
+    'Su GitHub crea un nuovo repository privato con un README (ad es. pomo-data).',
+  'sync.step2':
+    "Settings → Developer settings → Fine-grained tokens → Generate new token. Repository access: «Only select repositories» con solo questo repository. Permissions: «Contents: read/write», nient'altro.",
+  'sync.step3':
+    'Inserisci il repository come owner/name e incolla il token. Il token resta su questo dispositivo, non viene mai esportato e viene cancellato quando ti disconnetti.',
+  'sync.repo': 'Repository (owner/name)',
+  'sync.token': 'Token',
+  'sync.connect': 'Collega',
+  'sync.busy': 'Sincronizzazione…',
+  'sync.connectedTo': 'Sincronizzato con',
+  'sync.lastSync': 'Ultima sincronizzazione:',
+  'sync.never': 'non ancora in questa pagina',
+  'sync.now': 'Sincronizza ora',
+  'sync.disconnect': 'Disconnetti',
+  'sync.disconnected':
+    'Disconnesso. Il token è cancellato; i tuoi dati su questo dispositivo restano.',
+  'sync.error.invalid-repo':
+    'Inserisci il repository come owner/name, ad es. anna/pomo-data.',
+  'sync.error.bad-token':
+    'Questo token non è stato accettato. Controllalo e riprova.',
+  'sync.error.no-access':
+    'Il token non raggiunge questo repository. Controlla il nome e che il token abbia «Contents: read/write» su di esso.',
+  'sync.error.empty-repo':
+    'Il repository è vuoto. Aggiungi un README su GitHub, poi collega di nuovo.',
+  'sync.error.offline':
+    'GitHub non è raggiungibile. Le tue modifiche restano qui e verranno sincronizzate più tardi.',
 };

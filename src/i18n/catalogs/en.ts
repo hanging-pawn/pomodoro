@@ -37,4 +37,34 @@ export const en = {
   'beta.error.locked': 'This beta account is locked.',
   'beta.error.offline':
     'GitHub is not reachable. Check your connection and try again.',
+  'sync.title': 'Sync between devices',
+  'sync.intro':
+    'Optional: keep your data in step across devices through your own private GitHub repo. Without sync nothing leaves this device.',
+  'sync.step1':
+    'On GitHub, create a new private repository with a README (e.g. pomo-data).',
+  'sync.step2':
+    'Settings → Developer settings → Fine-grained tokens → Generate new token. Repository access: «Only select repositories» with just this repo. Permissions: «Contents: read/write», nothing else.',
+  'sync.step3':
+    'Enter the repo as owner/name and paste the token. The token stays on this device, is never exported and is deleted when you disconnect.',
+  'sync.repo': 'Repository (owner/name)',
+  'sync.token': 'Token',
+  'sync.connect': 'Connect',
+  'sync.busy': 'Syncing…',
+  'sync.connectedTo': 'Synced with',
+  'sync.lastSync': 'Last sync:',
+  'sync.never': 'not yet on this page',
+  'sync.now': 'Sync now',
+  'sync.disconnect': 'Disconnect',
+  'sync.disconnected':
+    'Disconnected. The token is deleted; your data on this device stays.',
+  'sync.error.invalid-repo':
+    'Enter the repo as owner/name, e.g. anna/pomo-data.',
+  'sync.error.bad-token':
+    'This token was not accepted. Check it and try again.',
+  'sync.error.no-access':
+    'The token cannot reach this repo. Check the repo name and that the token has «Contents: read/write» on it.',
+  'sync.error.empty-repo':
+    'The repo is empty. Add a README on GitHub, then connect again.',
+  'sync.error.offline':
+    'GitHub is not reachable. Your changes stay here and sync later.',
 };

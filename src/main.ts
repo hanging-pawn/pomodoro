@@ -5,14 +5,26 @@ import { createUsageLog } from './beta/usage';
 import { APP_VERSION } from './config';
 import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
+import { mountSyncPanel } from './sync/panel';
+import { createSync } from './sync/sync';
 
 const i18n = createI18n();
 const root = document.getElementById('app');
 if (root) mountApp(root, i18n);
 
+const store = openStore();
+
+// Optional personal sync (NFR-10): no request until the user connects a repo.
+const syncRoot = document.getElementById('sync');
+if (syncRoot)
+  void store.then((s) => {
+    const sync = createSync({ store: s });
+    mountSyncPanel(syncRoot, i18n, sync);
+    void sync.sync();
+  });
+
 const beta = document.getElementById('beta');
 if (beta) {
-  const store = openStore();
   const session = createBetaSession({
     events: async () => (await store).events(),
     lang: () => i18n.locale,
