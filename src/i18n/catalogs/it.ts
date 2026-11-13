@@ -46,6 +46,20 @@ export const it: Messages = {
   'settings.level.hint.subtle': 'Monete e negozio, senza serie.',
   'settings.level.hint.full': 'Monete, negozio, serie e bonus casuale.',
   'settings.about': '{app} · {tagline} · versione {version}',
+  'info.open': 'Che cos’è?',
+  'info.close': 'Ho capito',
+  'info.today':
+    'La tua giornata come un percorso: ogni riga è un’attività, ogni punto un round di concentrazione di 25 minuti. Tocca un’attività per sceglierla come prossima, poi avvia il round qui sotto. Le righe colorate sono ricompense che raggiungi con le monete dei tuoi round.',
+  'info.tasks':
+    'Qui raccogli tutte le attività. Stima quanti round servono e portale nella tua giornata con «Aggiungi a oggi». Il budget giornaliero indica quanti round sono realistici oggi. Altre azioni sono dietro «…».',
+  'info.shop':
+    'Le tue ricompense: ogni round completato fa guadagnare monete. Quando ne hai abbastanza, riscatti una ricompensa. Decidi tu cosa c’è e quanto costa.',
+  'info.week':
+    'La tua settimana in breve: round per giorno e progetto, e quanto del piano hai realizzato. La chiusura del giorno qui sotto confronta la stima con i round effettivi.',
+  'info.horizon':
+    'Progetti con una data obiettivo, come un esame o una scadenza. La linea mostra quanto tempo è passato; il punto indica oggi. Tocca un progetto per scegliere la sua prossima attività aperta.',
+  'info.settings':
+    'Come lavora pomo.pomo per te: modalità dei round, ricompense, lingua e aspetto. In «Dati e dispositivi» salvi i tuoi dati o colleghi un altro dispositivo.',
   'nav.label': 'Navigazione principale',
   'screen.today': 'Oggi',
   'screen.tasks': 'Attività',
@@ -260,6 +274,8 @@ export const it: Messages = {
   'tagesweg.plan': 'Pianifica la giornata',
   'tagesweg.focusHead': '{phase} · round {n} di {m}',
   'tagesweg.pick': 'Scegli {title} per il prossimo round',
+  'tagesweg.breakBar': 'Avanzamento della pausa',
+  'tagesweg.breakLeft': 'ancora {min} min, poi il prossimo round',
   'tagesweg.title': 'Percorso di oggi',
   'tagesweg.empty':
     'Scegli in Attività su cosa lavori oggi. Ogni attività diventa un tratto del tuo percorso.',

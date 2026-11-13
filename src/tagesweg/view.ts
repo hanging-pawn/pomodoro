@@ -2,6 +2,7 @@ import type { AppState } from '../domain/state';
 import type { InterruptionType } from '../domain/events';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import type { Shop } from '../rewards/shop';
+import { localizeReward } from '../rewards/templates';
 import { DATA_CHANGED, PICK_TASK } from '../tasks/events';
 import { formatClock } from '../timer/alerts';
 import type { Timer, PhaseEnd } from '../timer/controller';
@@ -58,6 +59,7 @@ export function mountTagesweg(
   /** Live parts of the round view, updated in place every tick (no re-render: taps stay on their button). */
   let livePiece: ReturnType<typeof progressBar> | undefined;
   let liveDigits: HTMLButtonElement | undefined;
+  let liveBreak: HTMLElement | undefined;
   /** Task picked in the Horizon for the next round (FR-607); used once. */
   let picked: string | undefined;
 
@@ -165,7 +167,7 @@ export function mountTagesweg(
     li.dataset.role = 'reward-row';
     const title = document.createElement('span');
     title.className = 'tw-row__title';
-    title.textContent = row.title;
+    title.textContent = localizeReward(row.title, i18n.locale);
     const text = document.createElement('span');
     text.className = 'tw-row__text';
     const metas = document.createElement('span');
@@ -237,6 +239,9 @@ export function mountTagesweg(
     return wrap;
   }
 
+  const breakLeft = (ms: number) =>
+    t('tagesweg.breakLeft', { min: Math.max(1, Math.ceil(ms / 60_000)) });
+
   const parkButton = () =>
     iconButton({
       icon: 'park',
@@ -261,6 +266,25 @@ export function mountTagesweg(
     const title = document.createElement('p');
     title.className = 'tw-next__title';
     title.textContent = (next && state?.tasks[next]?.title) || '';
+    const onBreak = phase === 'short-break' || phase === 'long-break';
+    // Break bar (pause-360): how much of the break is over, minutes left; ticks update it in place.
+    const breakParts: Node[] = [];
+    if (onBreak && lastView.totalMs > 0) {
+      const bar = progressBar({
+        label: t('tagesweg.breakBar'),
+        value: 1 - lastView.remainingMs / lastView.totalMs,
+        max: 1,
+      });
+      bar.element.dataset.role = 'break-bar';
+      bar.element.classList.add('tw-break');
+      livePiece = bar;
+      const left = document.createElement('p');
+      left.className = 'tw-next__left';
+      left.dataset.role = 'break-left';
+      left.textContent = breakLeft(lastView.remainingMs);
+      liveBreak = left;
+      breakParts.push(bar.element, left);
+    }
     const actions = document.createElement('div');
     actions.className = 'tw-next__actions';
     actions.append(
@@ -283,7 +307,7 @@ export function mountTagesweg(
       }),
       parkButton(),
     );
-    card.append(label, title, actions);
+    card.append(label, ...breakParts, title, actions);
     return card;
   }
 
@@ -379,6 +403,7 @@ export function mountTagesweg(
     if (!state) return;
     livePiece = undefined;
     liveDigits = undefined;
+    liveBreak = undefined;
     const w = deriveTagesweg(state, lastView, now());
     const phase = lastView.phase;
     const children: Node[] = [];
@@ -578,6 +603,7 @@ export function mountTagesweg(
       if (livePiece && view.totalMs > 0)
         livePiece.set(1 - view.remainingMs / view.totalMs, 1);
       if (liveDigits) liveDigits.textContent = formatClock(view.remainingMs);
+      if (liveBreak) liveBreak.textContent = breakLeft(view.remainingMs);
       return;
     }
     void reload().catch(() => {});

@@ -46,6 +46,20 @@ export const de: Messages = {
   'settings.level.hint.subtle': 'Münzen und Laden, ohne Serie.',
   'settings.level.hint.full': 'Münzen, Laden, Serie und Zufallsbonus.',
   'settings.about': '{app} · {tagline} · Version {version}',
+  'info.open': 'Was ist das?',
+  'info.close': 'Verstanden',
+  'info.today':
+    'Dein Tag als Weg: Jede Zeile ist eine Aufgabe, jeder Punkt eine Fokusrunde von 25 Minuten. Tippe eine Aufgabe an, um sie als nächste zu wählen, und starte unten die Runde. Farbige Zeilen sind Belohnungen, die du mit den Münzen deiner Runden erreichst.',
+  'info.tasks':
+    'Hier sammelst du alle Aufgaben. Schätze, wie viele Runden eine Aufgabe braucht, und hole sie mit «Zu heute» in deinen Tag. Das Tagesbudget sagt, wie viele Runden heute realistisch sind. Weitere Aktionen findest du unter «…».',
+  'info.shop':
+    'Deine eigenen Belohnungen: Jede fertige Runde bringt Münzen. Hast du genug, löst du eine Belohnung ein. Was es gibt und was es kostet, bestimmst du selbst.',
+  'info.week':
+    'Rückblick auf die Woche: Runden pro Tag und Projekt und wie viel deines Plans du geschafft hast. Der Tagesabschluss darunter vergleicht deine Schätzung mit den tatsächlichen Runden.',
+  'info.horizon':
+    'Projekte mit Zieldatum, etwa eine Prüfung oder Deadline. Die Linie zeigt, wie viel Zeit vergangen ist; der Punkt steht bei heute. Tippe ein Projekt an, um seine nächste offene Aufgabe für die nächste Runde zu wählen.',
+  'info.settings':
+    'So arbeitet pomo.pomo für dich: Modus der Runden, Belohnungen, Sprache und Darstellung. Unter «Daten und Geräte» sicherst du deine Daten oder verbindest ein weiteres Gerät.',
   'nav.label': 'Hauptnavigation',
   'screen.today': 'Heute',
   'screen.tasks': 'Aufgaben',
@@ -259,6 +273,8 @@ export const de: Messages = {
   'tagesweg.plan': 'Tag planen',
   'tagesweg.focusHead': '{phase} · Runde {n} von {m}',
   'tagesweg.pick': '{title} für die nächste Runde wählen',
+  'tagesweg.breakBar': 'Verlauf der Pause',
+  'tagesweg.breakLeft': 'noch {min} Min., dann die nächste Runde',
   'tagesweg.title': 'Tagesweg',
   'tagesweg.empty':
     'Wähle unter Aufgaben, woran du heute arbeitest. Jede Aufgabe wird ein Stück deines Wegs.',

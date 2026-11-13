@@ -1,6 +1,7 @@
 import { APP_NAME } from '../config';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import { icon, type IconName } from '../ui/components/icons';
+import { button } from '../ui/components/button';
 import { iconButton } from '../ui/components/icon-button';
 
 /** Screens of the app shell (docs/ui/screens.md, FR-610). */
@@ -54,7 +55,34 @@ export function parseRoute(hash: string): Screen {
  * bottom nav Today / Tasks / Shop / Week (top nav from 1024 px via CSS). Hash routing keeps the
  * screen on reload. The structure is built once; texts follow the locale.
  */
-export function mountShell(root: HTMLElement, i18n: I18n): Shell {
+export interface ShellOptions {
+  /** Remembers which screen explanations were read (default localStorage). */
+  storage?: Pick<Storage, 'getItem' | 'setItem'>;
+}
+
+const INFO_SEEN = 'pomo.info.seen.';
+
+export function mountShell(
+  root: HTMLElement,
+  i18n: I18n,
+  options: ShellOptions = {},
+): Shell {
+  const storage =
+    options.storage ??
+    (() => {
+      try {
+        return globalThis.localStorage;
+      } catch {
+        return undefined;
+      }
+    })();
+  const infoSeen = (s: Screen) => {
+    try {
+      return storage?.getItem(INFO_SEEN + s) === '1';
+    } catch {
+      return false;
+    }
+  };
   const t = (key: string, vars: Record<string, string | number> = {}) =>
     Object.entries(vars).reduce(
       (s, [k, v]) => s.replaceAll(`{${k}}`, String(v)),
@@ -109,6 +137,15 @@ export function mountShell(root: HTMLElement, i18n: I18n): Shell {
   const sections = new Map<Screen, HTMLElement>();
   const titles = new Map<Screen, HTMLElement>();
   const slots = new Map<Screen, HTMLElement>();
+  const infos = new Map<
+    Screen,
+    {
+      box: HTMLElement;
+      text: HTMLElement;
+      close: HTMLButtonElement;
+      btn: HTMLButtonElement;
+    }
+  >();
   for (const s of SCREENS) {
     const section = document.createElement('section');
     section.className = `app-screen app-screen--${s}`;
@@ -117,13 +154,57 @@ export function mountShell(root: HTMLElement, i18n: I18n): Shell {
     h1.className = 'app-title';
     h1.id = `title-${s}`;
     section.setAttribute('aria-labelledby', h1.id);
+    // Short explanation per screen (the menus are not self-explanatory): open on the first visit,
+    // afterwards behind the info button next to the title.
+    const head = document.createElement('div');
+    head.className = 'app-titlebar';
+    const info = document.createElement('section');
+    info.className = 'app-info';
+    info.id = `info-${s}`;
+    info.dataset.role = 'info';
+    info.setAttribute('role', 'note');
+    const infoText = document.createElement('p');
+    const infoClose = button({
+      label: '',
+      variant: 'quiet',
+      action: 'info-close',
+      onClick: () => setInfo(s, false, true),
+    });
+    info.append(infoText, infoClose);
+    const infoBtn = iconButton({
+      icon: 'info',
+      label: '',
+      action: 'info',
+      onClick: () => {
+        const opening = info.hidden === true;
+        // Closing with the button counts as read; opening does not.
+        setInfo(s, opening, !opening);
+      },
+    });
+    infoBtn.setAttribute('aria-controls', info.id);
+    head.append(h1, infoBtn);
     const slot = document.createElement('div');
     slot.className = 'app-slot';
-    section.append(h1, slot);
+    section.append(head, info, slot);
     main.append(section);
     sections.set(s, section);
     titles.set(s, h1);
     slots.set(s, slot);
+    infos.set(s, { box: info, text: infoText, close: infoClose, btn: infoBtn });
+    info.hidden = infoSeen(s);
+    infoBtn.setAttribute('aria-expanded', String(!info.hidden));
+  }
+
+  function setInfo(s: Screen, open: boolean, read: boolean) {
+    const parts = infos.get(s)!;
+    parts.box.hidden = !open;
+    parts.btn.setAttribute('aria-expanded', String(open));
+    if (read)
+      try {
+        storage?.setItem(INFO_SEEN + s, '1');
+      } catch {
+        /* private mode: shows again next visit */
+      }
   }
 
   // Bottom nav
@@ -155,7 +236,14 @@ export function mountShell(root: HTMLElement, i18n: I18n): Shell {
     settings.setAttribute('aria-label', t('header.settings'));
     settings.title = t('header.settings');
     nav.setAttribute('aria-label', t('nav.label'));
-    for (const s of SCREENS) titles.get(s)!.textContent = t(`screen.${s}`);
+    for (const s of SCREENS) {
+      titles.get(s)!.textContent = t(`screen.${s}`);
+      const parts = infos.get(s)!;
+      parts.text.textContent = t(`info.${s}`);
+      parts.close.textContent = t('info.close');
+      parts.btn.setAttribute('aria-label', t('info.open'));
+      parts.btn.title = t('info.open');
+    }
     for (const s of NAV) navLabels.get(s)!.textContent = t(`screen.${s}`);
     coinEl.textContent =
       coins === undefined ? '' : t('header.coins', { n: coins });

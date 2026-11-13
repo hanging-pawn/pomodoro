@@ -61,3 +61,35 @@ describe('mountRewards', () => {
     expect(root.querySelector('[data-role="shop-list"]')).toBeNull();
   });
 });
+
+describe('template rewards follow the UI language', () => {
+  it('shows the templates seeded in English in German after a switch, edited titles stay', async () => {
+    const events: DomainEvent[] = [];
+    const log = {
+      events: async () => [...events],
+      append: async (...e: DomainEvent[]) => void events.push(...e),
+    };
+    let clock = 1; // distinct instants: same-instant events have no defined order
+    const shop = createShop({ log, now: () => clock++ });
+    await shop.ensureSeeded('en');
+    const own = Object.values(deriveState(events).rewards).find(
+      (r) => r.title === 'Walk outside',
+    )!;
+    await shop.save({ id: own.id, title: 'My own walk', price: own.price });
+    const root = document.createElement('div');
+    const i18n = createI18n({
+      languages: ['en'],
+      storage: undefined as unknown as Storage,
+    });
+    mountRewards(root, i18n, shop, { state: async () => deriveState(events) });
+    await flush();
+    i18n.setLocale('de');
+    await flush();
+    const titles = [
+      ...root.querySelectorAll('[data-role="shop-list"] .ui-row__title'),
+    ].map((x) => x.textContent);
+    expect(titles).toContain('Kaffeepause');
+    expect(titles).not.toContain('Coffee break');
+    expect(titles).toContain('My own walk');
+  });
+});

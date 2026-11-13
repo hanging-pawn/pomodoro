@@ -274,6 +274,31 @@ describe('Today screen (FR-610, FR-604)', () => {
   });
 });
 
+describe('break bar (pause-360, FR-604)', () => {
+  it('shows a break bar with minutes left that moves in place', async () => {
+    const { root, timer, at } = await setup();
+    q(root, 'start')!.click();
+    await flush();
+    at(NOW + 25 * 60_000 + 1000);
+    await timer.refresh();
+    await flush();
+    expect(timer.view.phase).toBe('short-break');
+    const bar = root.querySelector('[data-role="break-bar"]')!;
+    expect(root.querySelector('[data-role="break-left"]')?.textContent).toBe(
+      '5 min left, then the next round',
+    );
+    const before = bar.getAttribute('aria-valuenow');
+    at(NOW + 28 * 60_000);
+    await timer.refresh();
+    await flush();
+    expect(root.querySelector('[data-role="break-bar"]')).toBe(bar);
+    expect(bar.getAttribute('aria-valuenow')).not.toBe(before);
+    expect(root.querySelector('[data-role="break-left"]')?.textContent).toBe(
+      '2 min left, then the next round',
+    );
+  });
+});
+
 describe('ticks (NFR-18)', () => {
   it('a tick moves the piece but keeps the buttons, so a tap on the iPhone is not lost', async () => {
     const { root, timer, at } = await setup();

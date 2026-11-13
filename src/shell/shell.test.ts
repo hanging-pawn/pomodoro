@@ -118,4 +118,31 @@ describe('mountShell (FR-610)', () => {
     expect(visible(root)).toEqual(['today']);
     expect(location.hash).toBe('#/today');
   });
+
+  it('explains each screen on the first visit, then behind the info button', () => {
+    const m = new Map<string, string>();
+    const storage = {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+    };
+    const root = document.createElement('div');
+    shell = mountShell(root, i18nFor('de'), { storage });
+    const info = root.querySelector<HTMLElement>('#info-today')!;
+    expect(info.hidden).toBe(false);
+    expect(info.textContent).toContain('Fokusrunde');
+    info.querySelector<HTMLElement>('[data-action="info-close"]')!.click();
+    expect(info.hidden).toBe(true);
+    shell.destroy();
+    const again = document.createElement('div');
+    shell = mountShell(again, i18nFor('de'), { storage });
+    const info2 = again.querySelector<HTMLElement>('#info-today')!;
+    expect(info2.hidden).toBe(true);
+    const btn = again.querySelector<HTMLElement>(
+      '.app-screen--today [data-action="info"]',
+    )!;
+    expect(btn.getAttribute('aria-label')).toBe('Was ist das?');
+    btn.click();
+    expect(info2.hidden).toBe(false);
+    expect(btn.getAttribute('aria-expanded')).toBe('true');
+  });
 });

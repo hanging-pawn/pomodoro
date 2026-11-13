@@ -45,6 +45,20 @@ export const en = {
   'settings.level.hint.subtle': 'Coins and shop, no streak.',
   'settings.level.hint.full': 'Coins, shop, streak and random bonus.',
   'settings.about': '{app} · {tagline} · version {version}',
+  'info.open': 'What is this?',
+  'info.close': 'Got it',
+  'info.today':
+    'Your day as a path: each row is a task, each dot a focus round of 25 minutes. Tap a task to make it the next one, then start the round below. Tinted rows are rewards you reach with the coins of your rounds.',
+  'info.tasks':
+    'Collect all your tasks here. Estimate how many rounds a task needs and bring it into your day with «Add to today». The daily budget says how many rounds are realistic today. More actions sit behind «…».',
+  'info.shop':
+    'Your own rewards: every finished round earns coins. Once you have enough, redeem a reward. You decide what there is and what it costs.',
+  'info.week':
+    'Your week at a glance: rounds per day and project, and how much of your plan you managed. The day close below compares your estimate with the rounds you actually did.',
+  'info.horizon':
+    'Projects with a target date, such as an exam or a deadline. The line shows how much time has passed; the dot marks today. Tap a project to pick its next open task for the next round.',
+  'info.settings':
+    'How pomo.pomo works for you: round mode, rewards, language and appearance. Under «Data and devices» you back up your data or connect another device.',
   'nav.label': 'Main',
   'screen.today': 'Today',
   'screen.tasks': 'Tasks',
@@ -256,6 +270,8 @@ export const en = {
   'tagesweg.plan': 'Plan the day',
   'tagesweg.focusHead': '{phase} · round {n} of {m}',
   'tagesweg.pick': 'Choose {title} for the next round',
+  'tagesweg.breakBar': 'Break so far',
+  'tagesweg.breakLeft': '{min} min left, then the next round',
   'tagesweg.title': 'Today path',
   'tagesweg.empty':
     'Pick today’s tasks in Tasks. Each one becomes a stretch of your path.',

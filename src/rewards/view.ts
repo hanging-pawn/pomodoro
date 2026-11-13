@@ -7,6 +7,7 @@ import { openDialog } from '../ui/components/dialog';
 import { iconButton } from '../ui/components/icon-button';
 import { listRow } from '../ui/components/list-row';
 import { ShopError, type Shop } from './shop';
+import { localizeReward } from './templates';
 
 export interface RewardsViewDeps {
   state(): Promise<AppState>;
@@ -60,7 +61,11 @@ export function mountRewards(
       form.append(l);
       return i;
     };
-    const title = field(t('rewards.title'), reward.title, 'text');
+    const title = field(
+      t('rewards.title'),
+      localizeReward(reward.title, i18n.locale),
+      'text',
+    );
     const price = field(t('rewards.price'), String(reward.price), 'number');
     const choice = await openDialog({
       title: t('rewards.edit'),
@@ -88,7 +93,7 @@ export function mountRewards(
       action: 'more',
       onClick: () =>
         void openDialog({
-          title: reward.title,
+          title: localizeReward(reward.title, i18n.locale),
           actions: [
             {
               label: t('tasks.edit'),
@@ -140,7 +145,7 @@ export function mountRewards(
         const toGo = reward.price - state.coins;
         list.append(
           listRow({
-            title: reward.title,
+            title: localizeReward(reward.title, i18n.locale),
             meta: [
               t('rewards.coins', { n: reward.price }),
               toGo > 0 ? t('tagesweg.toGo', { n: toGo }) : undefined,
@@ -212,7 +217,7 @@ export function mountRewards(
         for (const r of [...state.redemptions].reverse().slice(0, 10))
           log.append(
             listRow({
-              title: r.title,
+              title: localizeReward(r.title, i18n.locale),
               meta: t('rewards.coins', { n: r.price }),
             }),
           );
