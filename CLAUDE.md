@@ -6,9 +6,10 @@ Profil: Software · Sprints 2 Wo · Releases
 `/ap` zieht hier nur Tickets des Jira-Projekts POMO (Pomodoro).
 
 ## Product name
-- User-facing name: **Pomo d·oro** (middle dot U+00B7), same in DE/EN/IT — page title, manifest `name`, intro, privacy notice. Use it from i18n/config, not hard-coded per view.
-- Technical name stays `pomodoro` (repo, package, Pages URL); ASCII fallback where `·` is not allowed: `Pomo doro` / slug `pomo-doro`.
-- Name is pending a trademark check (POMO-33); keep it in one place so a rename is a one-line change.
+- User-facing name: **pomo.pomo** (lower case, with dot), same in DE/EN/IT — page title, manifest `name`, intro, privacy notice. Use it from i18n/config, not hard-coded per view. Replaces «Pomo d·oro» (trademark risk, POMO-40).
+- Technical name stays `pomodoro` (repo, package, Pages URL); slug where a dot is not allowed: `pomo-pomo`.
+- No tomato imagery in icons or illustrations (trademark owner claims it, report POMO-33). Never use «Pomodoro» or «Pomodoro Technique» in UI texts; describe the method as focus rounds.
+- Name is pending its own trademark and availability check; keep it in one place so a rename is a one-line change.
 
 ## Sources of truth
 - Requirements (released, 53 IDs FR-nnn / NFR-nn): vault `Projekte/Pomodoro/01_Anforderungen/2026-11-13_Anforderungen_Pomodoro_v0.3.md`
