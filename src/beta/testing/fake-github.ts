@@ -9,6 +9,8 @@ interface Commit {
   parent: string | null;
   tree: string;
   message: string;
+  /** Date.now() when the branch moved to this commit. */
+  at: number;
 }
 
 export interface FakeGitHub {
@@ -44,6 +46,7 @@ export function createFakeGitHub(
     parent: null,
     tree: rootTree,
     message: 'init',
+    at: 0,
   };
   commits.set(root.sha, root);
   let head = root.sha;
@@ -74,6 +77,7 @@ export function createFakeGitHub(
         parent: head,
         tree,
         message: 'elsewhere',
+        at: Date.now(),
       };
       commits.set(c.sha, c);
       head = c.sha;
@@ -126,6 +130,7 @@ export function createFakeGitHub(
           parent: body.parents[0],
           tree: body.tree,
           message: body.message,
+          at: 0,
         };
         commits.set(c.sha, c);
         return json(201, { sha: c.sha });
@@ -138,6 +143,7 @@ export function createFakeGitHub(
         if (!c || (c.parent !== head && !body.force))
           return json(422, { message: 'Update is not a fast forward' });
         head = c.sha;
+        c.at = Date.now();
         added.push(c);
         return json(200, { object: { sha: head } });
       }
