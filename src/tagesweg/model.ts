@@ -50,13 +50,19 @@ export function deriveTagesweg(
   const gamified = gamification !== 'off';
   const planned = [...tasks, ...unplanned];
 
+  // A task has as many stations as estimated (or more if already worked past it); one that has
+  // reached its estimate gets no extra station, so the location moves on to the next task (FR-602).
+  // Only when no planned round is left does the first task get one more, so a round can still start.
+  const totals = planned.map((task) => Math.max(task.estimate, task.actual));
+  if (planned.length && planned.every((task, i) => task.actual >= totals[i]!))
+    totals[0] = planned[0]!.actual + 1;
   let currentTaskId: string | undefined;
-  const taskRows = planned.map((task) => {
-    const total = Math.max(task.estimate, task.actual + 1);
-    const stations: StationState[] = Array.from({ length: total }, (_, i) =>
-      i < task.actual ? 'done' : 'open',
+  const taskRows = planned.map((task, i) => {
+    const stations: StationState[] = Array.from(
+      { length: totals[i]! },
+      (_, n) => (n < task.actual ? 'done' : 'open'),
     );
-    if (!currentTaskId) {
+    if (!currentTaskId && task.actual < stations.length) {
       currentTaskId = task.id;
       stations[task.actual] = 'current';
     }

@@ -34,6 +34,61 @@ describe('deriveTagesweg', () => {
     ]);
   });
 
+  it('Abnahme FR-602: 4 tasks (2/2/1/1 rounds), 2 done → 4 rows, 6 stations, 2 coloured, location at station 3', () => {
+    const round = (id: string, task: string, at: number) => [
+      newEvent(
+        'pomodoro.started',
+        { pomodoroId: id, taskId: task, mode: 'strict', focusMinutes: 25 },
+        at,
+      ),
+      newEvent('pomodoro.completed', { pomodoroId: id }, at + 1),
+    ];
+    const w = deriveTagesweg(
+      deriveState([
+        newEvent('task.created', { taskId: 'a', title: 'A', estimate: 2 }, 1),
+        newEvent('task.created', { taskId: 'b', title: 'B', estimate: 2 }, 2),
+        newEvent('task.created', { taskId: 'c', title: 'C', estimate: 1 }, 3),
+        newEvent('task.created', { taskId: 'd', title: 'D', estimate: 1 }, 4),
+        newEvent(
+          'plan.changed',
+          { day: dayKey(NOW), taskIds: ['a', 'b', 'c', 'd'] },
+          5,
+        ),
+        ...round('p1', 'a', 10),
+        ...round('p2', 'a', 20),
+      ]),
+      idle,
+      NOW,
+    );
+    const rows = w.rows.filter((r) => r.kind === 'task').map(task);
+    expect(rows).toHaveLength(4);
+    const stations = rows.flatMap((r) => r.stations);
+    expect(stations).toHaveLength(6);
+    expect(stations.filter((s) => s === 'done')).toHaveLength(2);
+    // the location dot sits at the 3rd station: first open round of task b
+    expect(stations.indexOf('current')).toBe(2);
+    expect(w.currentTaskId).toBe('b');
+  });
+
+  it('when every estimate is reached the first task gets one more station, so a round can start', () => {
+    const w = deriveTagesweg(
+      deriveState([
+        newEvent('task.created', { taskId: 'a', title: 'A', estimate: 1 }, 1),
+        newEvent('plan.changed', { day: dayKey(NOW), taskIds: ['a'] }, 2),
+        newEvent(
+          'pomodoro.started',
+          { pomodoroId: 'p', taskId: 'a', mode: 'strict', focusMinutes: 25 },
+          3,
+        ),
+        newEvent('pomodoro.completed', { pomodoroId: 'p' }, 4),
+      ]),
+      idle,
+      NOW,
+    );
+    expect(task(w.rows[0]).stations).toEqual(['done', 'current']);
+    expect(w.currentTaskId).toBe('a');
+  });
+
   it('marks stations done by actual rounds and the first open one as current', () => {
     const state = log([
       newEvent(
