@@ -5,6 +5,7 @@ import {
   budgetStatus,
   createInventory,
   InventoryError,
+  parseLines,
   SPLIT_HINT_FROM,
   todayView,
 } from './inventory';
