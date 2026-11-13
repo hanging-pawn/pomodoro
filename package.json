@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && tsc --noEmit -p tools/beta-admin && vite build",
+    "build": "tsc --noEmit && tsc --noEmit -p tools/beta-admin && tsc --noEmit -p tools/beta-report && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "size": "node scripts/size.mjs",
-    "beta-admin": "tsx tools/beta-admin/main.ts"
+    "beta-admin": "tsx tools/beta-admin/main.ts",
+    "beta-report": "tsx tools/beta-report/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
