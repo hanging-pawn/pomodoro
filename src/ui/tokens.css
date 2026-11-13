@@ -1,0 +1,144 @@
+/*
+ * Design tokens for pomo.pomo (FR-601, NFR-05, NFR-08).
+ * Source: Gianluca's design system, variant clean-white (decided 2026-11-13, POMO-42).
+ * Deviations from the variant for WCAG AA on every surface: --text-secondary #4B5563
+ * (variant #6B7280), --text-muted #5B6472 (variant #9CA3AF), --positive #047857, --negative #B91C1C.
+ *
+ * Theme: light by default, dark when the system asks for it; `data-theme="light|dark"` on <html>
+ * overrides the system (see src/ui/theme.ts). The two dark blocks below must stay identical
+ * (tokens.test.ts checks it).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --bg-base: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-highlight: #eef2ff; /* reward rows, accent-tinted fills */
+
+  /* Accent: indigo, at most 1–2 elements per screen */
+  --accent: #3730a3;
+  --accent-mid: #6366f1; /* walked path, done stations, progress fill */
+  --accent-light: #c7d2fe; /* progress track (decorative) */
+  --accent-cta: #111827; /* dark primary button */
+  --on-accent: #ffffff;
+  --on-cta: #ffffff;
+  --positive: #047857;
+  --negative: #b91c1c;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #5b6472; /* also open stations and the unwalked path */
+  --text-accent: #3730a3;
+
+  /* Lines */
+  --border: #e5e7eb;
+  --focus-ring: #4f46e5;
+
+  /* Type */
+  --font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-caption: 0.75rem; /* 12px meta */
+  --font-size-body: 0.875rem; /* 14px rows, body */
+  --font-size-label: 0.875rem; /* 14px/600 section label */
+  --font-size-title: 1.625rem; /* 26px page title */
+  --font-size-hero: 2.25rem; /* 36px hero number (digits on tap) */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --line-height-body: 1.45;
+  --line-height-tight: 1.1;
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px; /* page gutter at 360 px */
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-button: 14px;
+  --radius-row: 12px;
+  --radius-chip: 999px;
+
+  /* Sizes */
+  --touch-target: 44px; /* NFR-05 minimum */
+  --button-height: 52px;
+  --progress-height: 6px;
+  --path-width: 4px;
+  --station-size: 14px;
+
+  /* Motion: calm, no confetti (FR-601) */
+  --motion-fast: 120ms;
+  --motion-base: 240ms;
+  --motion-ring: 600ms; /* ring moment: dot moves one station */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-base: #0b1120;
+  --bg-card: #111827;
+  --bg-card-alt: #1f2937;
+  --bg-highlight: #1e1b4b;
+  --accent: #a5b4fc;
+  --accent-mid: #818cf8;
+  --accent-light: #312e81;
+  --accent-cta: #f9fafb;
+  --on-accent: #111827;
+  --on-cta: #111827;
+  --positive: #34d399;
+  --negative: #f87171;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-accent: #c7d2fe;
+  --border: #374151;
+  --focus-ring: #a5b4fc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg-base: #0b1120;
+    --bg-card: #111827;
+    --bg-card-alt: #1f2937;
+    --bg-highlight: #1e1b4b;
+    --accent: #a5b4fc;
+    --accent-mid: #818cf8;
+    --accent-light: #312e81;
+    --accent-cta: #f9fafb;
+    --on-accent: #111827;
+    --on-cta: #111827;
+    --positive: #34d399;
+    --negative: #f87171;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-accent: #c7d2fe;
+    --border: #374151;
+    --focus-ring: #a5b4fc;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-ring: 0ms;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}

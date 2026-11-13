@@ -10,6 +10,8 @@ import { describe, expect, it } from 'vitest';
  */
 const ROOT = join(__dirname, '../..');
 const ALLOWED_HOSTS = new Set(['api.github.com']);
+/** XML namespace names are identifiers, never fetched (inline SVG icons, src/ui/components/icons.ts). */
+const NAMESPACES = ['http://www.w3.org/2000/svg'];
 const NETWORK_API =
   /\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts)/;
 
@@ -30,9 +32,10 @@ describe('network hosts (NFR-09)', () => {
   it('names no host other than api.github.com in app code', () => {
     const hosts = new Set<string>();
     for (const file of files)
-      for (const m of readFileSync(file, 'utf8').matchAll(
-        /\b(?:https?|wss?):\/\/([^/\s'"`)]+)/g,
-      ))
+      for (const m of NAMESPACES.reduce(
+        (text, ns) => text.replaceAll(ns, ''),
+        readFileSync(file, 'utf8'),
+      ).matchAll(/\b(?:https?|wss?):\/\/([^/\s'"`)]+)/g))
         hosts.add(m[1]!);
     expect([...hosts].filter((h) => !ALLOWED_HOSTS.has(h))).toEqual([]);
   });

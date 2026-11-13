@@ -1,3 +1,5 @@
+import './ui/tokens.css';
+import './ui/components/components.css';
 import { mountApp } from './app';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
@@ -7,7 +9,10 @@ import { createI18n } from './i18n/i18n';
 import { openStore } from './storage/store';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
+import { createTheme } from './ui/theme';
 
+// Stored light/dark choice applies before the first render (FR-601).
+createTheme();
 const i18n = createI18n();
 const root = document.getElementById('app');
 if (root) mountApp(root, i18n);

@@ -1,0 +1,209 @@
+/* Component styles (POMO-42). Tokens only from src/ui/tokens.css; no shadows, no gradients. */
+
+.ui-button,
+.ui-icon-button,
+.ui-row__select,
+.ui-toast__action {
+  font: inherit;
+  cursor: pointer;
+}
+.ui-button:focus-visible,
+.ui-icon-button:focus-visible,
+.ui-row__select:focus-visible,
+.ui-toast__action:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.ui-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ui-button {
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+.ui-button--primary {
+  min-height: var(--button-height);
+  width: 100%;
+  border: 0;
+  background: var(--accent-cta);
+  color: var(--on-cta);
+}
+.ui-button--secondary {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.ui-button--quiet {
+  border: 0;
+  background: transparent;
+  color: var(--text-accent);
+}
+
+.ui-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.ui-icon-button[aria-pressed='true'] {
+  background: var(--bg-highlight);
+  color: var(--text-accent);
+}
+.ui-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-card {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+}
+.ui-card--highlight {
+  border-color: transparent;
+  background: var(--bg-highlight);
+}
+.ui-card__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.ui-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  border-bottom: 1px solid var(--border);
+}
+.ui-row__select {
+  flex: 1;
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+}
+.ui-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.ui-row__title {
+  overflow-wrap: anywhere;
+}
+.ui-row__meta {
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+}
+.ui-row--reward {
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-row);
+  background: var(--bg-highlight);
+  color: var(--text-accent);
+}
+.ui-row--done .ui-row__title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.ui-progress {
+  overflow: hidden;
+  height: var(--progress-height);
+  border-radius: var(--radius-chip);
+  background: var(--accent-light);
+}
+.ui-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-mid);
+  transition: width var(--motion-base) var(--ease-standard);
+}
+.ui-progress[data-over] .ui-progress__fill {
+  background: var(--negative);
+}
+
+.ui-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--text-primary) 40%, transparent);
+}
+@media (min-width: 600px) {
+  .ui-dialog-backdrop {
+    place-items: center;
+  }
+}
+.ui-dialog {
+  width: min(100%, 420px);
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.ui-dialog__title {
+  margin: 0 0 var(--space-3);
+  font-size: 1.125rem;
+}
+.ui-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.ui-toast-region {
+  position: fixed;
+  inset-inline: var(--space-4);
+  bottom: var(--space-4);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.ui-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 420px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-row);
+  background: var(--accent-cta);
+  color: var(--on-cta);
+  pointer-events: auto;
+}
+.ui-toast__action {
+  min-height: var(--touch-target);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: var(--font-weight-bold);
+  text-decoration: underline;
+}
