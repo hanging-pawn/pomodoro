@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newEvent, type DomainEvent } from '../domain/events';
+import { deriveState } from '../domain/state';
 import { createTimer, type TimerLog } from './controller';
 
 const MIN = 60_000;
@@ -114,5 +115,52 @@ describe('createTimer', () => {
     await timer.refresh();
     await timer.skipBreak();
     expect(timer.view.phase).toBe('idle');
+  });
+});
+
+describe('park (FR-205)', () => {
+  it('stores the note with type and keeps the round running', async () => {
+    const { timer, events, at } = setup();
+    await timer.start('t1');
+    at(T0 + 5 * MIN);
+    await timer.park('Call dentist', 'external');
+    expect(timer.view.phase).toBe('focus');
+    expect(timer.view.remainingMs).toBe(20 * MIN);
+    const parked = events.filter((e) => e.type === 'interruption.parked');
+    expect(parked).toHaveLength(1);
+    expect(parked[0]!.payload).toMatchObject({
+      text: 'Call dentist',
+      kind: 'external',
+      taskId: 't1',
+    });
+    expect(events.some((e) => e.type === 'pomodoro.aborted')).toBe(false);
+  });
+
+  it('defaults to internal, ignores blank text and idle state', async () => {
+    const { timer, events } = setup();
+    await timer.park('nothing running');
+    expect(events).toHaveLength(0);
+    await timer.start('t1');
+    await timer.park('   ');
+    await timer.park('Check mail');
+    const parked = events.filter((e) => e.type === 'interruption.parked');
+    expect(parked).toHaveLength(1);
+    expect(parked[0]!.payload).toMatchObject({ kind: 'internal' });
+  });
+
+  it('credits the task with +1 actual after the round completes (FR-301)', async () => {
+    const { timer, events, at } = setup();
+    await timer.start('t1');
+    at(T0 + 25 * MIN + 1000);
+    await timer.refresh();
+    const log = [
+      newEvent(
+        'task.created',
+        { taskId: 't1', title: 'A', estimate: 2 },
+        T0 - 5,
+      ),
+      ...events,
+    ];
+    expect(deriveState(log).tasks['t1']!.actual).toBe(1);
   });
 });

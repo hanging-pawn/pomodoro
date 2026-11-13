@@ -3,6 +3,7 @@ import {
   DEFAULT_SETTINGS,
   type DomainEvent,
   type EventPayloads,
+  type InterruptionType,
   type Settings,
 } from './events';
 
@@ -17,11 +18,23 @@ export interface Task {
   createdAt: number;
 }
 
+/** An interruption note parked during a round (FR-205). */
+export interface ParkedNote {
+  id: string;
+  text: string;
+  kind: InterruptionType;
+  pomodoroId?: string;
+  taskId?: string;
+  at: number;
+}
+
 export interface AppState {
   tasks: Record<string, Task>;
   pomodoros: { completed: number; aborted: number };
   /** Ordered task ids per local day, as last planned (may hold done or deleted tasks). */
   plans: Record<string, string[]>;
+  /** Parked interruption notes in log order. */
+  parked: ParkedNote[];
   coins: number;
   redemptions: (EventPayloads['reward.redeemed'] & { at: number })[];
   settings: Settings;
@@ -38,6 +51,7 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
     tasks: {},
     pomodoros: { completed: 0, aborted: 0 },
     plans: {},
+    parked: [],
     coins: 0,
     redemptions: [],
     settings: { ...DEFAULT_SETTINGS },
@@ -77,6 +91,9 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         if (task) task.actual += 1;
         break;
       }
+      case 'interruption.parked':
+        state.parked.push({ id: e.id, ...e.payload, at: e.at });
+        break;
       case 'pomodoro.aborted':
         state.pomodoros.aborted += 1;
         break;

@@ -325,10 +325,28 @@ export function mountTasks(
       inventoryChildren.push(empty);
     }
 
-    root.replaceChildren(
+    const parkedList = document.createElement('ul');
+    parkedList.className = 'ui-list';
+    parkedList.dataset.role = 'parked-list';
+    for (const note of [...state.parked].reverse())
+      parkedList.append(
+        listRow({
+          title: note.text,
+          meta: [
+            t(`timer.park.${note.kind}`),
+            state.tasks[note.taskId ?? '']?.title,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        }),
+      );
+    const cards = [
       card({ title: t('today.title'), children: todayChildren }),
       card({ title: t('tasks.title'), children: inventoryChildren }),
-    );
+    ];
+    if (state.parked.length)
+      cards.push(card({ title: t('park.title'), children: [parkedList] }));
+    root.replaceChildren(...cards);
     if (focusTitle) {
       focusTitle = false;
       root.querySelector<HTMLInputElement>('input[name="title"]')?.focus();

@@ -1,5 +1,5 @@
 import { APP_NAME } from '../config';
-import type { Mode } from '../domain/events';
+import type { InterruptionType, Mode } from '../domain/events';
 import type { I18n, MessageKey } from '../i18n/i18n';
 import { button } from '../ui/components/button';
 import { card } from '../ui/components/card';
@@ -58,6 +58,55 @@ export function mountTimer(
     if (choice === 'internal' || choice === 'external')
       await timer.abort(choice);
   }
+
+  /** Park key (FR-205): P focuses the field, text + Enter stores the note; the clock keeps running. */
+  function parkForm() {
+    const form = document.createElement('form');
+    form.className = 'timer__park';
+    form.noValidate = true;
+    const label = document.createElement('label');
+    label.textContent = t('timer.park.label');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'park';
+    input.autocomplete = 'off';
+    input.placeholder = t('timer.park.placeholder');
+    label.htmlFor = input.id = 'timer-park';
+    const kind = document.createElement('select');
+    kind.name = 'park-kind';
+    kind.setAttribute('aria-label', t('timer.park.kind'));
+    for (const k of ['internal', 'external'] as const)
+      kind.append(new Option(t(`timer.park.${k}`), k));
+    const ok = document.createElement('p');
+    ok.setAttribute('role', 'status');
+    ok.dataset.role = 'park-status';
+    form.append(label, input, kind, ok);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value;
+      if (!text.trim()) return;
+      input.value = '';
+      ok.textContent = t('timer.park.saved');
+      void run(
+        timer
+          .park(text, kind.value as InterruptionType)
+          .then(() => document.dispatchEvent(new Event(DATA_CHANGED))),
+      );
+    });
+    return form;
+  }
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key.toLowerCase() !== 'p' || e.ctrlKey || e.metaKey || e.altKey)
+      return;
+    const el = e.target as HTMLElement | null;
+    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+    const field = root.querySelector<HTMLInputElement>('input[name="park"]');
+    if (!field) return;
+    e.preventDefault();
+    field.focus();
+  };
+  document.addEventListener('keydown', onKey);
 
   function build(view: TimerView) {
     const phase = document.createElement('p');
@@ -131,6 +180,7 @@ export function mountTimer(
               ),
           }),
         );
+      children.push(parkForm());
       controls.append(
         button({
           label: t('timer.abort'),
@@ -197,5 +247,6 @@ export function mountTimer(
     offChange();
     offLocale();
     document.removeEventListener(DATA_CHANGED, onData);
+    document.removeEventListener('keydown', onKey);
   };
 }

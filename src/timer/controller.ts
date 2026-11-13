@@ -32,6 +32,8 @@ export interface Timer {
   resume(): Promise<void>;
   abort(interruption: InterruptionType): Promise<void>;
   skipBreak(): Promise<void>;
+  /** Notes an interruption without touching the clock (FR-205); only while a round runs. Blank text is ignored. */
+  park(text: string, kind?: InterruptionType): Promise<void>;
   onChange(listener: (view: TimerView, end?: PhaseEnd) => void): () => void;
 }
 
@@ -126,6 +128,25 @@ export function createTimer(options: TimerOptions): Timer {
             pomodoroId: running(),
             interruption,
             workedMinutes: Math.floor(worked / 60_000),
+          },
+          now(),
+        ),
+      );
+    },
+    async park(text, kind = 'internal') {
+      const note = text.trim();
+      if (!note) return;
+      await refresh();
+      if (view.phase !== 'focus' && view.phase !== 'paused') return;
+      const task = view.taskId;
+      await write(
+        newEvent(
+          'interruption.parked',
+          {
+            text: note,
+            kind,
+            pomodoroId: running(),
+            ...(task ? { taskId: task } : {}),
           },
           now(),
         ),

@@ -38,7 +38,7 @@ async function setup(mode: 'strict' | 'flexible') {
     alerts: createAlerts({ playSound: () => sounds.push(1) }),
   });
   await flush();
-  return { root, timer, sounds, at: (t: number) => (now = t) };
+  return { root, timer, events, sounds, at: (t: number) => (now = t) };
 }
 
 const action = (root: HTMLElement, a: string) =>
@@ -81,5 +81,28 @@ describe('mountTimer', () => {
     expect(root.querySelector('.timer__phase')?.textContent).toBe(
       'Short break',
     );
+  });
+});
+
+describe('park key (FR-205)', () => {
+  it('P focuses the field, text + Enter parks a typed note, timer keeps running', async () => {
+    const { root, timer, events } = await setup('strict');
+    action(root, 'start')!.click();
+    await flush();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p' }));
+    const field = root.querySelector<HTMLInputElement>('input[name="park"]')!;
+    expect(document.activeElement).toBe(field);
+    field.value = 'Call dentist';
+    root
+      .querySelector('form.timer__park')!
+      .dispatchEvent(new Event('submit', { cancelable: true }));
+    await flush();
+    expect(timer.view.phase).toBe('focus');
+    const parked = events.filter((e) => e.type === 'interruption.parked');
+    expect(parked).toHaveLength(1);
+    expect(parked[0]!.payload).toMatchObject({
+      text: 'Call dentist',
+      kind: 'internal',
+    });
   });
 });

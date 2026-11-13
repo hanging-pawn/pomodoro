@@ -56,6 +56,13 @@ export interface EventPayloads {
   'pomodoro.resumed': { pomodoroId: string };
   /** The user ends a break early and stays idle until the next round. */
   'break.skipped': Record<string, never>;
+  /** An interruption noted during a round without stopping it (FR-205). */
+  'interruption.parked': {
+    text: string;
+    kind: InterruptionType;
+    pomodoroId?: string;
+    taskId?: string;
+  };
   'pomodoro.aborted': {
     pomodoroId: string;
     interruption: InterruptionType;
@@ -98,6 +105,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'pomodoro.paused',
   'pomodoro.resumed',
   'break.skipped',
+  'interruption.parked',
   'pomodoro.aborted',
   'coins.earned',
   'reward.redeemed',
