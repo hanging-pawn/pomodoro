@@ -4,6 +4,7 @@ import { DATA_CHANGED } from '../tasks/events';
 import { button } from '../ui/components/button';
 import { card } from '../ui/components/card';
 import { openDialog } from '../ui/components/dialog';
+import { iconButton } from '../ui/components/icon-button';
 import { listRow } from '../ui/components/list-row';
 import { ShopError, type Shop } from './shop';
 
@@ -27,6 +28,7 @@ export function mountRewards(
       i18n.t(key as MessageKey),
     );
   let error = '';
+  let addOpen = false;
   let draft = { title: '', price: '' };
 
   const changed = () => document.dispatchEvent(new Event(DATA_CHANGED));
@@ -78,8 +80,33 @@ export function mountRewards(
       );
   }
 
-  const small = (label: string, action: string, onClick: () => void) =>
-    button({ label, action, variant: 'quiet', onClick });
+  /** «…» action sheet for the rarer reward actions (NFR-18). */
+  const more = (reward: { id: string; title: string; price: number }) =>
+    iconButton({
+      icon: 'more',
+      label: t('tasks.more'),
+      action: 'more',
+      onClick: () =>
+        void openDialog({
+          title: reward.title,
+          actions: [
+            {
+              label: t('tasks.edit'),
+              value: 'edit-reward',
+              variant: 'secondary',
+            },
+            {
+              label: t('tasks.delete'),
+              value: 'delete-reward',
+              variant: 'secondary',
+            },
+            { label: t('data.cancel'), value: 'cancel', variant: 'quiet' },
+          ],
+        }).then((v) => {
+          if (v === 'edit-reward') void edit(reward);
+          if (v === 'delete-reward') void run(() => shop.remove(reward.id));
+        }),
+    });
 
   async function render() {
     const state = await deps.state();
@@ -91,7 +118,7 @@ export function mountRewards(
     if (level !== 'off') {
       const balance = document.createElement('p');
       balance.dataset.role = 'coins';
-      balance.className = 'today__summary';
+      balance.className = 'shop-balance';
       balance.textContent = t('rewards.balance', { n: state.coins });
       children.push(balance);
 
@@ -101,25 +128,25 @@ export function mountRewards(
       for (const reward of Object.values(state.rewards)) {
         const actions = document.createElement('span');
         actions.className = 'tasks__actions';
-        actions.append(
-          button({
-            label: t('rewards.redeem'),
-            action: 'redeem',
-            variant: 'secondary',
-            disabled: state.coins < reward.price,
-            onClick: () => void run(() => shop.redeem(reward.id)),
-          }),
-          small(t('tasks.edit'), 'edit-reward', () => void edit(reward)),
-          small(
-            t('tasks.delete'),
-            'delete-reward',
-            () => void run(() => shop.remove(reward.id)),
-          ),
-        );
+        const redeem = button({
+          label: t('rewards.redeem'),
+          action: 'redeem',
+          variant: 'secondary',
+          disabled: state.coins < reward.price,
+          onClick: () => void run(() => shop.redeem(reward.id)),
+        });
+        redeem.classList.add('ui-pill');
+        actions.append(redeem, more(reward));
+        const toGo = reward.price - state.coins;
         list.append(
           listRow({
             title: reward.title,
-            meta: t('rewards.coins', { n: reward.price }),
+            meta: [
+              t('rewards.coins', { n: reward.price }),
+              toGo > 0 ? t('tagesweg.toGo', { n: toGo }) : undefined,
+            ]
+              .filter(Boolean)
+              .join(' · '),
             trailing: actions,
           }),
         );
@@ -169,7 +196,14 @@ export function mountRewards(
           draft = { title: '', price: '' };
         });
       });
-      children.push(form);
+      const add = document.createElement('details');
+      add.className = 'tasks-add__details shop-add';
+      add.open = addOpen || !!error;
+      add.addEventListener('toggle', () => (addOpen = add.open));
+      const sum = document.createElement('summary');
+      sum.textContent = t('rewards.add');
+      add.append(sum, form);
+      children.push(add);
 
       if (state.redemptions.length) {
         const log = document.createElement('ul');
@@ -182,7 +216,12 @@ export function mountRewards(
               meta: t('rewards.coins', { n: r.price }),
             }),
           );
-        children.push(log);
+        const hist = document.createElement('details');
+        hist.className = 'tasks-add__details';
+        const hs = document.createElement('summary');
+        hs.textContent = t('rewards.history');
+        hist.append(hs, log);
+        children.push(hist);
       }
     } else if (error) {
       const err = document.createElement('p');

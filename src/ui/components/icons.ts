@@ -12,6 +12,8 @@ export const ICONS = {
   today: 'M6 4v4M6 20v-4M6 12a2 2 0 1 0 0 .01M10 12h10M10 6h10M10 18h6',
   tasks: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',
   week: 'M5 20V12M10 20V6M15 20v-9M20 20V9',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  check: 'M5 12.5l4.5 4.5L19 7',
 } as const;
 
 export type IconName = keyof typeof ICONS;

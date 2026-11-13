@@ -41,8 +41,11 @@ async function setup() {
       .dispatchEvent(new Event('submit', { cancelable: true }));
     await flush();
   };
+  // Document-wide: row actions live in the view, rarer ones in the «…» sheet (a dialog on body).
   const click = async (a: string, nth = 0) => {
-    root.querySelectorAll<HTMLElement>(`[data-action="${a}"]`)[nth]!.click();
+    document
+      .querySelectorAll<HTMLElement>(`[data-action="${a}"]`)
+      [nth]!.click();
     await flush();
   };
   const add = async (title: string, estimate: string) => {
@@ -116,7 +119,9 @@ describe('mountTasks', () => {
   it('deletes a task', async () => {
     const { add, click, state } = await setup();
     await add('a', '2');
+    await click('more');
     await click('delete');
+    await flush();
     expect(Object.keys(state().tasks)).toHaveLength(0);
   });
 
@@ -126,7 +131,9 @@ describe('mountTasks', () => {
     await add('b', '1');
     await click('add-today');
     await click('add-today');
+    await click('more'); // the first «…» belongs to the first row of Today
     await click('move-down');
+    await flush();
     const titles = [
       ...root.querySelectorAll('[data-role="today-list"] .ui-row__title'),
     ].map((x) => x.textContent);

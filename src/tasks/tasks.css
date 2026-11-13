@@ -18,3 +18,214 @@
   min-height: var(--touch-target);
   margin-top: var(--space-1);
 }
+
+/* Tasks screen (POMO-78, inventory-360, NFR-18) */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.tasks-add {
+  margin: 0 0 var(--space-3);
+}
+.tasks-add__row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+.tasks-add__row input {
+  flex: 1;
+}
+.tasks-add__row .ui-button {
+  flex: none;
+  width: auto;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+}
+.tasks-add__details {
+  margin-top: var(--space-2);
+}
+.tasks-add__details summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--text-accent);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  list-style: none;
+  cursor: pointer;
+}
+.tasks-add__details summary::-webkit-details-marker {
+  display: none;
+}
+.tasks-add__details summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-left: var(--space-2);
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+.tasks-add__details[open] summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+.tasks-add__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--space-3);
+}
+.tasks-add__grid label:first-child,
+.tasks-add__grid label:last-child {
+  grid-column: 1 / -1;
+}
+.tasks-add__grid label {
+  margin-top: var(--space-2);
+}
+.ui-card > label.tasks-budget,
+.tasks-budget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: var(--font-weight-regular);
+}
+.tasks-budget input[type='number']:not([type='checkbox']):not([type='radio']) {
+  width: 76px;
+  min-height: 40px;
+  margin: 0;
+  text-align: right;
+}
+
+/* Rows: title and meta left, one pill and «…» right */
+.ui-card .ui-list {
+  margin-top: var(--space-2);
+}
+.ui-card .ui-row {
+  padding: var(--space-2) 0;
+}
+.ui-card .ui-row:last-child {
+  border-bottom: 0;
+}
+.ui-row__title {
+  font-size: 1rem;
+}
+.tasks__actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+.ui-button.ui-pill {
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-chip);
+  font-size: var(--font-size-body);
+  white-space: nowrap;
+}
+/* 34 px pill keeps a 44 px target through its row padding; the hit area is padded below */
+.ui-button.ui-pill {
+  position: relative;
+}
+.ui-button.ui-pill::before {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
+}
+.tasks__actions .ui-icon-button {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
+}
+.ui-card h3 {
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: var(--font-size-label);
+}
+.ui-dialog .ui-dialog__actions .ui-button--secondary {
+  width: 100%;
+}
+.shop-balance {
+  margin: 0 0 var(--space-2);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.shop-add form {
+  margin-top: var(--space-1);
+}
+.shop-add .ui-button--primary {
+  margin-top: var(--space-4);
+}
+
+/* Tables in cards (day close, week): calm, numbers right-aligned (NFR-18) */
+.ui-card table {
+  width: 100%;
+  margin: var(--space-2) 0;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.ui-card th {
+  padding: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+}
+.ui-card td {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.9375rem;
+  vertical-align: middle;
+}
+.ui-card th + th,
+.ui-card td + td {
+  padding-left: var(--space-3);
+}
+.dayclose__table th:not(:first-child),
+.dayclose__table td:not(:first-child),
+.week__projects {
+  margin-top: var(--space-5);
+}
+.week__projects th:last-child,
+.week__projects td:last-child,
+.week__days th:last-child,
+.week__days td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+.dayclose__table td:first-child {
+  overflow-wrap: anywhere;
+}
+.week__days td:first-child {
+  width: 6.5em;
+  white-space: nowrap;
+}
+.week__days td:last-child {
+  width: 2.5em;
+}
+.week__barcell {
+  width: 100%;
+}
+.week__bar {
+  display: block;
+  height: 8px;
+  border-radius: var(--radius-chip);
+  background: var(--accent-mid);
+}
+.ui-card [data-role='total'],
+.ui-card [data-role='fulfilment'] {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+}
+.ui-card [data-role='total'] {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+}

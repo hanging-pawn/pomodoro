@@ -47,14 +47,15 @@ export function mountWeek(
     const days = document.createElement('table');
     days.className = 'week__days';
     const head = days.createTHead().insertRow();
-    for (const key of ['day', 'count'])
+    for (const key of ['day', '', 'count'])
       head.append(
         Object.assign(document.createElement('th'), {
-          textContent: t(`week.col.${key}`),
+          textContent: key ? t(`week.col.${key}`) : '',
           scope: 'col',
         }),
       );
     const body = days.createTBody();
+    const most = Math.max(1, ...week.days.map((d) => d.completed));
     for (const d of week.days) {
       const tr = body.insertRow();
       tr.dataset.day = d.day;
@@ -68,6 +69,14 @@ export function mountWeek(
         day: 'numeric',
         month: 'numeric',
       });
+      // Calm bar per day (no chart library): share of the busiest day; the count stays last.
+      const barCell = tr.insertCell();
+      barCell.className = 'week__barcell';
+      barCell.setAttribute('aria-hidden', 'true');
+      const dayBar = document.createElement('span');
+      dayBar.className = 'week__bar';
+      dayBar.style.width = `${Math.round((d.completed / most) * 100)}%`;
+      barCell.append(dayBar);
       const count = tr.insertCell();
       count.textContent = String(d.completed);
       if (d.projects.length)

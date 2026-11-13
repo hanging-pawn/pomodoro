@@ -4,6 +4,7 @@ import type { I18n, MessageKey } from '../i18n/i18n';
 import { button } from '../ui/components/button';
 import { card } from '../ui/components/card';
 import { openDialog } from '../ui/components/dialog';
+import { iconButton } from '../ui/components/icon-button';
 import { listRow } from '../ui/components/list-row';
 import { progressBar } from '../ui/components/progress-bar';
 import {
@@ -228,8 +229,34 @@ export function mountTasks(
     );
   }
 
-  const small = (label: string, action: string, onClick: () => void) =>
-    button({ label, action, variant: 'quiet', onClick });
+  /** One visible action per row as a compact pill (NFR-18). */
+  const pill = (label: string, action: string, onClick: () => void) => {
+    const b = button({ label, action, variant: 'secondary', onClick });
+    b.classList.add('ui-pill');
+    return b;
+  };
+  /** «…» opens an action sheet with the rarer row actions (NFR-18). */
+  const more = (
+    title: string,
+    items: { label: string; value: string; run: () => void }[],
+  ) =>
+    iconButton({
+      icon: 'more',
+      label: t('tasks.more'),
+      action: 'more',
+      onClick: () =>
+        void openDialog({
+          title,
+          actions: [
+            ...items.map((i) => ({
+              label: i.label,
+              value: i.value,
+              variant: 'secondary' as const,
+            })),
+            { label: t('data.cancel'), value: 'cancel', variant: 'quiet' },
+          ],
+        }).then((v) => items.find((i) => i.value === v)?.run()),
+    });
 
   /** Due day and «overdue» marker under the row title (FR-208). */
   const markDue = (li: HTMLElement, task: Task) => {
@@ -258,6 +285,8 @@ export function mountTasks(
     return select;
   };
 
+  let detailsOpen = false;
+
   async function render() {
     const state = await deps.state();
     const today = todayView(state, now());
@@ -280,8 +309,12 @@ export function mountTasks(
       ? t('today.over', { n: status.over })
       : t('today.summary', status);
     const budgetLabel = document.createElement('label');
-    budgetLabel.textContent = t('today.budget');
+    budgetLabel.className = 'tasks-budget';
+    const budgetText = document.createElement('span');
+    budgetText.textContent = t('today.budget');
+    budgetLabel.append(budgetText);
     const budget = document.createElement('input');
+    budget.inputMode = 'numeric';
     budget.type = 'number';
     budget.min = '1';
     budget.step = '1';
@@ -299,39 +332,37 @@ export function mountTasks(
     today.tasks.forEach((task, i) => {
       const actions = document.createElement('span');
       actions.className = 'tasks__actions';
+      const sheet: { label: string; value: string; run: () => void }[] = [];
+      if (i > 0)
+        sheet.push({
+          label: t('today.moveUp'),
+          value: 'move-up',
+          run: () => void run(() => inventory.moveInToday(task.id, -1)),
+        });
+      if (i < today.tasks.length - 1)
+        sheet.push({
+          label: t('today.moveDown'),
+          value: 'move-down',
+          run: () => void run(() => inventory.moveInToday(task.id, 1)),
+        });
+      sheet.push({
+        label: t('today.remove'),
+        value: 'remove-today',
+        run: () => void run(() => inventory.removeFromToday(task.id)),
+      });
       actions.append(
-        small(
+        pill(
           t('tasks.done'),
           'check-off',
           () => void run(() => inventory.checkOff(task.id)),
         ),
-      );
-      if (i > 0)
-        actions.append(
-          small(
-            t('today.moveUp'),
-            'move-up',
-            () => void run(() => inventory.moveInToday(task.id, -1)),
-          ),
-        );
-      if (i < today.tasks.length - 1)
-        actions.append(
-          small(
-            t('today.moveDown'),
-            'move-down',
-            () => void run(() => inventory.moveInToday(task.id, 1)),
-          ),
-        );
-      actions.append(
-        small(
-          t('today.remove'),
-          'remove-today',
-          () => void run(() => inventory.removeFromToday(task.id)),
-        ),
+        more(task.title, sheet),
       );
       const li = listRow({
         title: task.title,
-        meta: t('tasks.rounds', { n: task.estimate }),
+        meta: t(task.estimate === 1 ? 'tasks.round1' : 'tasks.rounds', {
+          n: task.estimate,
+        }),
         trailing: actions,
       });
       markDue(li, task);
@@ -355,7 +386,7 @@ export function mountTasks(
       const actions = document.createElement('span');
       actions.className = 'tasks__actions';
       actions.append(
-        small(
+        pill(
           t('tasks.done'),
           'check-off',
           () => void run(() => inventory.checkOff(task.id)),
@@ -379,14 +410,24 @@ export function mountTasks(
     uInput.value = unplannedDraft;
     uInput.addEventListener('input', () => (unplannedDraft = uInput.value));
     uLabel.append(uInput);
-    unplannedForm.append(
-      uLabel,
+    unplannedForm.className = 'tasks-add';
+    uInput.id = 'unplanned-title';
+    uInput.placeholder = t('unplanned.placeholder');
+    uLabel.replaceChildren(document.createTextNode(t('unplanned.add')));
+    uLabel.htmlFor = uInput.id;
+    uLabel.className = 'visually-hidden';
+    const uRow = document.createElement('div');
+    uRow.className = 'tasks-add__row';
+    uRow.append(
+      uInput,
       button({
         label: t('unplanned.submit'),
         type: 'submit',
+        variant: 'secondary',
         action: 'add-unplanned',
       }),
     );
+    unplannedForm.append(uLabel, uRow);
     unplannedForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const title = unplannedDraft;
@@ -455,21 +496,33 @@ export function mountTasks(
     err.dataset.role = 'error';
     err.textContent = error;
     err.hidden = !error;
-    form.append(
-      titleIn.l,
-      projectIn.l,
-      estIn.l,
-      dueIn.l,
-      recLabel,
-      hint,
-      err,
-      button({
-        label: t('tasks.add.submit'),
-        variant: 'primary',
-        type: 'submit',
-        action: 'add',
-      }),
-    );
+    // One add row; project, estimate, due and repeat on demand (inventory-360, NFR-18).
+    form.className = 'tasks-add';
+    titleIn.i.placeholder = t('tasks.add.placeholder');
+    titleIn.i.enterKeyHint = 'done';
+    const addRow = document.createElement('div');
+    addRow.className = 'tasks-add__row';
+    const addBtn = button({
+      label: t('tasks.add.submit'),
+      variant: 'primary',
+      type: 'submit',
+      action: 'add',
+    });
+    addRow.append(titleIn.i, addBtn);
+    titleIn.l.replaceChildren(document.createTextNode(t('tasks.add.title')));
+    titleIn.l.htmlFor = titleIn.i.id = 'task-title';
+    titleIn.l.className = 'visually-hidden';
+    const details = document.createElement('details');
+    details.className = 'tasks-add__details';
+    details.open = detailsOpen;
+    details.addEventListener('toggle', () => (detailsOpen = details.open));
+    const summaryEl = document.createElement('summary');
+    summaryEl.textContent = t('tasks.add.details');
+    const grid = document.createElement('div');
+    grid.className = 'tasks-add__grid';
+    grid.append(projectIn.l, estIn.l, dueIn.l, recLabel);
+    details.append(summaryEl, grid);
+    form.append(titleIn.l, addRow, details, hint, err);
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const input: TaskInput = {
@@ -512,36 +565,36 @@ export function mountTasks(
       actions.className = 'tasks__actions';
       if (!sub && !plannedIds.has(task.id))
         actions.append(
-          small(
+          pill(
             t('tasks.addToday'),
             'add-today',
             () => void run(() => inventory.addToToday(task.id)),
           ),
         );
-      if (!sub)
-        actions.append(
-          small(
-            t('tasks.addSubtask'),
-            'add-subtask',
-            () => void addSubtask(task),
-          ),
-        );
       if (sub && !task.done)
         actions.append(
-          small(
+          pill(
             t('tasks.done'),
             'check-off',
             () => void run(() => inventory.checkOff(task.id)),
           ),
         );
-      actions.append(
-        small(t('tasks.edit'), 'edit', () => void edit(task)),
-        small(
-          t('tasks.delete'),
-          'delete',
-          () => void run(() => inventory.remove(task.id)),
-        ),
+      const sheet: { label: string; value: string; run: () => void }[] = [];
+      if (!sub)
+        sheet.push({
+          label: t('tasks.addSubtask'),
+          value: 'add-subtask',
+          run: () => void addSubtask(task),
+        });
+      sheet.push(
+        { label: t('tasks.edit'), value: 'edit', run: () => void edit(task) },
+        {
+          label: t('tasks.delete'),
+          value: 'delete',
+          run: () => void run(() => inventory.remove(task.id)),
+        },
       );
+      actions.append(more(task.title, sheet));
       const li = listRow({
         title: [
           sub ? '↳' : '',
@@ -570,7 +623,9 @@ export function mountTasks(
                 total: task.subtasks.total,
               })
             : undefined,
-          t('tasks.rounds', { n: task.estimate }),
+          t(task.estimate === 1 ? 'tasks.round1' : 'tasks.rounds', {
+            n: task.estimate,
+          }),
         ]
           .filter(Boolean)
           .join(' · '),
