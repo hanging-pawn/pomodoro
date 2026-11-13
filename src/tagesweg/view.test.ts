@@ -29,14 +29,16 @@ async function setup(extra: DomainEvent[] = []) {
     languages: ['en'],
     storage: undefined as unknown as Storage,
   });
+  const prepared: number[] = [];
   mountTagesweg(root, i18n, timer, createShop({ log }), {
     state: async () => deriveState(await log.events()),
     now: () => now,
+    prepareAlerts: () => prepared.push(now),
   });
   await flush();
   await timer.refresh();
   await flush();
-  return { root, timer, events, at: (t: number) => (now = t) };
+  return { root, timer, events, prepared, at: (t: number) => (now = t) };
 }
 const q = (root: HTMLElement, a: string) =>
   root.querySelector<HTMLElement>(`[data-action="${a}"]`);
@@ -189,5 +191,12 @@ describe('mountTagesweg', () => {
     q(root, 'start')!.click();
     await flush();
     expect(q(root, 'digits')?.textContent).toMatch(/^\d\d:\d\d$/);
+  });
+  it('asks for notification permission and unlocks sound inside the Start click (FR-104)', async () => {
+    const { root, prepared } = await setup();
+    expect(prepared).toHaveLength(0);
+    q(root, 'start')!.click();
+    // synchronous: browsers grant the permission prompt and audio only inside the user gesture
+    expect(prepared).toHaveLength(1);
   });
 });

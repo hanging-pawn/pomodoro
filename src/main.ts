@@ -21,6 +21,7 @@ import { mountRewards } from './rewards/view';
 import { createInventory } from './tasks/inventory';
 import { mountTasks } from './tasks/view';
 import { createTimer } from './timer/controller';
+import { createAlerts } from './timer/alerts';
 import { startTicker } from './timer/ticker';
 import { mountTimer } from './timer/view';
 import { mountTagesweg } from './tagesweg/view';
@@ -63,9 +64,12 @@ const tageswegRoot = document.getElementById('tagesweg');
 if (timerRoot || tageswegRoot)
   void store.then((s) => {
     const timer = createTimer({ log: s });
+    // One alerts instance: the Tagesweg Start prepares it, the timer panel announces with it (FR-104).
+    const alerts = createAlerts();
     if (tageswegRoot)
       mountTagesweg(tageswegRoot, i18n, timer, createShop({ log: s }), {
         state: () => s.state(),
+        prepareAlerts: () => alerts.prepare(),
         tickBullet: (id, bullet, done) =>
           createInventory({ log: s }).tickBullet(id, bullet, done),
       });
@@ -77,6 +81,7 @@ if (timerRoot || tageswegRoot)
         digitsAlways: async () => !!(await s.state()).settings.digitsAlways,
         setMode: (mode) =>
           s.append(newEvent('settings.changed', { changes: { mode } })),
+        alerts,
       });
     // Worker-driven tick keeps the end of a phase on time in background tabs (FR-104).
     startTicker(() => void timer.refresh());

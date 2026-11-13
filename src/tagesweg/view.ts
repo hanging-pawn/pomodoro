@@ -23,6 +23,11 @@ export interface TageswegDeps {
   /** Ticks a bullet point of the zoomed task (FR-609); without it the bullets are shown read-only. */
   tickBullet?(taskId: string, bullet: string, done: boolean): Promise<void>;
   now?: () => number;
+  /**
+   * Asks for notification permission and unlocks sound (FR-104). Called synchronously inside the
+   * Start click: browsers allow both only within a user gesture.
+   */
+  prepareAlerts?: () => void;
 }
 
 const DIGITS_MS = 3000;
@@ -359,6 +364,7 @@ export function mountTagesweg(
             disabled: !(picked ?? w.currentTaskId),
             onClick: () => {
               if (!canStart && phase === 'idle') return;
+              deps.prepareAlerts?.();
               ring = false;
               const go = async () => {
                 if (phase !== 'idle') await timer.skipBreak();
