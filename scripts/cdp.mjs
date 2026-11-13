@@ -20,6 +20,7 @@ export const dayKey = (ms) => {
 
 /** Browser-side script that stores the given events in the app's IndexedDB. */
 export const seedScript = (events) => `(async () => {
+  localStorage.setItem('pomo-pomo.intro', '1'); // the first-start intro would cover the app
   const events = ${JSON.stringify(events)};
   await new Promise((res, rej) => {
     const r = indexedDB.open('pomo-pomo', 1);

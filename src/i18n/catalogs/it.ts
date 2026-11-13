@@ -174,6 +174,21 @@ export const it: Messages = {
   'today.moveDown': 'Sposta giù',
   'today.remove': 'Rimuovi da oggi',
   'today.checkOff': 'Segna come fatto',
+  'intro.skip': 'Salta',
+  'intro.next': 'Avanti',
+  'intro.done': 'Inizia',
+  'intro.1.title': 'Lavora a round di concentrazione',
+  'intro.1.body':
+    'Scegli un compito e avvia un round di concentrazione di 25 minuti. Fino alla fine nient’altro conta; poi fai una breve pausa. Dopo quattro round la pausa è più lunga.',
+  'intro.2.title': 'Pianifica la giornata',
+  'intro.2.body':
+    'Raccogli i compiti con una stima in round, metti quelli di oggi sul tuo percorso del giorno e spuntali. Ogni round finito dà monete da spendere in ricompense.',
+  'intro.3.title': 'Tasti e notifiche',
+  'intro.3.body':
+    'Spazio avvia un round, N sceglie il compito successivo, P annota una distrazione senza fermare l’orologio. Consenti le notifiche per sapere quando un round finisce mentre sei in un’altra scheda.',
+  'ios.title': 'Notifiche su iPhone e iPad',
+  'ios.body':
+    'Safari su iOS consegna le notifiche solo alle app installate. Tocca Condividi, poi Aggiungi alla schermata Home, e apri {app} dalla schermata Home. Poi consenti le notifiche quando richiesto.',
   'privacy.link': 'Privacy',
   'privacy.title': 'Informativa sulla privacy',
   'privacy.close': 'Chiudi',

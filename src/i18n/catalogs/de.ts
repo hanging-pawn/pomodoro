@@ -173,6 +173,21 @@ export const de: Messages = {
   'today.moveDown': 'Nach unten',
   'today.remove': 'Aus heute entfernen',
   'today.checkOff': 'Als erledigt markieren',
+  'intro.skip': 'Überspringen',
+  'intro.next': 'Weiter',
+  'intro.done': 'Los geht’s',
+  'intro.1.title': 'Arbeite in Fokusrunden',
+  'intro.1.body':
+    'Wähle eine Aufgabe und starte eine Fokusrunde von 25 Minuten. Bis sie endet, zählt nichts anderes; danach machst du eine kurze Pause. Nach vier Runden ist die Pause länger.',
+  'intro.2.title': 'Plane deinen Tag',
+  'intro.2.body':
+    'Sammle Aufgaben mit einer Schätzung in Runden, lege die für heute auf deinen Tagesweg und hake sie ab. Jede fertige Runde bringt Münzen, die du für Belohnungen ausgibst.',
+  'intro.3.title': 'Tasten und Benachrichtigungen',
+  'intro.3.body':
+    'Leertaste startet eine Runde, N wählt die nächste Aufgabe, P hält eine Störung fest, ohne die Uhr anzuhalten. Erlaube Benachrichtigungen, damit du das Ende einer Runde auch in einem anderen Tab hörst.',
+  'ios.title': 'Benachrichtigungen auf iPhone und iPad',
+  'ios.body':
+    'Safari auf iOS liefert Benachrichtigungen nur an installierte Apps. Tippe auf Teilen, dann auf Zum Home-Bildschirm, und öffne {app} vom Home-Bildschirm aus. Erlaube danach Benachrichtigungen, wenn du gefragt wirst.',
   'privacy.link': 'Datenschutz',
   'privacy.title': 'Datenschutzhinweis',
   'privacy.close': 'Schliessen',

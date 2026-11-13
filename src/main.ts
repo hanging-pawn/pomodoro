@@ -4,6 +4,7 @@ import './timer/timer.css';
 import './tasks/tasks.css';
 import './tagesweg/tagesweg.css';
 import './horizon/horizon.css';
+import './onboarding/onboarding.css';
 import { mountApp } from './app';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
@@ -27,6 +28,8 @@ import { mountDayClose } from './dayclose/view';
 import { mountWeek } from './week/view';
 import { mountHorizon } from './horizon/view';
 import { createTheme } from './ui/theme';
+import { showIntro } from './onboarding/intro';
+import { mountIosHint } from './onboarding/ios-hint';
 import { registerServiceWorker } from './pwa/register';
 import { DATA_CHANGED } from './tasks/events';
 
@@ -51,6 +54,9 @@ if (root)
       },
     },
   });
+
+const iosHintRoot = document.getElementById('ios-hint');
+if (iosHintRoot) mountIosHint(iosHintRoot, i18n);
 
 const timerRoot = document.getElementById('timer');
 const tageswegRoot = document.getElementById('tagesweg');
@@ -150,3 +156,6 @@ if (beta) {
     (e) => void recordError(e.reason),
   );
 }
+
+// First start only (NFR-15): after the views are mounted, so skipping lands on the timer.
+void showIntro(i18n);

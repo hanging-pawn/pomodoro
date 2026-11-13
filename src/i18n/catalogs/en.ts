@@ -170,6 +170,21 @@ export const en = {
   'today.moveDown': 'Move down',
   'today.remove': 'Remove from today',
   'today.checkOff': 'Mark done',
+  'intro.skip': 'Skip',
+  'intro.next': 'Next',
+  'intro.done': 'Start',
+  'intro.1.title': 'Work in focus rounds',
+  'intro.1.body':
+    'Pick a task and start a focus round of 25 minutes. Nothing else matters until it ends; then you take a short break. After four rounds the break is longer.',
+  'intro.2.title': 'Plan your day',
+  'intro.2.body':
+    'Collect tasks with an estimate in rounds, put the ones you will do today on your day path and tick them off. Every finished round earns coins you can spend on rewards.',
+  'intro.3.title': 'Keys and notifications',
+  'intro.3.body':
+    'Space starts a round, N picks the next task, P notes a distraction without stopping the clock. Allow notifications to hear when a round ends while you are in another tab.',
+  'ios.title': 'Notifications on iPhone and iPad',
+  'ios.body':
+    'Safari on iOS only delivers notifications to apps you installed. Tap Share, then Add to Home Screen, and open {app} from the home screen. Then allow notifications when asked.',
   'privacy.link': 'Privacy',
   'privacy.title': 'Privacy notice',
   'privacy.close': 'Close',

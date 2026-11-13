@@ -34,3 +34,11 @@ It measures the app side (the Notification constructor call), not the operating 
 ### Safari (open, POMO-52)
 
 Safari value: not yet measured; needs a human in a real Safari. Record date and delay here.
+
+## First start and iOS hint (NFR-15, NFR-12, POMO-32)
+
+`src/onboarding/intro.ts`: three-step dialog (method, planning, keys and notifications) on the first visit, Skip or
+Escape ends it at any step, the choice is stored in `localStorage` (`pomo-pomo.intro`) and it never returns.
+`src/onboarding/ios-hint.ts`: on iOS Safari that is not installed (iPhone/iPad user agent, iPadOS by touch screen, not
+standalone) a persistent hint explains Add to Home Screen, since notifications need the installed app. Real-Chrome
+check: `npm run build && node scripts/intro-check.mjs` (the other check scripts pre-set the intro as seen).

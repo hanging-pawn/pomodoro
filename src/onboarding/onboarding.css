@@ -1,0 +1,15 @@
+.ios-hint {
+  margin: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-highlight);
+  border: 1px solid var(--accent-light);
+  border-radius: var(--radius-card);
+  color: var(--text-primary);
+}
+.ios-hint h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+}
+.ios-hint p {
+  margin: 0;
+}
