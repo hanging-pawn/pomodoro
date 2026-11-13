@@ -103,6 +103,65 @@ export function mountRewards(
     );
     const children: Node[] = [levelLabel, levelSelect];
 
+    if (level === 'full') {
+      const streakBox = document.createElement('fieldset');
+      streakBox.dataset.role = 'streak-settings';
+      const legend = document.createElement('legend');
+      legend.textContent = t('streak.title');
+      const on = document.createElement('input');
+      on.type = 'checkbox';
+      on.name = 'streak-enabled';
+      on.checked = state.settings.streakEnabled;
+      on.addEventListener(
+        'change',
+        () => void run(() => shop.setStreak({ streakEnabled: on.checked })),
+      );
+      const onLabel = document.createElement('label');
+      onLabel.append(on, document.createTextNode(t('streak.enabled')));
+      const num = (
+        label: string,
+        name: string,
+        value: number,
+        min: number,
+        key: 'dailyGoal' | 'streakGraceDays',
+      ) => {
+        const l = document.createElement('label');
+        l.textContent = label;
+        const i = document.createElement('input');
+        i.type = 'number';
+        i.name = name;
+        i.min = String(min);
+        i.step = '1';
+        i.value = String(value);
+        i.addEventListener('change', () => {
+          const n = Math.floor(Number(i.value));
+          if (Number.isFinite(n) && n >= min)
+            void run(() => shop.setStreak({ [key]: n }));
+        });
+        l.append(i);
+        return l;
+      };
+      streakBox.append(
+        legend,
+        onLabel,
+        num(
+          t('streak.goal'),
+          'streak-goal',
+          state.settings.dailyGoal,
+          1,
+          'dailyGoal',
+        ),
+        num(
+          t('streak.grace'),
+          'streak-grace',
+          state.settings.streakGraceDays,
+          0,
+          'streakGraceDays',
+        ),
+      );
+      children.push(streakBox);
+    }
+
     if (level !== 'off') {
       const balance = document.createElement('p');
       balance.dataset.role = 'coins';

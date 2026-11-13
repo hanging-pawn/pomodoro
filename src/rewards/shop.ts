@@ -2,6 +2,7 @@ import {
   newEvent,
   type DomainEvent,
   type GamificationLevel,
+  type Settings,
 } from '../domain/events';
 import { deriveState } from '../domain/state';
 import { templatesFor } from './templates';
@@ -29,6 +30,12 @@ export interface Shop {
   /** Spends the price; `insufficient` when the balance is too low (FR-402). */
   redeem(id: string): Promise<void>;
   setLevel(level: GamificationLevel): Promise<void>;
+  /** Streak settings: goal per day, grace days, on/off (FR-404). */
+  setStreak(
+    changes: Partial<
+      Pick<Settings, 'dailyGoal' | 'streakGraceDays' | 'streakEnabled'>
+    >,
+  ): Promise<void>;
 }
 
 export function createShop(options: {
@@ -83,6 +90,9 @@ export function createShop(options: {
           now(),
         ),
       );
+    },
+    async setStreak(changes) {
+      await log.append(newEvent('settings.changed', { changes }, now()));
     },
     async setLevel(level) {
       await log.append(

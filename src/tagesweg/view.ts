@@ -10,7 +10,13 @@ import { button } from '../ui/components/button';
 import { openDialog } from '../ui/components/dialog';
 import { iconButton } from '../ui/components/icon-button';
 import { progressBar } from '../ui/components/progress-bar';
-import { deriveTagesweg, type TagesRow, type Tagesweg } from './model';
+import { deriveStreak } from '../streak/model';
+import {
+  deriveDayProgress,
+  deriveTagesweg,
+  type TagesRow,
+  type Tagesweg,
+} from './model';
 
 export interface TageswegDeps {
   state(): Promise<AppState>;
@@ -185,18 +191,51 @@ export function mountTagesweg(
     el.className = 'ui-card ui-card--highlight tw-ring';
     el.dataset.role = 'ring';
     const gain = state?.settings.coinsPerPomodoro ?? 0;
-    const lines = [t('tagesweg.ring', { n: gain })];
-    const next = w.rows.find((r) => r.kind === 'reward');
-    if (next?.kind === 'reward')
-      lines.push(
-        next.reached
-          ? t('tagesweg.ringReached')
-          : t('tagesweg.ringNext', { n: next.toGo }),
-      );
-    for (const l of lines) {
+    const lines: [string, string][] = [];
+    if (state?.settings.gamification !== 'off') {
+      lines.push(['ring-gain', t('tagesweg.ring', { n: gain })]);
+      lines.push([
+        'ring-balance',
+        t('tagesweg.ringBalance', { n: state?.coins ?? 0 }),
+      ]);
+      const next = w.rows.find((r) => r.kind === 'reward');
+      if (next?.kind === 'reward')
+        lines.push([
+          'ring-next',
+          next.reached
+            ? t('tagesweg.ringReached')
+            : t('tagesweg.ringNext', { n: next.toGo }),
+        ]);
+    } else lines.push(['ring-gain', t('tagesweg.ringDone')]);
+    const day = state
+      ? deriveDayProgress(state, now())
+      : { done: 0, planned: 0 };
+    lines.push([
+      'ring-day',
+      t('tagesweg.ringDay', { done: day.done, planned: day.planned }),
+    ]);
+    const streak = state && deriveStreak(state, now());
+    if (streak?.visible && streak.length > 0)
+      lines.push([
+        'ring-streak',
+        streak.restarted
+          ? t('tagesweg.streakNew')
+          : t('tagesweg.streak', { n: streak.length }),
+      ]);
+    for (const [role, text] of lines) {
       const p = document.createElement('p');
-      p.textContent = l;
+      p.dataset.role = role;
+      p.textContent = text;
       el.append(p);
+      if (role === 'ring-day')
+        el.append(
+          progressBar({
+            label: t('tagesweg.ringDayLabel'),
+            value: day.done,
+            max: Math.max(day.planned, day.done),
+            valueText: p.textContent,
+          }).element,
+        );
     }
     el.append(
       button({

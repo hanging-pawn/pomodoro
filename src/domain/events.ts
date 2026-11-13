@@ -19,6 +19,12 @@ export interface Settings {
   /** Pomodoro budget per day for the Today plan (FR-203). */
   dailyBudget: number;
   gamification: GamificationLevel;
+  /** Completed rounds that make a day count for the streak (FR-404). */
+  dailyGoal: number;
+  /** Consecutive missed days a streak survives (FR-404). */
+  streakGraceDays: number;
+  /** The streak can be turned off on its own (FR-404). */
+  streakEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -31,6 +37,9 @@ export const DEFAULT_SETTINGS: Settings = {
   setBonus: 10,
   dailyBudget: 8,
   gamification: 'full',
+  dailyGoal: 4,
+  streakGraceDays: 1,
+  streakEnabled: true,
 };
 
 export type Recurrence = 'daily' | 'weekdays' | 'weekly';

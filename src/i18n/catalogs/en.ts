@@ -227,4 +227,14 @@ export const en = {
   'week.fulfilment':
     'Plan fulfilment: {percent} % ({done} of {planned} planned)',
   'week.fulfilment.label': 'Plan fulfilment',
+  'tagesweg.ringBalance': 'Balance: {n} coins',
+  'tagesweg.ringDay': '{done} of {planned} rounds today',
+  'tagesweg.ringDone': 'Round done.',
+  'tagesweg.ringDayLabel': "Today's rounds",
+  'tagesweg.streak': 'Streak: {n} days',
+  'tagesweg.streakNew': 'New streak: 1',
+  'streak.title': 'Streak',
+  'streak.enabled': 'Show streak',
+  'streak.goal': 'Goal: rounds per day',
+  'streak.grace': 'Grace days',
 };

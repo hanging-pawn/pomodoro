@@ -88,6 +88,70 @@ describe('mountTagesweg', () => {
     );
   });
 
+  it('ring moment shows +coins, balance and the day bar done of planned (FR-407)', async () => {
+    const { root, timer, at } = await setup();
+    q(root, 'start')!.click();
+    await flush();
+    at(NOW + 26 * 60_000);
+    await timer.refresh();
+    await flush();
+    const ring = root.querySelector('[data-role="ring"]')!;
+    expect(ring.textContent).toContain('+10 coins');
+    expect(ring.querySelector('[data-role="ring-balance"]')?.textContent).toBe(
+      'Balance: 10 coins',
+    );
+    const bar = ring.querySelector('[role="progressbar"]')!;
+    expect(bar.getAttribute('aria-valuenow')).toBe('1');
+    expect(bar.getAttribute('aria-valuemax')).toBe('2');
+    expect(ring.querySelector('[data-role="ring-day"]')?.textContent).toBe(
+      '1 of 2 rounds today',
+    );
+  });
+
+  it('ring moment names the streak at level full, never a loss (FR-404)', async () => {
+    const { root, timer, at } = await setup([
+      newEvent('settings.changed', { changes: { dailyGoal: 1 } }, 4),
+      // A round five days ago: the chain broke since, so today starts over.
+      newEvent(
+        'pomodoro.started',
+        { pomodoroId: 'old', taskId: 'a', mode: 'strict', focusMinutes: 25 },
+        NOW - 5 * 86_400_000,
+      ),
+      newEvent(
+        'pomodoro.completed',
+        { pomodoroId: 'old' },
+        NOW - 5 * 86_400_000 + 1,
+      ),
+    ]);
+    q(root, 'start')!.click();
+    await flush();
+    at(NOW + 26 * 60_000);
+    await timer.refresh();
+    await flush();
+    expect(root.querySelector('[data-role="ring-streak"]')?.textContent).toBe(
+      'New streak: 1',
+    );
+  });
+
+  it('ring moment hides coins, balance and streak at level off but keeps the day bar', async () => {
+    const { root, timer, at } = await setup([
+      newEvent(
+        'settings.changed',
+        { changes: { gamification: 'off', dailyGoal: 1 } },
+        4,
+      ),
+    ]);
+    q(root, 'start')!.click();
+    await flush();
+    at(NOW + 26 * 60_000);
+    await timer.refresh();
+    await flush();
+    const ring = root.querySelector('[data-role="ring"]')!;
+    expect(ring.textContent).not.toContain('coins');
+    expect(ring.querySelector('[data-role="ring-streak"]')).toBeNull();
+    expect(ring.querySelector('[role="progressbar"]')).not.toBeNull();
+  });
+
   it('redeems a reached reward from its row', async () => {
     const { root, events } = await setup([
       newEvent('coins.earned', { amount: 25, reason: 'set-bonus' }, 4),

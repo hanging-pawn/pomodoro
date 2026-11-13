@@ -230,4 +230,14 @@ export const de: Messages = {
   'week.fulfilment':
     'Plan-Erfüllung: {percent} % ({done} von {planned} geplant)',
   'week.fulfilment.label': 'Plan-Erfüllung',
+  'tagesweg.ringBalance': 'Kontostand: {n} Münzen',
+  'tagesweg.ringDay': '{done} von {planned} Runden heute',
+  'tagesweg.ringDone': 'Runde geschafft.',
+  'tagesweg.ringDayLabel': 'Runden heute',
+  'tagesweg.streak': 'Serie: {n} Tage',
+  'tagesweg.streakNew': 'Neue Serie: 1',
+  'streak.title': 'Serie',
+  'streak.enabled': 'Serie anzeigen',
+  'streak.goal': 'Ziel: Runden pro Tag',
+  'streak.grace': 'Schonfrist (Tage)',
 };

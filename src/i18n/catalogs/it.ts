@@ -232,4 +232,14 @@ export const it: Messages = {
   'week.fulfilment':
     'Adempimento del piano: {percent} % ({done} di {planned} pianificati)',
   'week.fulfilment.label': 'Adempimento del piano',
+  'tagesweg.ringBalance': 'Saldo: {n} monete',
+  'tagesweg.ringDay': '{done} di {planned} round oggi',
+  'tagesweg.ringDone': 'Round concluso.',
+  'tagesweg.ringDayLabel': 'Round di oggi',
+  'tagesweg.streak': 'Serie: {n} giorni',
+  'tagesweg.streakNew': 'Nuova serie: 1',
+  'streak.title': 'Serie',
+  'streak.enabled': 'Mostra la serie',
+  'streak.goal': 'Obiettivo: round al giorno',
+  'streak.grace': 'Giorni di tolleranza',
 };

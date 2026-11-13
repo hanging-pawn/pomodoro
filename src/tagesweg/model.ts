@@ -1,5 +1,5 @@
 import type { AppState } from '../domain/state';
-import { todayView } from '../tasks/inventory';
+import { dayKey, todayView } from '../tasks/inventory';
 import type { TimerView } from '../timer/cycle';
 
 export type StationState = 'done' | 'current' | 'open';
@@ -114,4 +114,24 @@ export function deriveTagesweg(
     currentTaskId,
     zoom,
   };
+}
+
+/** Rounds completed today against the rounds planned for today (plan plus unplanned tasks), for the day bar (FR-407). */
+export function deriveDayProgress(
+  state: AppState,
+  now: number,
+): { done: number; planned: number } {
+  const day = dayKey(now);
+  const done = state.rounds.filter(
+    (r) => r.kind === 'completed' && dayKey(r.at) === day,
+  ).length;
+  const ids = new Set((state.plans[day] ?? []).filter((id) => state.tasks[id]));
+  for (const t of Object.values(state.tasks))
+    if (t.unplanned && dayKey(t.createdAt) === day) ids.add(t.id);
+  // A subtask already counted through its planned parent adds nothing (FR-209).
+  const planned = [...ids]
+    .map((id) => state.tasks[id]!)
+    .filter((t) => !(t.parentId && ids.has(t.parentId)))
+    .reduce((n, t) => n + t.estimate, 0);
+  return { done, planned };
 }

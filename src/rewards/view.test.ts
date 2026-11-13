@@ -31,6 +31,24 @@ async function setup(coinsFrom = 0) {
 }
 
 describe('mountRewards', () => {
+  it('streak settings at level full: grace days and off switch (FR-404)', async () => {
+    const { root, events } = await setup();
+    const grace = root.querySelector<HTMLInputElement>(
+      'input[name="streak-grace"]',
+    )!;
+    grace.value = '2';
+    grace.dispatchEvent(new Event('change'));
+    await flush();
+    expect(deriveState(events).settings.streakGraceDays).toBe(2);
+    const on = root.querySelector<HTMLInputElement>(
+      'input[name="streak-enabled"]',
+    )!;
+    on.checked = false;
+    on.dispatchEvent(new Event('change'));
+    await flush();
+    expect(deriveState(events).settings.streakEnabled).toBe(false);
+  });
+
   it('fresh install lists at least 5 template rewards with the balance', async () => {
     const { root } = await setup();
     expect(
