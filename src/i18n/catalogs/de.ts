@@ -255,4 +255,5 @@ export const de: Messages = {
   'horizon.empty': 'Noch kein Projekt hat ein Zieldatum.',
   'horizon.nothingOpen': 'nichts offen',
   'horizon.line': '{project}: bis {date}, noch {n} Tage',
+  'tasks.add.bullets': 'Stichpunkte (eine pro Zeile)',
 };

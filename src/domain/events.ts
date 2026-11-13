@@ -55,6 +55,8 @@ export interface TaskFields {
   due?: string;
   /** Next instance appears when the task is done (FR-207); an empty string in `task.changed` clears it. */
   recurrence?: Recurrence | '';
+  /** Optional orientation bullet points (FR-609); an empty list in `task.changed` clears them. */
+  bullets?: string[];
 }
 
 export interface EventPayloads {
@@ -110,6 +112,8 @@ export interface EventPayloads {
   'reward.redeemed': { rewardId: string; title: string; price: number };
   /** A random bonus was drawn from the user's own list after a full set (FR-406); the projection ignores it. */
   'bonus.drawn': { title: string };
+  /** A bullet point of a task ticked or unticked, matched by its text (FR-609); not a path event, the timer is unaffected. */
+  'task.bullet-ticked': { taskId: string; bullet: string; done: boolean };
   /** Optional target date of a project (exam, deadline); an empty `date` clears it (FR-608). */
   'project.targeted': { project: string; date: string };
   'settings.changed': { changes: Partial<Settings> };
@@ -153,6 +157,7 @@ export const EVENT_TYPES: readonly EventType[] = [
   'reward.redeemed',
   'bonus.drawn',
   'project.targeted',
+  'task.bullet-ticked',
   'settings.changed',
   'usage.view-opened',
   'usage.feature-used',

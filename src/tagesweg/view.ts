@@ -20,6 +20,8 @@ import {
 
 export interface TageswegDeps {
   state(): Promise<AppState>;
+  /** Ticks a bullet point of the zoomed task (FR-609); without it the bullets are shown read-only. */
+  tickBullet?(taskId: string, bullet: string, done: boolean): Promise<void>;
   now?: () => number;
 }
 
@@ -309,7 +311,31 @@ export function mountTagesweg(
           onClick: () => void run(abort()),
         }),
       );
-      children.push(list, piece.element, controls);
+      const task = state.tasks[w.zoom.taskId];
+      if (task?.bullets?.length) {
+        const ul = document.createElement('ul');
+        ul.className = 'tw-bullets';
+        ul.dataset.role = 'bullets';
+        for (const bullet of task.bullets) {
+          const li = document.createElement('li');
+          const label = document.createElement('label');
+          const box = document.createElement('input');
+          box.type = 'checkbox';
+          box.checked = !!task.ticked?.includes(bullet);
+          box.disabled = !deps.tickBullet;
+          box.addEventListener('change', () =>
+            run(
+              deps.tickBullet!(task.id, bullet, box.checked).then(() =>
+                document.dispatchEvent(new Event(DATA_CHANGED)),
+              ),
+            ),
+          );
+          label.append(box, document.createTextNode(bullet));
+          li.append(label);
+          ul.append(li);
+        }
+        children.push(list, ul, piece.element, controls);
+      } else children.push(list, piece.element, controls);
     } else {
       if (ring) children.push(ringCard(w));
       if (w.rows.length === 0) {

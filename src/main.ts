@@ -56,6 +56,8 @@ if (timerRoot || tageswegRoot)
     if (tageswegRoot)
       mountTagesweg(tageswegRoot, i18n, timer, createShop({ log: s }), {
         state: () => s.state(),
+        tickBullet: (id, bullet, done) =>
+          createInventory({ log: s }).tickBullet(id, bullet, done),
       });
     if (timerRoot)
       mountTimer(timerRoot, i18n, timer, {

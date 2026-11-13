@@ -32,6 +32,8 @@ export interface TaskInput {
   /** `YYYY-MM-DD`; empty string clears (FR-208). */
   due?: string;
   recurrence?: Recurrence | '';
+  /** One orientation bullet point per entry; blanks dropped, an empty list clears (FR-609). */
+  bullets?: string[];
 }
 
 export interface Inventory {
@@ -72,6 +74,8 @@ export interface Inventory {
   /** Moves one place up (-1) or down (+1) in the Today plan. */
   moveInToday(id: string, direction: -1 | 1): Promise<void>;
   setBudget(pomodoros: number): Promise<void>;
+  /** Ticks or unticks a bullet point; does not touch the timer or the plan (FR-609). */
+  tickBullet(taskId: string, bullet: string, done: boolean): Promise<void>;
   /** Target date `YYYY-MM-DD` of a project; an empty string clears it (FR-608). */
   setProjectTarget(project: string, date: string): Promise<void>;
 }
@@ -147,6 +151,8 @@ export function createInventory(options: InventoryOptions): Inventory {
     if (due && !/^\d{4}-\d{2}-\d{2}$/.test(due))
       throw new InventoryError('invalid-due');
   };
+  const cleanBullets = (list: string[]) =>
+    list.map((b) => b.trim()).filter(Boolean);
   const cleanTitle = (title: string) => {
     const t = title.trim();
     if (!t) throw new InventoryError('empty-title');
@@ -178,6 +184,9 @@ export function createInventory(options: InventoryOptions): Inventory {
             ...(project ? { project } : {}),
             ...(input.due ? { due: input.due } : {}),
             ...(input.recurrence ? { recurrence: input.recurrence } : {}),
+            ...(input.bullets?.some((b) => b.trim())
+              ? { bullets: cleanBullets(input.bullets) }
+              : {}),
           },
           now(),
         ),
@@ -284,6 +293,8 @@ export function createInventory(options: InventoryOptions): Inventory {
       checkDue(changes.due);
       if (changes.project !== undefined)
         next.project = changes.project.trim() || undefined;
+      if (changes.bullets !== undefined)
+        next.bullets = cleanBullets(changes.bullets);
       await log.append(
         newEvent('task.changed', { taskId: id, changes: next }, now()),
       );
@@ -341,6 +352,12 @@ export function createInventory(options: InventoryOptions): Inventory {
       if (from < 0 || to < 0 || to >= ids.length) return;
       [ids[from], ids[to]] = [ids[to]!, ids[from]!];
       await savePlan(ids);
+    },
+    async tickBullet(taskId, bullet, done) {
+      await known(taskId);
+      await log.append(
+        newEvent('task.bullet-ticked', { taskId, bullet, done }, now()),
+      );
     },
     async setProjectTarget(project, date) {
       const name = project.trim();

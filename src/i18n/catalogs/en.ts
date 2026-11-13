@@ -252,4 +252,5 @@ export const en = {
   'horizon.empty': 'No project has a target date yet.',
   'horizon.nothingOpen': 'nothing open',
   'horizon.line': '{project}: until {date}, {n} days left',
+  'tasks.add.bullets': 'Bullet points (one per line)',
 };

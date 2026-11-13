@@ -20,6 +20,10 @@ export interface Task {
   recurrence?: Recurrence | '';
   /** Second estimate (FR-304), kept apart from `estimate`. */
   secondEstimate?: number;
+  /** Orientation bullet points (FR-609). */
+  bullets?: string[];
+  /** Bullets ticked off, by text (FR-609). */
+  ticked?: string[];
   /** Set on a subtask: id of its parent (one level only, FR-209). */
   parentId?: string;
   /** Parents only: subtasks done of total; `estimate` and `actual` are then the sums over the subtasks. */
@@ -208,6 +212,13 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         state.coins -= e.payload.price;
         state.redemptions.push({ ...e.payload, at: e.at });
         break;
+      case 'task.bullet-ticked': {
+        const task = state.tasks[e.payload.taskId];
+        if (!task) break;
+        const rest = (task.ticked ?? []).filter((b) => b !== e.payload.bullet);
+        task.ticked = e.payload.done ? [...rest, e.payload.bullet] : rest;
+        break;
+      }
       case 'project.targeted':
         if (e.payload.date)
           state.projects[e.payload.project] = { targetDate: e.payload.date };

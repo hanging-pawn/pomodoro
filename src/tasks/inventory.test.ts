@@ -348,3 +348,26 @@ describe('project target date (FR-608)', () => {
     expect(state().projects).toEqual({});
   });
 });
+
+describe('bullet points (FR-609)', () => {
+  it('stores cleaned bullets, edits and clears them, and ticks by text', async () => {
+    const { inv, state } = setup();
+    const id = await inv.create({
+      title: 'Report',
+      estimate: 1,
+      bullets: [' Outline ', '', 'Numbers'],
+    });
+    expect(state().tasks[id]!.bullets).toEqual(['Outline', 'Numbers']);
+    await inv.tickBullet(id, 'Outline', true);
+    expect(state().tasks[id]!.ticked).toEqual(['Outline']);
+    await inv.tickBullet(id, 'Outline', false);
+    expect(state().tasks[id]!.ticked).toEqual([]);
+    await inv.update(id, { bullets: ['One', ' '] });
+    expect(state().tasks[id]!.bullets).toEqual(['One']);
+    await inv.update(id, { bullets: [] });
+    expect(state().tasks[id]!.bullets).toEqual([]);
+    expect(await errorOf(inv.tickBullet('nope', 'x', true))).toBe(
+      'unknown-task',
+    );
+  });
+});

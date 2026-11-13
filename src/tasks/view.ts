@@ -192,6 +192,14 @@ export function mountTasks(
     const rec = recurrenceSelect(task.recurrence ?? '');
     recLabel.append(rec);
     form.append(recLabel);
+    const bulletsLabel = document.createElement('label');
+    bulletsLabel.textContent = t('tasks.add.bullets');
+    const bullets = document.createElement('textarea');
+    bullets.name = 'bullets';
+    bullets.rows = 3;
+    bullets.value = (task.bullets ?? []).join('\n');
+    bulletsLabel.append(bullets);
+    form.append(bulletsLabel);
     const choice = await openDialog({
       title: t('tasks.edit.title'),
       body: form,
@@ -212,6 +220,7 @@ export function mountTasks(
             estimate: n,
             due: due.value,
             recurrence: rec.value as Recurrence | '',
+            bullets: bullets.value.split('\n'),
           },
           opts,
         ),
