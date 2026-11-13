@@ -183,3 +183,26 @@ describe('unplanned and paste (FR-204, FR-206)', () => {
     ]);
   });
 });
+
+describe('subtasks and split offer (FR-209, FR-202)', () => {
+  it('estimate 8 offers the split: one subtask per line, parent keeps the sum 8', async () => {
+    const { root, type, submit, state } = await setup();
+    await type('title', 'Big');
+    await type('estimate', '8');
+    await submit();
+    document.querySelector<HTMLElement>('[data-action="split"]')!.click();
+    await flush();
+    const area = document.querySelector<HTMLTextAreaElement>(
+      'textarea[name="subtasks"]',
+    )!;
+    area.value = 'one\ntwo\nthree';
+    document.querySelector<HTMLElement>('[data-action="create"]')!.click();
+    await flush();
+    const tasks = Object.values(state().tasks);
+    const parent = tasks.find((t) => t.title === 'Big')!;
+    expect(parent.estimate).toBe(8);
+    expect(parent.subtasks).toEqual({ done: 0, total: 3 });
+    expect(tasks.filter((t) => t.parentId === parent.id)).toHaveLength(3);
+    expect(root.querySelectorAll('[data-role="subtask"]')).toHaveLength(3);
+  });
+});

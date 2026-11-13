@@ -9,7 +9,8 @@ export type InventoryErrorCode =
   | 'invalid-estimate'
   | 'needs-confirmation'
   | 'invalid-budget'
-  | 'unknown-task';
+  | 'unknown-task'
+  | 'nested-subtask';
 
 export class InventoryError extends Error {
   constructor(readonly code: InventoryErrorCode) {
@@ -38,6 +39,19 @@ export interface Inventory {
     text: string,
     opts?: { project?: string; estimate?: number; unplanned?: boolean },
   ): Promise<string[]>;
+  /** Adds a subtask with its own estimate; the parent then shows the sum (FR-209). One level only. */
+  createSubtask(
+    parentId: string,
+    input: { title: string; estimate: number },
+  ): Promise<string>;
+  /**
+   * Split offer (FR-202): creates the task as a parent of one subtask per line; the estimate is
+   * spread over the lines (each at least 1), so the parent keeps the entered total when it fits.
+   */
+  createSplit(
+    input: TaskInput,
+    subtaskTitles: string[],
+  ): Promise<{ parentId: string; subtaskIds: string[] }>;
   update(
     id: string,
     changes: Partial<TaskInput>,
@@ -98,11 +112,12 @@ export function todayView(state: AppState, now: number): TodayView {
       (t) => t.unplanned && !t.done && dayKey(t.createdAt) === dayKey(now),
     )
     .sort((a, b) => a.createdAt - b.createdAt);
-  return {
-    tasks,
-    unplanned,
-    planned: tasks.reduce((n, t) => n + t.estimate, 0),
-  };
+  const ids = new Set(tasks.map((t) => t.id));
+  // A subtask already counted through its planned parent adds nothing (FR-209).
+  const planned = tasks
+    .filter((t) => !(t.parentId && ids.has(t.parentId)))
+    .reduce((n, t) => n + t.estimate, 0);
+  return { tasks, unplanned, planned };
 }
 
 export function budgetStatus(planned: number, budget: number) {
@@ -187,6 +202,62 @@ export function createInventory(options: InventoryOptions): Inventory {
       );
       if (events.length) await log.append(...events);
       return events.map((e) => e.payload.taskId);
+    },
+    async createSubtask(parentId, input) {
+      const parent = (await state()).tasks[parentId];
+      if (!parent) throw new InventoryError('unknown-task');
+      if (parent.parentId) throw new InventoryError('nested-subtask');
+      const title = cleanTitle(input.title);
+      if (!isWhole(input.estimate))
+        throw new InventoryError('invalid-estimate');
+      const taskId = crypto.randomUUID();
+      await log.append(
+        newEvent(
+          'task.created',
+          { taskId, parentId, title, estimate: input.estimate },
+          now(),
+        ),
+      );
+      return taskId;
+    },
+    async createSplit(input, subtaskTitles) {
+      const title = cleanTitle(input.title);
+      if (!isWhole(input.estimate))
+        throw new InventoryError('invalid-estimate');
+      const titles = subtaskTitles.map((x) => x.trim()).filter(Boolean);
+      const project = input.project?.trim() || undefined;
+      const parentId = crypto.randomUUID();
+      const at = now();
+      const k = Math.max(1, titles.length);
+      const base = Math.max(1, Math.floor(input.estimate / k));
+      const extra = input.estimate > k ? input.estimate - base * k : 0;
+      const subs = titles.map((subTitle, i) =>
+        newEvent(
+          'task.created',
+          {
+            taskId: crypto.randomUUID(),
+            parentId,
+            title: subTitle,
+            estimate: base + (i < extra ? 1 : 0),
+            ...(project ? { project } : {}),
+          },
+          at + 1 + i,
+        ),
+      );
+      await log.append(
+        newEvent(
+          'task.created',
+          {
+            taskId: parentId,
+            title,
+            estimate: input.estimate,
+            ...(project ? { project } : {}),
+          },
+          at,
+        ),
+        ...subs,
+      );
+      return { parentId, subtaskIds: subs.map((e) => e.payload.taskId) };
     },
     async update(id, changes, opts) {
       await known(id);

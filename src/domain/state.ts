@@ -13,6 +13,10 @@ export interface Task {
   title: string;
   project?: string;
   estimate: number;
+  /** Set on a subtask: id of its parent (one level only, FR-209). */
+  parentId?: string;
+  /** Parents only: subtasks done of total; `estimate` and `actual` are then the sums over the subtasks. */
+  subtasks?: { done: number; total: number };
   /** Added during the day (FR-204). */
   unplanned?: boolean;
   /** Completed pomodoros credited to this task. */
@@ -155,6 +159,26 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         Object.assign(state.settings, e.payload.changes);
         break;
     }
+  }
+  // Subtasks roll up into their parent (FR-209); orphans (parent deleted) count as top-level tasks.
+  for (const task of Object.values(state.tasks)) {
+    if (task.parentId && !state.tasks[task.parentId]) delete task.parentId;
+  }
+  const children = new Map<string, Task[]>();
+  for (const task of Object.values(state.tasks))
+    if (task.parentId)
+      children.set(task.parentId, [
+        ...(children.get(task.parentId) ?? []),
+        task,
+      ]);
+  for (const [parentId, subs] of children) {
+    const parent = state.tasks[parentId]!;
+    parent.estimate = subs.reduce((n, x) => n + x.estimate, 0);
+    parent.actual = subs.reduce((n, x) => n + x.actual, 0);
+    parent.subtasks = {
+      done: subs.filter((x) => x.done).length,
+      total: subs.length,
+    };
   }
   return state;
 }

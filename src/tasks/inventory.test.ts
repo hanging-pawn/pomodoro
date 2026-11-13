@@ -180,3 +180,62 @@ describe('parseLines (FR-206)', () => {
     expect(parseLines('a\r\n\n - b\n2) c\n  ')).toEqual(['a', 'b', 'c']);
   });
 });
+
+describe('subtasks (FR-209)', () => {
+  it('2+2+3 → parent estimate 7; one done → progress 1/3', async () => {
+    const events: DomainEvent[] = [];
+    let clock = T;
+    const inv = createInventory({
+      log: {
+        events: async () => [...events],
+        append: async (...e) => void events.push(...e),
+      },
+      now: () => clock++,
+    });
+    const parent = await inv.create({ title: 'Release', estimate: 1 });
+    const a = await inv.createSubtask(parent, { title: 'a', estimate: 2 });
+    await inv.createSubtask(parent, { title: 'b', estimate: 2 });
+    await inv.createSubtask(parent, { title: 'c', estimate: 3 });
+    await inv.checkOff(a);
+    const p = deriveState(events).tasks[parent]!;
+    expect(p.estimate).toBe(7);
+    expect(p.subtasks).toEqual({ done: 1, total: 3 });
+  });
+
+  it('refuses nested subtasks and an unknown parent', async () => {
+    const events: DomainEvent[] = [];
+    const inv = createInventory({
+      log: {
+        events: async () => [...events],
+        append: async (...e) => void events.push(...e),
+      },
+    });
+    const parent = await inv.create({ title: 'P', estimate: 1 });
+    const sub = await inv.createSubtask(parent, { title: 's', estimate: 1 });
+    await expect(
+      inv.createSubtask(sub, { title: 'x', estimate: 1 }),
+    ).rejects.toMatchObject({ code: 'nested-subtask' });
+    await expect(
+      inv.createSubtask('nope', { title: 'x', estimate: 1 }),
+    ).rejects.toMatchObject({ code: 'unknown-task' });
+  });
+
+  it('createSplit spreads the estimate over the lines and keeps the total', async () => {
+    const events: DomainEvent[] = [];
+    const inv = createInventory({
+      log: {
+        events: async () => [...events],
+        append: async (...e) => void events.push(...e),
+      },
+    });
+    const { parentId } = await inv.createSplit({ title: 'Big', estimate: 8 }, [
+      'a',
+      'b',
+      'c',
+    ]);
+    const s = deriveState(events);
+    expect(s.tasks[parentId]!.estimate).toBe(8);
+    const subs = Object.values(s.tasks).filter((t) => t.parentId === parentId);
+    expect(subs.map((t) => t.estimate)).toEqual([3, 3, 2]);
+  });
+});

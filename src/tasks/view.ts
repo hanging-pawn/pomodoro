@@ -60,10 +60,70 @@ export function mountTasks(
     await render();
   };
 
-  /** Runs `fn`; on `needs-confirmation` asks once and retries confirmed (FR-202). */
+  /** Asks for one subtask title per line; empty when the user cancels. */
+  async function askSubtasks(): Promise<string[]> {
+    const form = document.createElement('div');
+    const label = document.createElement('label');
+    label.textContent = t('tasks.split.label');
+    const area = document.createElement('textarea');
+    area.rows = 5;
+    area.name = 'subtasks';
+    label.append(area);
+    form.append(label);
+    const choice = await openDialog({
+      title: t('tasks.split.title'),
+      body: form,
+      actions: [
+        { label: t('tasks.split.create'), value: 'create' },
+        { label: t('tasks.cancel'), value: 'cancel', variant: 'quiet' },
+      ],
+    });
+    return choice === 'create' ? parseLines(area.value) : [];
+  }
+
+  async function addSubtask(parent: Task) {
+    const form = document.createElement('div');
+    const field = (label: string, value: string, type: string) => {
+      const l = document.createElement('label');
+      l.textContent = label;
+      const i = document.createElement('input');
+      i.type = type;
+      i.value = value;
+      if (type === 'number') {
+        i.min = '1';
+        i.step = '1';
+      }
+      l.append(i);
+      form.append(l);
+      return i;
+    };
+    const title = field(t('tasks.add.title'), '', 'text');
+    const estimate = field(t('tasks.add.estimate'), '1', 'number');
+    const choice = await openDialog({
+      title: t('tasks.subtask.title', { parent: parent.title }),
+      body: form,
+      actions: [
+        { label: t('tasks.save'), value: 'save' },
+        { label: t('tasks.cancel'), value: 'cancel', variant: 'quiet' },
+      ],
+    });
+    if (choice === 'save')
+      await run(() =>
+        inventory.createSubtask(parent.id, {
+          title: title.value,
+          estimate: Number(estimate.value),
+        }),
+      );
+  }
+
+  /**
+   * Runs `fn`; on `needs-confirmation` asks once (FR-202): save anyway, split into subtasks
+   * (when `split` is given) or back.
+   */
   async function withSplitConfirm(
     estimate: number,
     fn: (opts: { confirmed?: boolean }) => Promise<unknown>,
+    split?: (titles: string[]) => Promise<unknown>,
   ) {
     try {
       await fn({});
@@ -77,11 +137,18 @@ export function mountTasks(
         body,
         actions: [
           { label: t('tasks.confirm.save'), value: 'save' },
+          ...(split
+            ? [{ label: t('tasks.confirm.split'), value: 'split' }]
+            : []),
           { label: t('tasks.confirm.back'), value: 'back', variant: 'quiet' },
         ],
       });
       if (choice === 'save') await fn({ confirmed: true });
-      else throw new InventoryError('needs-confirmation');
+      else if (choice === 'split' && split) {
+        const titles = await askSubtasks();
+        if (titles.length) await split(titles);
+        else throw new InventoryError('needs-confirmation');
+      } else throw new InventoryError('needs-confirmation');
     }
   }
 
@@ -344,8 +411,10 @@ export function mountTasks(
         estimate: Number(draft.estimate),
       };
       void run(async () => {
-        await withSplitConfirm(input.estimate, (opts) =>
-          inventory.create(input, opts),
+        await withSplitConfirm(
+          input.estimate,
+          (opts) => inventory.create(input, opts),
+          (titles) => inventory.createSplit(input, titles),
         );
         draft = { title: '', project: draft.project, estimate: '1' };
         focusTitle = true;
@@ -354,20 +423,40 @@ export function mountTasks(
 
     // Inventory list
     const open = Object.values(state.tasks)
-      .filter((x) => !x.done)
+      .filter((x) => !x.done && !x.parentId)
       .sort((a, b) => a.createdAt - b.createdAt);
+    const subtasksOf = (id: string) =>
+      Object.values(state.tasks)
+        .filter((x) => x.parentId === id)
+        .sort((a, b) => a.createdAt - b.createdAt);
     const list = document.createElement('ul');
     list.className = 'ui-list';
     list.dataset.role = 'inventory-list';
-    for (const task of open) {
+    const row = (task: Task, sub: boolean) => {
       const actions = document.createElement('span');
       actions.className = 'tasks__actions';
-      if (!plannedIds.has(task.id))
+      if (!sub && !plannedIds.has(task.id))
         actions.append(
           small(
             t('tasks.addToday'),
             'add-today',
             () => void run(() => inventory.addToToday(task.id)),
+          ),
+        );
+      if (!sub)
+        actions.append(
+          small(
+            t('tasks.addSubtask'),
+            'add-subtask',
+            () => void addSubtask(task),
+          ),
+        );
+      if (sub && !task.done)
+        actions.append(
+          small(
+            t('tasks.done'),
+            'check-off',
+            () => void run(() => inventory.checkOff(task.id)),
           ),
         );
       actions.append(
@@ -378,17 +467,35 @@ export function mountTasks(
           () => void run(() => inventory.remove(task.id)),
         ),
       );
-      list.append(
-        listRow({
-          title: task.unplanned
-            ? `${t('unplanned.badge')} ${task.title}`
-            : task.title,
-          meta: [task.project, t('tasks.rounds', { n: task.estimate })]
-            .filter(Boolean)
-            .join(' · '),
-          trailing: actions,
-        }),
-      );
+      const li = listRow({
+        title: [
+          sub ? '↳' : '',
+          task.unplanned ? t('unplanned.badge') : '',
+          task.title,
+        ]
+          .filter(Boolean)
+          .join(' '),
+        tone: task.done ? 'done' : 'default',
+        meta: [
+          task.project,
+          task.subtasks
+            ? t('tasks.subtasks.progress', {
+                done: task.subtasks.done,
+                total: task.subtasks.total,
+              })
+            : undefined,
+          t('tasks.rounds', { n: task.estimate }),
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        trailing: actions,
+      });
+      if (sub) li.dataset.role = 'subtask';
+      return li;
+    };
+    for (const task of open) {
+      list.append(row(task, false));
+      for (const sub of subtasksOf(task.id)) list.append(row(sub, true));
     }
     const inventoryChildren: Node[] = [form];
     if (open.length) inventoryChildren.push(list);
