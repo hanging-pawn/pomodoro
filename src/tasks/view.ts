@@ -8,6 +8,7 @@ import { progressBar } from '../ui/components/progress-bar';
 import {
   budgetStatus,
   InventoryError,
+  parseLines,
   SPLIT_HINT_FROM,
   todayView,
   type Inventory,
@@ -41,6 +42,7 @@ export function mountTasks(
     estimate: '1',
   };
   let focusTitle = false;
+  let unplannedDraft = '';
 
   const changed = () => document.dispatchEvent(new Event(DATA_CHANGED));
   const run = async (fn: () => Promise<unknown>) => {
@@ -217,6 +219,59 @@ export function mountTasks(
       todayChildren.push(empty);
     }
 
+    // Unplanned & urgent (FR-204): separate from the plan, outside the budget.
+    const unplannedHead = document.createElement('h3');
+    unplannedHead.textContent = t('unplanned.title');
+    const unplannedList = document.createElement('ul');
+    unplannedList.className = 'ui-list';
+    unplannedList.dataset.role = 'unplanned-list';
+    for (const task of today.unplanned) {
+      const actions = document.createElement('span');
+      actions.className = 'tasks__actions';
+      actions.append(
+        small(
+          t('tasks.done'),
+          'check-off',
+          () => void run(() => inventory.checkOff(task.id)),
+        ),
+      );
+      unplannedList.append(
+        listRow({
+          title: task.title,
+          meta: t('unplanned.mark'),
+          trailing: actions,
+        }),
+      );
+    }
+    const unplannedForm = document.createElement('form');
+    unplannedForm.noValidate = true;
+    const uLabel = document.createElement('label');
+    uLabel.textContent = t('unplanned.add');
+    const uInput = document.createElement('input');
+    uInput.type = 'text';
+    uInput.name = 'unplanned-title';
+    uInput.value = unplannedDraft;
+    uInput.addEventListener('input', () => (unplannedDraft = uInput.value));
+    uLabel.append(uInput);
+    unplannedForm.append(
+      uLabel,
+      button({
+        label: t('unplanned.submit'),
+        type: 'submit',
+        action: 'add-unplanned',
+      }),
+    );
+    unplannedForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = unplannedDraft;
+      void run(async () => {
+        await inventory.createUnplanned(title);
+        unplannedDraft = '';
+      });
+    });
+    todayChildren.push(unplannedHead, unplannedForm);
+    if (today.unplanned.length) todayChildren.push(unplannedList);
+
     // Inventory form
     const form = document.createElement('form');
     form.noValidate = true;
@@ -240,6 +295,22 @@ export function mountTasks(
       return { l, i };
     };
     const titleIn = input(t('tasks.add.title'), 'title');
+    // Several pasted lines become one task each (FR-206).
+    titleIn.i.addEventListener('paste', (e) => {
+      const text = e.clipboardData?.getData('text') ?? '';
+      if (parseLines(text).length < 2) return;
+      e.preventDefault();
+      void run(async () => {
+        await inventory.createMany(text, {
+          project: draft.project,
+          estimate:
+            Number(draft.estimate) < SPLIT_HINT_FROM
+              ? Number(draft.estimate)
+              : 1,
+        });
+        focusTitle = true;
+      });
+    });
     const projectIn = input(t('tasks.add.project'), 'project');
     const estIn = input(t('tasks.add.estimate'), 'estimate', 'number');
     const hint = document.createElement('p');
@@ -309,7 +380,9 @@ export function mountTasks(
       );
       list.append(
         listRow({
-          title: task.title,
+          title: task.unplanned
+            ? `${t('unplanned.badge')} ${task.title}`
+            : task.title,
           meta: [task.project, t('tasks.rounds', { n: task.estimate })]
             .filter(Boolean)
             .join(' · '),

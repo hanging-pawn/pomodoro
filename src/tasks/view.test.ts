@@ -36,7 +36,8 @@ async function setup() {
   };
   const submit = async () => {
     root
-      .querySelector('form')!
+      .querySelector('input[name="title"]')!
+      .closest('form')!
       .dispatchEvent(new Event('submit', { cancelable: true }));
     await flush();
   };
@@ -130,5 +131,55 @@ describe('mountTasks', () => {
       ...root.querySelectorAll('[data-role="today-list"] .ui-row__title'),
     ].map((x) => x.textContent);
     expect(titles).toEqual(['b', 'a']);
+  });
+});
+
+describe('unplanned and paste (FR-204, FR-206)', () => {
+  it('a task added in «Unplanned & urgent» shows separately and is marked U in the inventory', async () => {
+    const { root, state } = await setup();
+    const input = root.querySelector<HTMLInputElement>(
+      'input[name="unplanned-title"]',
+    )!;
+    input.value = 'Fix prod bug';
+    input.dispatchEvent(new Event('input'));
+    root
+      .querySelector('[data-action="add-unplanned"]')!
+      .closest('form')!
+      .dispatchEvent(new Event('submit', { cancelable: true }));
+    await flush();
+    expect(Object.values(state().tasks)[0]).toMatchObject({
+      title: 'Fix prod bug',
+      unplanned: true,
+    });
+    expect(
+      root.querySelector('[data-role="unplanned-list"]')?.textContent,
+    ).toContain('Fix prod bug');
+    expect(
+      root.querySelector('[data-role="inventory-list"]')?.textContent,
+    ).toContain('U Fix prod bug');
+    expect(
+      root.querySelector('[data-role="today-list"]')?.textContent ?? '',
+    ).not.toContain('Fix prod bug');
+  });
+
+  it('pasting 5 lines creates 5 tasks', async () => {
+    const { root, state } = await setup();
+    const input = root.querySelector<HTMLInputElement>('input[name="title"]')!;
+    const e = new Event('paste', {
+      cancelable: true,
+      bubbles: true,
+    }) as Event & {
+      clipboardData: { getData: () => string };
+    };
+    e.clipboardData = { getData: () => 'a\nb\n\n- c\n1. d\ne\n' };
+    input.dispatchEvent(e);
+    await flush();
+    expect(Object.values(state().tasks).map((t) => t.title)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+    ]);
   });
 });

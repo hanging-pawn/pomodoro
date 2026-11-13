@@ -173,3 +173,9 @@ describe('today plan and budget (FR-203, FR-305)', () => {
     expect(await errorOf(inv.setBudget(0))).toBe('invalid-budget');
   });
 });
+
+describe('parseLines (FR-206)', () => {
+  it('drops blank lines and list markers', () => {
+    expect(parseLines('a\r\n\n - b\n2) c\n  ')).toEqual(['a', 'b', 'c']);
+  });
+});

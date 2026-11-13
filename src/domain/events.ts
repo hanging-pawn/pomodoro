@@ -40,7 +40,8 @@ export interface TaskFields {
 }
 
 export interface EventPayloads {
-  'task.created': { taskId: string } & TaskFields;
+  /** `unplanned`: added during the day, shown in «Unplanned & urgent» and marked U (FR-204). */
+  'task.created': { taskId: string; unplanned?: boolean } & TaskFields;
   'task.changed': {
     taskId: string;
     changes: Partial<TaskFields> & { done?: boolean };

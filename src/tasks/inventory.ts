@@ -31,6 +31,13 @@ export interface TaskInput {
 export interface Inventory {
   /** Returns the new task id. Estimate ≥ SPLIT_HINT_FROM throws `needs-confirmation` unless confirmed. */
   create(input: TaskInput, opts?: { confirmed?: boolean }): Promise<string>;
+  /** An unplanned & urgent task for today (FR-204): estimate 1, marked U. Returns its id. */
+  createUnplanned(title: string): Promise<string>;
+  /** One task per non-blank line (FR-206); returns the new ids. Lines are cleaned of list markers. */
+  createMany(
+    text: string,
+    opts?: { project?: string; estimate?: number; unplanned?: boolean },
+  ): Promise<string[]>;
   update(
     id: string,
     changes: Partial<TaskInput>,
@@ -58,11 +65,26 @@ export function dayKey(at: number): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/** Splits pasted text into task titles: trims, drops blank lines and leading list markers («- », «* », «1. »). */
+export function parseLines(text: string): string[] {
+  return text
+    .split(/\r\n|\r|\n/)
+    .map((l) =>
+      l
+        .trim()
+        .replace(/^(?:[-*•]|\d+[.)])\s+/, '')
+        .trim(),
+    )
+    .filter(Boolean);
+}
+
 const isWhole = (n: number) => Number.isInteger(n) && n >= 1;
 
 export interface TodayView {
   /** Planned, not yet done tasks in plan order. */
   tasks: Task[];
+  /** Unplanned & urgent tasks created today, not yet done (FR-204); not part of the budget. */
+  unplanned: Task[];
   /** Sum of the estimates of `tasks`. */
   planned: number;
 }
@@ -70,8 +92,17 @@ export interface TodayView {
 export function todayView(state: AppState, now: number): TodayView {
   const tasks = (state.plans[dayKey(now)] ?? [])
     .map((id) => state.tasks[id])
-    .filter((t): t is Task => !!t && !t.done);
-  return { tasks, planned: tasks.reduce((n, t) => n + t.estimate, 0) };
+    .filter((t): t is Task => !!t && !t.done && !t.unplanned);
+  const unplanned = Object.values(state.tasks)
+    .filter(
+      (t) => t.unplanned && !t.done && dayKey(t.createdAt) === dayKey(now),
+    )
+    .sort((a, b) => a.createdAt - b.createdAt);
+  return {
+    tasks,
+    unplanned,
+    planned: tasks.reduce((n, t) => n + t.estimate, 0),
+  };
 }
 
 export function budgetStatus(planned: number, budget: number) {
@@ -121,6 +152,41 @@ export function createInventory(options: InventoryOptions): Inventory {
         ),
       );
       return taskId;
+    },
+    async createUnplanned(title) {
+      const clean = cleanTitle(title);
+      const taskId = crypto.randomUUID();
+      await log.append(
+        newEvent(
+          'task.created',
+          { taskId, title: clean, estimate: 1, unplanned: true },
+          now(),
+        ),
+      );
+      return taskId;
+    },
+    async createMany(text, opts = {}) {
+      const titles = parseLines(text);
+      const estimate = opts.estimate ?? 1;
+      if (!isWhole(estimate)) throw new InventoryError('invalid-estimate');
+      const project = opts.project?.trim() || undefined;
+      const at = now();
+      // One millisecond apart keeps the pasted order stable in the log.
+      const events = titles.map((title, i) =>
+        newEvent(
+          'task.created',
+          {
+            taskId: crypto.randomUUID(),
+            title,
+            estimate,
+            ...(project ? { project } : {}),
+            ...(opts.unplanned ? { unplanned: true } : {}),
+          },
+          at + i,
+        ),
+      );
+      if (events.length) await log.append(...events);
+      return events.map((e) => e.payload.taskId);
     },
     async update(id, changes, opts) {
       await known(id);

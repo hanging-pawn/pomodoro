@@ -13,6 +13,8 @@ export interface Task {
   title: string;
   project?: string;
   estimate: number;
+  /** Added during the day (FR-204). */
+  unplanned?: boolean;
   /** Completed pomodoros credited to this task. */
   actual: number;
   done: boolean;
