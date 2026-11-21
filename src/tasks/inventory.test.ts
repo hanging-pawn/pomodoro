@@ -23,7 +23,7 @@ function setup() {
     now: () => clock++,
   });
   const state = () => deriveState(events);
-  return { inv, events, state };
+  return { inv, events, state, at: (t: number) => (clock = t) };
 }
 
 const errorOf = async (p: Promise<unknown>) =>
@@ -165,6 +165,31 @@ describe('today plan and budget (FR-203, FR-305)', () => {
     await inv.addToToday(a);
     await inv.remove(a);
     expect(todayView(state(), T).tasks).toEqual([]);
+  });
+
+  it('an unplanned task left over from yesterday can be planned today (FR-204, POMO-91)', async () => {
+    const { inv, state, at } = setup();
+    const u = await inv.createUnplanned('Call customer');
+    expect(todayView(state(), T).unplanned.map((x) => x.id)).toEqual([u]);
+
+    const tomorrow = T + 24 * 60 * 60 * 1000;
+    at(tomorrow);
+    expect(todayView(state(), tomorrow).unplanned).toEqual([]);
+    await inv.addToToday(u);
+    const view = todayView(state(), tomorrow);
+    expect(view.tasks.map((x) => x.id)).toEqual([u]);
+    expect(view.unplanned).toEqual([]);
+    expect(view.planned).toBe(1);
+  });
+
+  it('an unplanned task of today stays out of the plan list and the budget (FR-204)', async () => {
+    const { inv, state } = setup();
+    const u = await inv.createUnplanned('Urgent');
+    await inv.addToToday(u);
+    const view = todayView(state(), T);
+    expect(view.tasks).toEqual([]);
+    expect(view.unplanned.map((x) => x.id)).toEqual([u]);
+    expect(view.planned).toBe(0);
   });
 
   it('the budget can be changed and must be a whole number of at least 1', async () => {
