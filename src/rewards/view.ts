@@ -7,11 +7,14 @@ import { openDialog } from '../ui/components/dialog';
 import { iconButton } from '../ui/components/icon-button';
 import { listRow } from '../ui/components/list-row';
 import { coinAmount, withCoins } from '../ui/components/coin';
+import { BonusError, type Bonus } from './bonus';
 import { ShopError, type Shop } from './shop';
 import { localizeReward } from './templates';
 
 export interface RewardsViewDeps {
   state(): Promise<AppState>;
+  /** Own random-bonus list and the draw after a full set (FR-406); without it no bonus section. */
+  bonus?: Bonus;
 }
 
 /**
@@ -35,14 +38,20 @@ export function mountRewards(
   let error = '';
   let addOpen = false;
   let draft = { title: '', price: '' };
+  let bonusDraft = '';
+  let bonusOpen = false;
+  let drawn = '';
+  let bonusError = '';
 
   const changed = () => document.dispatchEvent(new Event(DATA_CHANGED));
   const run = async (fn: () => Promise<unknown>) => {
     try {
       await fn();
       error = '';
+      bonusError = '';
     } catch (e) {
       if (e instanceof ShopError) error = t(`rewards.error.${e.code}`);
+      else if (e instanceof BonusError) bonusError = t(`bonus.error.${e.code}`);
       else throw e;
     }
     changed();
@@ -124,6 +133,103 @@ export function mountRewards(
     const sep = ' · ';
     if (toGo > 0) frag.append(sep, coinText('tagesweg.toGo', toGo));
     return frag;
+  }
+
+  /** Own bonus list, and after a full set the offer to draw from it (FR-406). */
+  function bonusSection(state: AppState, bonus: Bonus): Node {
+    const list = state.settings.bonusList;
+    const wrap = document.createElement('div');
+    wrap.className = 'shop-bonus';
+    if (state.bonusOffer && list.length) {
+      const offer = document.createElement('div');
+      offer.className = 'shop-bonus__offer';
+      offer.dataset.role = 'bonus-offer';
+      const text = document.createElement('p');
+      text.textContent = t('bonus.offer');
+      offer.append(
+        text,
+        button({
+          label: t('bonus.draw'),
+          variant: 'primary',
+          action: 'draw-bonus',
+          onClick: () =>
+            void run(async () => {
+              drawn = await bonus.draw();
+            }),
+        }),
+      );
+      wrap.append(offer);
+    }
+    if (drawn) {
+      const result = document.createElement('p');
+      result.className = 'shop-bonus__result';
+      result.dataset.role = 'bonus-result';
+      result.setAttribute('role', 'status');
+      result.textContent = t('bonus.result', { title: drawn });
+      wrap.append(result);
+    }
+
+    const rows = document.createElement('ul');
+    rows.className = 'ui-list';
+    rows.dataset.role = 'bonus-list';
+    for (const entry of list)
+      rows.append(
+        listRow({
+          title: entry,
+          trailing: iconButton({
+            icon: 'close',
+            label: t('bonus.remove', { title: entry }),
+            action: 'remove-bonus',
+            onClick: () => void run(() => bonus.remove(entry)),
+          }),
+        }),
+      );
+
+    const form = document.createElement('form');
+    form.noValidate = true;
+    const label = document.createElement('label');
+    label.textContent = t('bonus.entry');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'bonus-title';
+    input.value = bonusDraft;
+    input.addEventListener('input', () => (bonusDraft = input.value));
+    label.append(input);
+    const err = document.createElement('p');
+    err.setAttribute('role', 'alert');
+    err.dataset.role = 'bonus-error';
+    err.textContent = bonusError;
+    err.hidden = !bonusError;
+    form.append(
+      label,
+      err,
+      button({
+        label: t('bonus.add'),
+        variant: 'secondary',
+        type: 'submit',
+        action: 'add-bonus',
+      }),
+    );
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      void run(async () => {
+        await bonus.add(bonusDraft);
+        bonusDraft = '';
+      });
+    });
+
+    const details = document.createElement('details');
+    details.className = 'tasks-add__details';
+    details.open = bonusOpen || !!bonusError;
+    details.addEventListener('toggle', () => (bonusOpen = details.open));
+    const sum = document.createElement('summary');
+    sum.textContent = t('bonus.heading');
+    const hint = document.createElement('p');
+    hint.className = 'shop-bonus__hint';
+    hint.textContent = t('bonus.hint');
+    details.append(sum, hint, rows, form);
+    wrap.append(details);
+    return wrap;
   }
 
   async function render() {
@@ -217,6 +323,8 @@ export function mountRewards(
       sum.textContent = t('rewards.add');
       add.append(sum, form);
       children.push(add);
+
+      if (deps.bonus) children.push(bonusSection(state, deps.bonus));
 
       if (state.redemptions.length) {
         const log = document.createElement('ul');
