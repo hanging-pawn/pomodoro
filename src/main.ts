@@ -23,6 +23,7 @@ import { mountDataPanel } from './data/panel';
 import { mountSyncPanel } from './sync/panel';
 import { createSync } from './sync/sync';
 import { mountPrivacyLink } from './privacy/notice';
+import { createBonus } from './rewards/bonus';
 import { createShop } from './rewards/shop';
 import { mountRewards } from './rewards/view';
 import { createInventory } from './tasks/inventory';
@@ -215,7 +216,10 @@ if (rewardsRoot)
     const shop = createShop({ log: s });
     // First start: seed the localized template rewards once (FR-408).
     await shop.ensureSeeded(i18n.locale);
-    mountRewards(rewardsRoot, i18n, shop, { state: () => s.state() });
+    mountRewards(rewardsRoot, i18n, shop, {
+      state: () => s.state(),
+      bonus: createBonus({ log: s }),
+    });
   });
 
 const privacyRoot = document.getElementById('privacy');
