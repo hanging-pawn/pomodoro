@@ -117,13 +117,15 @@ export interface TodayView {
 }
 
 export function todayView(state: AppState, now: number): TodayView {
-  const tasks = (state.plans[dayKey(now)] ?? [])
+  const day = dayKey(now);
+  // Unplanned tasks of today have their own list; one left over from an earlier day is planned
+  // like any other task (POMO-91).
+  const urgentToday = (t: Task) => !!t.unplanned && dayKey(t.createdAt) === day;
+  const tasks = (state.plans[day] ?? [])
     .map((id) => state.tasks[id])
-    .filter((t): t is Task => !!t && !t.done && !t.unplanned);
+    .filter((t): t is Task => !!t && !t.done && !urgentToday(t));
   const unplanned = Object.values(state.tasks)
-    .filter(
-      (t) => t.unplanned && !t.done && dayKey(t.createdAt) === dayKey(now),
-    )
+    .filter((t) => urgentToday(t) && !t.done)
     .sort((a, b) => a.createdAt - b.createdAt);
   const ids = new Set(tasks.map((t) => t.id));
   // A subtask already counted through its planned parent adds nothing (FR-209).
