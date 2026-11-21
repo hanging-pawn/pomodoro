@@ -255,6 +255,25 @@ describe('Today screen (FR-610, FR-604)', () => {
     expect(timer.view.taskId).toBe('b');
   });
 
+  it('a Horizon pick starts a round even with nothing planned today (FR-607, POMO-90)', async () => {
+    const { root, timer } = await setup([
+      newEvent(
+        'task.created',
+        { taskId: 'b', title: 'Slides', estimate: 1 },
+        4,
+      ),
+      newEvent('plan.changed', { day: dayKey(NOW), taskIds: [] }, 5),
+    ]);
+    expect(root.querySelector('[data-role="empty"]')).not.toBeNull();
+    document.dispatchEvent(new CustomEvent(PICK_TASK, { detail: 'b' }));
+    const start = q(root, 'start') as HTMLButtonElement | null;
+    expect(start?.disabled).toBe(false);
+    start!.click();
+    await flush();
+    expect(timer.view.phase).toBe('focus');
+    expect(timer.view.taskId).toBe('b');
+  });
+
   it('flexible mode offers Pause in the round, strict only Abort (FR-107)', async () => {
     const strict = await setup();
     q(strict.root, 'start')!.click();
