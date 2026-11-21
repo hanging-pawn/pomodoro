@@ -76,6 +76,8 @@ export interface AppState {
   /** Balance: finished rounds, set bonus, flexible partial credit, minus redemptions (FR-401–403). */
   coins: number;
   redemptions: (EventPayloads['reward.redeemed'] & { at: number })[];
+  /** A full set finished since the last bonus draw: the app offers a draw (FR-406). */
+  bonusOffer: boolean;
   settings: Settings;
   /** Time of the latest round end or plan change (task or Today plan edited); 0 = none (FR-603). */
   pathChangedAt: number;
@@ -110,6 +112,7 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
     projects: {},
     coins: 0,
     redemptions: [],
+    bonusOffer: false,
     settings: { ...DEFAULT_SETTINGS },
     pathChangedAt: 0,
   };
@@ -162,8 +165,10 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         if (
           rounds.get(e.payload.pomodoroId)?.mode !== 'flexible' &&
           state.pomodoros.completed % settings.setSize === 0
-        )
+        ) {
           state.coins += settings.setBonus;
+          state.bonusOffer = true;
+        }
         const task = state.tasks[pomodoroTask.get(e.payload.pomodoroId) ?? ''];
         if (task) task.actual += 1;
         state.rounds.push({
@@ -219,6 +224,9 @@ export function deriveState(log: readonly DomainEvent[]): AppState {
         task.ticked = e.payload.done ? [...rest, e.payload.bullet] : rest;
         break;
       }
+      case 'bonus.drawn':
+        state.bonusOffer = false;
+        break;
       case 'project.targeted':
         if (e.payload.date)
           state.projects[e.payload.project] = { targetDate: e.payload.date };
