@@ -62,6 +62,27 @@ describe('createRepoClient', () => {
     expect(seen).toEqual(['Grüezi – ciao 🍅\n'.repeat(20), null]);
   });
 
+  it('reads a file over the contents size limit through the blob API (POMO-89)', async () => {
+    const gh = createFakeGitHub();
+    gh.largeFileBytes = 100;
+    const big = '{"id":"x"}\n'.repeat(50);
+    gh.pushFromElsewhere('log.txt', big);
+    const client = createRepoClient({
+      repo: REPO,
+      token: TOKEN,
+      fetch: gh.fetch,
+    });
+    let seen: string | null = null;
+
+    await client.commit('read', async (read) => {
+      seen = await read('log.txt');
+      return null;
+    });
+
+    expect(seen).toBe(big);
+    expect(gh.requests.some((u) => u.includes('/git/blobs/'))).toBe(true);
+  });
+
   it('makes no commit when nothing would change', async () => {
     const gh = createFakeGitHub();
     gh.pushFromElsewhere('same.txt', 'x');
