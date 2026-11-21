@@ -90,11 +90,22 @@ export function createRepoClient(options: RepoClientOptions): RepoClient {
     const cache = new Map<string, Promise<string | null>>();
     const fetchFile = async (path: string) => {
       try {
-        const file = await call<{ content: string }>(
+        const file = await call<{
+          content?: string;
+          encoding?: string;
+          sha: string;
+        }>('GET', `/contents/${encodePath(path)}?ref=${parent}`);
+        if (file.encoding === 'base64' && file.content !== undefined)
+          return fromBase64(file.content);
+        // Files of 1-100 MB come back with content "" and encoding "none"; the blob API still
+        // returns them as base64. Never read such a file as empty: that would overwrite it.
+        const blob = await call<{ content?: string; encoding?: string }>(
           'GET',
-          `/contents/${encodePath(path)}?ref=${parent}`,
+          `/git/blobs/${file.sha}`,
         );
-        return fromBase64(file.content);
+        if (blob.encoding !== 'base64' || blob.content === undefined)
+          throw new Error(`GET ${path}: content not available`);
+        return fromBase64(blob.content);
       } catch (e) {
         if (e instanceof GitHubError && e.status === 404) return null;
         throw e;
