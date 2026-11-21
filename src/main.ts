@@ -12,6 +12,7 @@ import { mountSettings } from './settings/view';
 import { mountShell, type Screen } from './shell/shell';
 import { mountBetaPanel } from './beta/panel';
 import { createBetaSession } from './beta/session';
+import { wireBetaSession } from './beta/wiring';
 import { createUsageLog } from './beta/usage';
 import { APP_VERSION, OWN_REPO_SYNC } from './config';
 import { maybeShowLogin, mountBetaReminder, openLogin } from './beta/login';
@@ -94,7 +95,7 @@ const betaSession = createBetaSession({
   lang: () => i18n.locale,
   appVersion: APP_VERSION,
 });
-document.addEventListener(DATA_CHANGED, () => betaSession.changed());
+wireBetaSession(document, betaSession);
 // Back in front: merge what the other devices did meanwhile.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') void betaSession.pull();
