@@ -27,6 +27,8 @@ export interface Settings {
   streakEnabled: boolean;
   /** Remaining time as digits all the time instead of on tap only (FR-606). */
   digitsAlways: boolean;
+  /** The user's own random-bonus list, drawn from after a full set (FR-406). */
+  bonusList: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
   streakGraceDays: 1,
   streakEnabled: true,
   digitsAlways: false,
+  bonusList: [],
 };
 
 export type Recurrence = 'daily' | 'weekdays' | 'weekly';
@@ -110,7 +113,7 @@ export interface EventPayloads {
   /** Marks that the localized template rewards were written once, so deleting them sticks. */
   'rewards.seeded': { locale: string };
   'reward.redeemed': { rewardId: string; title: string; price: number };
-  /** A random bonus was drawn from the user's own list after a full set (FR-406); the projection ignores it. */
+  /** A random bonus was drawn from the user's own list after a full set (FR-406); it takes the pending offer. */
   'bonus.drawn': { title: string };
   /** A bullet point of a task ticked or unticked, matched by its text (FR-609); not a path event, the timer is unaffected. */
   'task.bullet-ticked': { taskId: string; bullet: string; done: boolean };
