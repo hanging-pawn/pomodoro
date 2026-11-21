@@ -89,6 +89,34 @@ describe('sync (NFR-10)', () => {
     expect(await titles(b.store)).toEqual(['Write report']);
   });
 
+  it('a log over 1 MB on GitHub is still merged, not overwritten (POMO-89)', async () => {
+    gh.largeFileBytes = 200;
+    const a = await device();
+    const b = await device();
+    for (let i = 0; i < 5; i++)
+      await a.store.append(
+        newEvent('task.created', {
+          taskId: `a${i}`,
+          title: `A${i}`,
+          estimate: 1,
+        }),
+      );
+    expect(await a.sync.connect(REPO, TOKEN)).toBe('synced');
+    expect(
+      new TextEncoder().encode(gh.file(SYNC_FILE)!).length,
+    ).toBeGreaterThan(200);
+    await b.store.append(
+      newEvent('task.created', { taskId: 'b0', title: 'B0', estimate: 1 }),
+    );
+    expect(await b.sync.connect(REPO, TOKEN)).toBe('synced');
+    await a.sync.sync();
+
+    const all = ['A0', 'A1', 'A2', 'A3', 'A4', 'B0'];
+    expect(await titles(a.store)).toEqual(all);
+    expect(await titles(b.store)).toEqual(all);
+    expect(gh.file(SYNC_FILE)!.trim().split('\n')).toHaveLength(6);
+  });
+
   it('A and B change one task each offline → after sync both changes are present', async () => {
     const a = await device();
     const b = await device();
