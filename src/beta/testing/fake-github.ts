@@ -29,6 +29,11 @@ export interface FakeGitHub {
   pushFromElsewhere: (path: string, content: string) => void;
   /** Called once before the next ref update is applied (to simulate a race). */
   beforeNextRefUpdate?: () => void;
+  /**
+   * Files at least this many bytes come back from /contents with content "" and encoding "none",
+   * as GitHub does from 1 MB on; only /git/blobs returns them. Defaults to 1 MB.
+   */
+  largeFileBytes: number;
 }
 
 export function createFakeGitHub(
@@ -64,9 +69,13 @@ export function createFakeGitHub(
 
   const prefix = `https://api.github.com/repos/${repo}`;
 
+  /** Blob sha → content, filled when /contents names a blob. */
+  const blobs = new Map<string, string>();
+
   const fake: FakeGitHub = {
     requests: [],
     offline: false,
+    largeFileBytes: 1024 * 1024,
     commits: () => [...added],
     file: (path) => filesAt(head).get(path),
     pushFromElsewhere(path, content) {
@@ -119,6 +128,19 @@ export function createFakeGitHub(
         const content = commits.has(ref)
           ? filesAt(ref).get(filePath)
           : undefined;
+        if (content === undefined) return json(404, { message: 'Not Found' });
+        const blob = sha();
+        blobs.set(blob, content);
+        return new TextEncoder().encode(content).length >= fake.largeFileBytes
+          ? json(200, { encoding: 'none', content: '', sha: blob })
+          : json(200, {
+              encoding: 'base64',
+              content: toBase64(content),
+              sha: blob,
+            });
+      }
+      if (method === 'GET' && path.startsWith('/git/blobs/')) {
+        const content = blobs.get(path.slice('/git/blobs/'.length));
         return content === undefined
           ? json(404, { message: 'Not Found' })
           : json(200, { encoding: 'base64', content: toBase64(content) });
